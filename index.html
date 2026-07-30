@@ -173,13 +173,12 @@
             const destello = document.getElementById('destello');
             const mainFrame = document.getElementById('mainFrame');
 
-            // ═══════ SOLO MOSTRAR SPLASH LA PRIMERA VEZ ═══════
-            if (sessionStorage.getItem('itzli_splash_done')) {
+            // ═══════ SALTAR SPLASH SI VIENE DE LA MISMA WEB (NAVBAR) ═══════
+            if (document.referrer.includes(window.location.hostname)) {
                 splash.style.display = 'none';
                 mainFrame.style.display = 'block';
                 return;
             }
-            sessionStorage.setItem('itzli_splash_done', 'true');
 
             const audio = new Audio('assets/audio/trueno.mp3');
             audio.play().catch(e => {});
