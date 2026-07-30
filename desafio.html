@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI FRACTAL CORE — Desafío Hacker</title>
+    <meta name="description" content="$1,000,000 USD a quien pueda hackear ITZTLI FRACTAL CORE. 90 días. ¿Aceptas el reto?">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #050510; --card: #0d0d28; --border: #1a1a4a;
+            --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88;
+            --red: #ff4444; --text: #e0e0e0; --dim: #8899aa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Times New Roman', Times, serif; line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Times New Roman', Times, serif; font-weight: 700; }
+        
+        /* ═══════════ NAVBAR ESTÁNDAR (BILINGÜE) ═══════════ */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(5,5,16,0.95); border-bottom: 1px solid var(--border);
+            padding: 1.2rem 2rem; display: flex; justify-content: space-between;
+            align-items: center; backdrop-filter: blur(12px);
+        }
+        .navbar .brand { font-family: 'Orbitron', sans-serif; color: var(--gold); font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .navbar .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .navbar .nav-links a { color: var(--dim); text-decoration: none; font-size: 1.3rem; transition: 0.3s; font-family: 'Times New Roman', Times, serif; font-weight: 600; }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--red); }
+        
+        /* ═══════════ BOTÓN DE IDIOMA ═══════════ */
+        .lang-btn { background: transparent; border: none; cursor: pointer; font-size: 2.2rem; transition: 0.3s; line-height: 1; }
+        .lang-btn:hover { transform: scale(1.1); }
+        @media (max-width: 768px) { 
+            .navbar { padding: 1rem; } 
+            .navbar .brand { font-size: 1.4rem; } 
+            .navbar .nav-links { gap: 1rem; } 
+            .navbar .nav-links a { font-size: 1rem; } 
+            .lang-btn { font-size: 1.8rem; } 
+        }
+
+        /* ═══════════ CONTENIDO OCULTO POR IDIOMA ═══════════ */
+        .lang-es, .lang-en { display: block; }
+        .lang-en { display: none; } /* Por defecto, ocultamos el inglés */
+
+        /* ═══════════ PARTÍCULAS ═══════════ */
+        .particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .particle { position: absolute; width: 2px; height: 2px; background: var(--cyan); border-radius: 50%; animation: float 8s infinite ease-in-out; opacity: 0.4; }
+        @keyframes float { 0%,100%{transform:translateY(0)translateX(0);opacity:.2} 25%{transform:translateY(-80px)translateX(30px);opacity:.6} 50%{transform:translateY(-160px)translateX(-20px);opacity:.3} 75%{transform:translateY(-80px)translateX(-40px);opacity:.7} }
+
+        /* ═══════════ HERO ═══════════ */
+        .hero-challenge {
+            background: radial-gradient(ellipse at 50% 0%, #2a0a0a 0%, #1a0a0a 50%, var(--bg) 100%);
+            min-height: 90vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 8rem 2rem 4rem; position: relative; overflow: hidden;
+        }
+        .hero-challenge h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2.5rem, 6vw, 4.5rem); color: var(--red); margin-bottom: 1rem; text-shadow: 0 0 40px rgba(255,68,68,0.5); }
+        .hero-challenge .prize { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; color: var(--gold); font-family: 'Orbitron', sans-serif; margin: 1rem 0; text-shadow: 0 0 50px rgba(226,160,63,0.6); }
+        
+        .hero-challenge .subtitle { 
+            font-size: 1.3rem; 
+            color: var(--dim); 
+            max-width: 700px; 
+            margin: 0 auto 2rem; 
+            text-align: center; 
+            line-height: 1.6;
+        }
+        .hero-challenge .deadline { font-size: 1.5rem; color: var(--cyan); font-weight: 700; margin: 1rem 0; }
+        
+        .btn {
+            background: var(--gold); color: var(--bg); padding: 16px 32px; border: none; font-weight: 700;
+            cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s;
+            font-family: 'Orbitron', sans-serif; font-size: 1rem; border-radius: 10px; letter-spacing: 1px; margin: 0.5rem;
+        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(226,160,63,0.5); }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-red:hover { box-shadow: 0 0 40px rgba(255,68,68,0.5); }
+        .btn-outline { background: transparent; border: 2px solid var(--cyan); color: var(--cyan); }
+        
+        /* ═══════════ CONTAINER ═══════════ */
+        .container { max-width: 1100px; margin: auto; padding: 2rem 2rem; }
+        .section-title { font-size: 2.2rem; text-align: center; color: var(--cyan); margin-bottom: 1rem; }
+        .section-subtitle { text-align: center; color: var(--dim); margin-bottom: 2rem; font-size: 1.1rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        
+        /* PRIZE CARDS */
+        .prize-grid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 2rem; 
+            margin: 2rem 0; 
+        }
+        .prize-card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 2rem; 
+            text-align: center; 
+            transition: 0.4s; 
+            width: 320px;
+            flex: 0 0 320px;
+        }
+        .prize-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .prize-card.bronze:hover { border-color: #cd7f32; }
+        .prize-card.silver:hover { border-color: #c0c0c0; }
+        .prize-card.gold:hover { border-color: var(--gold); }
+        .prize-card.diamond:hover { border-color: var(--cyan); }
+        .prize-card .medal { font-size: 3rem; margin-bottom: 0.5rem; }
+        .prize-card .amount { font-size: 2.5rem; font-weight: 900; font-family: 'Orbitron', sans-serif; margin: 1rem 0; }
+        .prize-card .desc { color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem; }
+        .prize-card .difficulty { font-size: 0.8rem; color: var(--green); }
+        
+        /* RULES */
+        .rules-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin: 2rem 0; }
+        .rules-box h3 { color: var(--gold); margin-bottom: 1rem; }
+        .rules-box ol { color: var(--dim); padding-left: 1.5rem; }
+        .rules-box ol li { padding: 0.5rem 0; font-size: 1rem; }
+        
+        /* TIMER */
+        .timer-section { text-align: center; padding: 3rem; background: var(--card); border: 2px solid var(--red); border-radius: 20px; margin: 2rem 0; }
+        .timer-section h3 { color: var(--red); font-size: 1.5rem; margin-bottom: 1rem; }
+        .timer { font-size: 3rem; font-weight: 900; font-family: 'Orbitron', sans-serif; color: var(--gold); }
+        
+        /* FAQ */
+        .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; cursor: pointer; transition: 0.3s; }
+        .faq-item:hover { border-color: var(--cyan); }
+        .faq-item h4 { color: var(--cyan); margin-bottom: 0.5rem; }
+        .faq-item .answer { color: var(--dim); display: none; }
+        .faq-item.open .answer { display: block; }
+        
+        footer { text-align: center; padding: 2rem; background: var(--bg); border-top: 1px solid var(--border); color: var(--dim); font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
+        footer .brand { font-weight: 700; color: var(--gold); }
+        
+        @media (max-width: 768px) {
+            .hero-challenge { padding: 6rem 1rem 3rem; }
+            .container { padding: 1.5rem 1rem; }
+            .section-title { font-size: 1.6rem; }
+            .navbar { padding: 1rem; }
+            .navbar .brand { font-size: 1.4rem; }
+            .navbar .nav-links { gap: 1rem; }
+            .navbar .nav-links a { font-size: 1rem; }
+            .prize-card { width: 100%; flex: 0 0 100%; max-width: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════ NAVBAR (BILINGÜE) ═══════════════ -->
+    <nav class="navbar">
+        <a href="original.html" class="brand">ITZTLI FRACTAL</a>
+        <div class="nav-links">
+            <a href="original.html" class="lang-es">Inicio</a>
+            <a href="original.html" class="lang-en" style="display:none;">Home</a>
+            
+            <a href="productos.html" class="lang-es">Productos</a>
+            <a href="productos.html" class="lang-en" style="display:none;">Products</a>
+            
+            <a href="desarrolladores.html" class="lang-es">Desarrolladores</a>
+            <a href="desarrolladores.html" class="lang-en" style="display:none;">Developers</a>
+            
+            <a href="desafio.html" class="active lang-es">🏴‍☠️ Desafío</a>
+            <a href="desafio.html" class="active lang-en" style="display:none;">🏴‍☠️ Challenge</a>
+            
+            <a href="original.html#contacto" class="lang-es">Contacto</a>
+            <a href="original.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            
+            <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
+        </div>
+    </nav>
+
+    <!-- ═══════════════ HERO (CON PARTÍCULAS) ═══════════════ -->
+    <section class="hero-challenge">
+        <div class="particles" id="particles"></div>
+        
+        <div class="lang-es">
+            <h1>DESAFÍO HACKER ITZTLI</h1>
+            <div class="prize">$1,000,000 USD</div>
+            <p class="subtitle">
+                Eso es lo que ofrecemos a quien pueda hackear nuestro sistema.<br>
+                Dos chips. Una clave. Cero transmisión. <strong>¿Puedes romperlo?</strong>
+            </p>
+            <p class="deadline">⏰ 90 DÍAS • El reloj corre</p>
+            <div>
+                <a href="desarrolladores.html#kit-prueba" class="btn btn-red">🏴‍☠️ DESCARGAR FIRMWARE</a>
+            </div>
+        </div>
+        
+        <div class="lang-en">
+            <h1>ITZTLI HACKER CHALLENGE</h1>
+            <div class="prize">$1,000,000 USD</div>
+            <p class="subtitle">
+                That's what we offer to anyone who can hack our system.<br>
+                Two chips. One key. Zero transmission. <strong>Can you break it?</strong>
+            </p>
+            <p class="deadline">⏰ 90 DAYS • The clock is ticking</p>
+            <div>
+                <a href="desarrolladores.html#kit-prueba" class="btn btn-red">🏴‍☠️ DOWNLOAD FIRMWARE</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ PREMIOS (CENTRADOS Y MÁS GRANDES) ═══════════════ -->
+    <div class="container" id="premios">
+        <div class="lang-es">
+            <h2 class="section-title">💰 Premios del Desafío</h2>
+            <p class="section-subtitle">Cuatro niveles. Cada uno más difícil. Cada uno mejor recompensado.</p>
+        </div>
+        <div class="lang-en">
+            <h2 class="section-title">💰 Challenge Prizes</h2>
+            <p class="section-subtitle">Four levels. Each harder. Each better rewarded.</p>
+        </div>
+        
+        <div class="prize-grid">
+            <div class="prize-card bronze">
+                <div class="medal">🥉</div>
+                <div class="lang-es"><h3>BRONCE</h3></div>
+                <div class="lang-en" style="display:none;"><h3>BRONZE</h3></div>
+                <div class="amount" style="color:#cd7f32;">$500</div>
+                <div class="lang-es"><p class="desc">Intercepta <strong>UNA</strong> clave entre LIA y BOB</p></div>
+                <div class="lang-en" style="display:none;"><p class="desc">Intercept <strong>ONE</strong> key between LIA and BOB</p></div>
+                <div class="lang-es"><p class="difficulty">Probabilidad real: ~0%</p></div>
+                <div class="lang-en" style="display:none;"><p class="difficulty">Real probability: ~0%</p></div>
+            </div>
+            <div class="prize-card silver">
+                <div class="medal">🥈</div>
+                <div class="lang-es"><h3>PLATA</h3></div>
+                <div class="lang-en" style="display:none;"><h3>SILVER</h3></div>
+                <div class="amount" style="color:#c0c0c0;">$5,000</div>
+                <div class="lang-es"><p class="desc">Genera la <strong>MISMA</strong> clave sin conocer la semilla</p></div>
+                <div class="lang-en" style="display:none;"><p class="desc">Generate the <strong>SAME</strong> key without knowing the seed</p></div>
+                <div class="lang-es"><p class="difficulty">Probabilidad real: ~0%</p></div>
+                <div class="lang-en" style="display:none;"><p class="difficulty">Real probability: ~0%</p></div>
+            </div>
+            <div class="prize-card gold">
+                <div class="medal">🥇</div>
+                <div class="lang-es"><h3>ORO</h3></div>
+                <div class="lang-en" style="display:none;"><h3>GOLD</h3></div>
+                <div class="amount" style="color:var(--gold);">$50,000</div>
+                <div class="lang-es"><p class="desc">Toma <strong>CONTROL TOTAL</strong> de ambos chips</p></div>
+                <div class="lang-en" style="display:none;"><p class="desc">Take <strong>TOTAL CONTROL</strong> of both chips</p></div>
+                <div class="lang-es"><p class="difficulty">Probabilidad real: ~0.001%</p></div>
+                <div class="lang-en" style="display:none;"><p class="difficulty">Real probability: ~0.001%</p></div>
+            </div>
+            <div class="prize-card diamond">
+                <div class="medal">👑</div>
+                <div class="lang-es"><h3>DIAMANTE</h3></div>
+                <div class="lang-en" style="display:none;"><h3>DIAMOND</h3></div>
+                <div class="amount" style="color:var(--cyan);">$1,000,000</div>
+                <div class="lang-es"><p class="desc">Demuestra que el algoritmo <strong>NO ES SEGURO</strong></p></div>
+                <div class="lang-en" style="display:none;"><p class="desc">Prove the algorithm <strong>IS NOT SECURE</strong></p></div>
+                <div class="lang-es"><p class="difficulty">Probabilidad real: ~0.0001%</p></div>
+                <div class="lang-en" style="display:none;"><p class="difficulty">Real probability: ~0.0001%</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ REGLAS (CON LOS NUEVOS TÉRMINOS) ═══════════════ -->
+    <div class="container">
+        <div class="rules-box">
+            <div class="lang-es"><h3>📜 Reglas Oficiales y Términos del Desafío</h3></div>
+            <div class="lang-en" style="display:none;"><h3>📜 Official Rules & Challenge Terms</h3></div>
+            
+            <div class="lang-es">
+                <ol>
+                    <li><strong>Lo que pierdes:</strong> Al aceptar el desafío, solo perderás tu <strong>tiempo</strong> y los <strong>2 chips ESP32</strong> que uses. Una vez que cargues nuestro firmware en tus chips, <strong>quedarán bloqueados exclusivamente para este desafío</strong> y no podrán ser utilizados para ningún otro propósito.</li>
+                    <li><strong>Límite de intentos:</strong> Cada chip tendrá un límite de <strong>100 intentos</strong> de sincronización. Después de agotarlos, el chip se bloqueará permanentemente.</li>
+                    <li><strong>Desbloqueo:</strong> Para seguir intentando, deberás adquirir una suscripción de <strong>$29.99 USD </strong>. Esta suscripción te dará un nuevo lote de 100 intentos adicionales.</li>
+                    <li><strong>Duración:</strong> La promoción del desafío tiene una duración de <strong>90 días</strong> a partir de la fecha de inicio oficial. Pasado ese tiempo, el desafío finaliza y los premios se declaran desiertos si no hay ganador.</li>
+                    <li><strong>Monitorización:</strong> Durante el desafío, tu chip se comunicará con un panel de control especial diseñado para celulares. En este panel podrás ver un <strong>registro detallado de tus intentos, fracasos y progresos</strong> en tiempo real.</li>
+                    <li><strong>Requisitos:</strong> Descarga el firmware gratuito desde nuestra página de <a href="desarrolladores.html#kit-prueba" style="color:var(--cyan);">Desarrolladores</a>. Compra 2 ESP32 o usa los que ya tengas. Carga LIA en uno y BOB en el otro.</li>
+                    <li><strong>Método:</strong> Intenta hackearlos usando CUALQUIER método. Si logras alguno de los objetivos, envía tu prueba a <strong style="color:var(--gold);">Contacto@itztlifractal.com</strong>.</li>
+                    <li><strong>Pago:</strong> El premio se paga en USD por transferencia bancaria o criptomonedas.</li>
+                </ol>
+                <p style="margin-top:1rem; color:var(--gold); font-weight:bold; font-size:1.1rem;">
+                    ⚠️ NOTA: No hay reembolsos. La suscripción de $29.99 es para reactivar los intentos y no está sujeta a devolución.
+                </p>
+            </div>
+            
+            <div class="lang-en" style="display:none;">
+                <ol>
+                    <li><strong>What you lose:</strong> By accepting the challenge, you will only lose your <strong>time</strong> and the <strong>2 ESP32 chips</strong> you use. Once you upload our firmware to your chips, <strong>they will be locked exclusively for this challenge</strong> and cannot be used for any other purpose.</li>
+                    <li><strong>Attempt limit:</strong> Each chip will have a limit of <strong>100 synchronization attempts</strong>. After reaching this limit, the chip will permanently lock.</li>
+                    <li><strong>Unlock:</strong> To keep trying, you must purchase a <strong>$29.99 USD subscription </strong>. This subscription will give you a new batch of 100 additional attempts.</li>
+                    <li><strong>Duration:</strong> The challenge promotion lasts for <strong>90 days</strong> from the official start date. After that period, the challenge ends, and prizes are declared void if there is no winner.</li>
+                    <li><strong>Monitoring:</strong> During the challenge, your chip will communicate with a special dashboard designed for cell phones. On this dashboard, you can view a <strong>detailed log of your attempts, failures, and progress</strong> in real-time.</li>
+                    <li><strong>Requirements:</strong> Download the free firmware from our <a href="desarrolladores.html#kit-prueba" style="color:var(--cyan);">Developers</a> page. Buy 2 ESP32s or use the ones you already have. Upload LIA to one and BOB to the other.</li>
+                    <li><strong>Method:</strong> Try to hack them using ANY method. If you achieve any of the objectives, send your proof to <strong style="color:var(--gold);">Contacto@itztlifractal.com</strong>.</li>
+                    <li><strong>Payment:</strong> The prize is paid in USD via bank transfer or cryptocurrency.</li>
+                </ol>
+                <p style="margin-top:1rem; color:var(--gold); font-weight:bold; font-size:1.1rem;">
+                    ⚠️ NOTE: No refunds. The $29.99 subscription is to reactivate attempts and is non-refundable.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ TIMER ═══════════════ -->
+    <div class="container">
+        <div class="timer-section">
+            <div class="lang-es"><h3>⏰ TIEMPO RESTANTE</h3></div>
+            <div class="lang-en" style="display:none;"><h3>⏰ TIME REMAINING</h3></div>
+            <div class="timer" id="timer">--</div>
+            <div class="lang-es"><p style="color:var(--dim);margin-top:1rem;">El desafío termina el 22 de octubre de 2026</p></div>
+            <div class="lang-en" style="display:none;"><p style="color:var(--dim);margin-top:1rem;">The challenge ends on October 22, 2026</p></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ FAQ ═══════════════ -->
+    <div class="container">
+        <div class="lang-es"><h2 class="section-title">❓ Preguntas Frecuentes</h2></div>
+        <div class="lang-en" style="display:none;"><h2 class="section-title">❓ Frequently Asked Questions</h2></div>
+        
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="lang-es"><h4>¿Realmente van a pagar?</h4></div>
+            <div class="lang-en" style="display:none;"><h4>Will you really pay?</h4></div>
+            <div class="lang-es answer">Sí. El premio está respaldado por contrato legal. Si logras hackearnos, te pagamos. Punto.</div>
+            <div class="lang-en answer">Yes. The prize is backed by a legal contract. If you hack us, we pay you. Period.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="lang-es"><h4>¿Qué pasa si NADIE lo logra?</h4></div>
+            <div class="lang-en" style="display:none;"><h4>What if NO ONE succeeds?</h4></div>
+            <div class="lang-es answer">Habremos demostrado que ITZTLI FRACTAL CORE es realmente el sistema de seguridad mas confible del mundo .</div>
+            <div class="lang-en answer">We will have proven that ITZTLI is truly the most reliable security system in the world.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="lang-es"><h4>¿Puedo usar cualquier método?</h4></div>
+            <div class="lang-en" style="display:none;"><h4>Can I use any method?</h4></div>
+            <div class="lang-es answer">Sí. WiFi, Bluetooth, acceso físico, ingeniería inversa, fuerza bruta, ataques cuánticos... lo que quieras.</div>
+            <div class="lang-en answer">Yes. WiFi, Bluetooth, physical access, reverse engineering, brute force, quantum attacks... whatever you want.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="lang-es"><h4>¿Necesito equipo especial?</h4></div>
+            <div class="lang-en" style="display:none;"><h4>Do I need special equipment?</h4></div>
+            <div class="lang-es answer">Para Bronce y Plata, solo necesitas 2 ESP32 y una laptop. Para Oro y Diamante, probablemente necesites equipo de laboratorio.</div>
+            <div class="lang-en answer">For Bronze and Silver, you only need 2 ESP32s and a laptop. For Gold and Diamond, you'll probably need lab equipment.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="lang-es"><h4>¿Puedo compartir los chips con otros?</h4></div>
+            <div class="lang-en" style="display:none;"><h4>Can I share the chips with others?</h4></div>
+            <div class="lang-es answer">No. Cada chip está vinculado a tu cuenta y a tu correo electrónico. Los intentos son personales e intransferibles.</div>
+            <div class="lang-en answer">No. Each chip is linked to your account and email. Attempts are personal and non-transferable.</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ CTA FINAL ═══════════════ -->
+    <div class="container" style="text-align:center;">
+        <div class="lang-es">
+            <h2 class="section-title">¿Aceptas el Reto?</h2>
+            <p class="section-subtitle">Descarga el firmware. Compra 2 ESP32. Intenta hackearnos. El reloj corre.</p>
+            <a href="desarrolladores.html#kit-prueba" class="btn btn-red" style="font-size:1.2rem;padding:20px 40px;">🏴‍☠️ DESCARGAR FIRMWARE</a>
+        </div>
+        <div class="lang-en" style="display:none;">
+            <h2 class="section-title">Do You Accept the Challenge?</h2>
+            <p class="section-subtitle">Download the firmware. Buy 2 ESP32s. Try to hack us. The clock is ticking.</p>
+            <a href="desarrolladores.html#kit-prueba" class="btn btn-red" style="font-size:1.2rem;padding:20px 40px;">🏴‍☠️ DOWNLOAD FIRMWARE</a>
+        </div>
+    </div>
+
+    <!-- ═══════════════ FOOTER BILINGÜE ═══════════════ -->
+    <div class="lang-es">
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — El Sistema Nervioso de la Tecnología
+        </footer>
+    </div>
+    <div class="lang-en" style="display:none;">
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — The Nervous System of Technology
+        </footer>
+    </div>
+
+    <script>
+        // Partículas
+        const pc = document.getElementById('particles');
+        if(pc){for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}}
+
+        // Lógica de cambio de idioma
+        let isSpanish = true;
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            const btn = document.getElementById('langBtn');
+            const esContent = document.querySelectorAll('.lang-es');
+            const enContent = document.querySelectorAll('.lang-en');
+            
+            if(isSpanish) {
+                btn.innerHTML = '🇲🇽';
+                document.documentElement.lang = 'es';
+                esContent.forEach(el => el.style.display = 'block');
+                enContent.forEach(el => el.style.display = 'none');
+            } else {
+                btn.innerHTML = '🇺🇸';
+                document.documentElement.lang = 'en';
+                esContent.forEach(el => el.style.display = 'none');
+                enContent.forEach(el => el.style.display = 'block');
+            }
+        }
+
+        // Timer
+        const deadline = new Date('2026-10-22T23:59:59');
+        function updateTimer() {
+            const now = new Date();
+            const diff = deadline - now;
+            if (diff <= 0) {
+                document.getElementById('timer').textContent = '¡DESAFÍO TERMINADO!';
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('timer').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>

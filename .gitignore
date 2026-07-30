@@ -1,0 +1,21 @@
+﻿# NUNCA SUBIR - CLAVES SECRETAS
+.env
+*.env
+**/secrets/**
+**/private/**
+
+# Node
+node_modules/
+npm-debug.log
+
+# Arduino
+*.ino
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Respaldos
+*.bak
+*_backup.txt

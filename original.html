@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI FRACTAL CORE — Inicio</title>
+    <meta name="description" content="Sincronización caótica sin transmisión de claves. Inhackeable por naturaleza.">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg: #050510; --card: #0d0d28; --border: #1a1a4a; --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88; --red: #ff4444; --text: #e0e0e0; --dim: #8899aa; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Times New Roman', Times, serif; line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Times New Roman', Times, serif; font-weight: 700; }
+        
+        /* ═══════════ NAVBAR ESTÁNDAR ═══════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: rgba(5,5,16,0.95); border-bottom: 1px solid var(--border); padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); }
+        .navbar .brand { font-family: 'Orbitron', sans-serif; color: var(--gold); font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .navbar .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .navbar .nav-links a { color: var(--dim); text-decoration: none; font-size: 1.3rem; transition: 0.3s; font-family: 'Times New Roman', Times, serif; font-weight: 600; }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--cyan); }
+        
+        /* ═══════════ ESTILO ESPECIAL PARA LA PESTAÑA DESAFÍO (ROJO Y CALAVERA GRANDE) ═══════════ */
+        .navbar .nav-links a.challenge-link {
+            color: var(--red);
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .navbar .nav-links a.challenge-link:hover, .navbar .nav-links a.challenge-link.active {
+            color: #ff7777;
+            text-shadow: 0 0 25px rgba(255, 68, 68, 0.6);
+        }
+        .navbar .nav-links a.challenge-link .skull-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px rgba(255, 68, 68, 0.4));
+            display: inline-block;
+        }
+        
+        /* ═══════════ BOTÓN DE IDIOMA ═══════════ */
+        .lang-btn { background: transparent; border: none; cursor: pointer; font-size: 2.2rem; transition: 0.3s; line-height: 1; }
+        .lang-btn:hover { transform: scale(1.1); }
+        @media (max-width: 768px) { 
+            .navbar { padding: 1rem; } 
+            .navbar .brand { font-size: 1.4rem; } 
+            .navbar .nav-links { gap: 1rem; } 
+            .navbar .nav-links a { font-size: 1rem; } 
+            .navbar .nav-links a.challenge-link { font-size: 1.2rem; }
+            .navbar .nav-links a.challenge-link .skull-icon { font-size: 1.4rem; }
+            .lang-btn { font-size: 1.8rem; } 
+        }
+
+        /* ═══════════ CONTENIDO OCULTO POR IDIOMA ═══════════ */
+        .lang-es, .lang-en { display: block; }
+        .lang-en { display: none; } /* Por defecto, ocultamos el inglés */
+        
+        /* ═══════════ HERO Y SECCIONES ═══════════ */
+        .hero { background: radial-gradient(ellipse at 50% 0%, #1a1a4e 0%, #0a0a1e 50%, var(--bg) 100%); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 7rem 2rem 2rem; position: relative; overflow: hidden; }
+        .particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .particle { position: absolute; width: 2px; height: 2px; background: var(--cyan); border-radius: 50%; animation: float 8s infinite ease-in-out; opacity: 0.4; }
+        @keyframes float { 0%,100%{transform:translateY(0)translateX(0);opacity:.2} 25%{transform:translateY(-80px)translateX(30px);opacity:.6} 50%{transform:translateY(-160px)translateX(-20px);opacity:.3} 75%{transform:translateY(-80px)translateX(-40px);opacity:.7} }
+        .hero-content { position: relative; z-index: 1; width: 100%; max-width: 100%; }
+        .hero h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); background: linear-gradient(135deg, var(--cyan), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.2rem; letter-spacing: 2px; }
+        .hero .tagline { font-size: clamp(1.2rem, 2.5vw, 2.4rem); color: var(--gold); font-style: italic; margin-bottom: 2rem; text-align: center; font-family: 'Times New Roman', Times, serif; font-weight: 700; }
+        .hero-image-container { width: calc(100% - 20px); max-width: 100%; margin: 0 auto 2rem; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+        .hero-image-container img { width: 100%; height: auto; display: block; }
+        
+        .container { max-width: 1200px; margin: auto; padding: 2rem 2rem; }
+        .section-title { font-size: 2.6rem; text-align: center; color: var(--cyan); margin-bottom: 1rem; font-family: 'Times New Roman', Times, serif; font-weight: 700; }
+        .section-subtitle { text-align: center; color: var(--dim); margin-bottom: 2rem; font-size: 1.1rem; max-width: 700px; margin-left: auto; margin-right: auto; font-family: 'Times New Roman', Times, serif; }
+        
+        .validation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1rem 0; }
+        @media (max-width: 768px) { .validation-grid { grid-template-columns: 1fr; } }
+        .validation-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; }
+        .validation-table { width: 100%; border-collapse: collapse; }
+        .validation-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
+        .validation-table .passed { color: var(--green); font-weight: bold; }
+        .validation-table .label { color: var(--dim); }
+        .validation-table .victory { color: var(--gold); font-weight: bold; }
+        .infografia-container { width: calc(100% - 20px); max-width: 100%; margin: 1rem auto 2rem; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+        .infografia-container img { width: 100%; height: auto; display: block; }
+        
+        .contact-box { max-width: 700px; margin: auto; background: var(--card); padding: 3rem; border-radius: 20px; border: 1px solid var(--border); }
+        .contact-box input, .contact-box textarea { width: 100%; padding: 14px; margin-bottom: 1.2rem; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 1.1rem; font-family: 'Times New Roman', Times, serif; }
+        .btn { background: var(--gold); color: var(--bg); padding: 14px 28px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; border-radius: 8px; letter-spacing: 1px; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(226,160,63,0.4); }
+        
+        footer { text-align: center; padding: 2rem; background: var(--bg); border-top: 1px solid var(--border); color: var(--dim); font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
+        footer .brand { font-weight: 700; color: var(--gold); }
+        @media (max-width: 768px) { .hero { padding: 6rem 1rem 2rem; min-height: auto; } .section-title { font-size: 2rem; } }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════ NAVBAR ═══════════════ -->
+    <nav class="navbar">
+        <a href="original.html" class="brand">ITZTLI FRACTAL</a>
+        <div class="nav-links">
+            <a href="original.html" class="active lang-es" id="nav-inicio-es">Inicio</a>
+            <a href="original.html" class="active lang-en" id="nav-inicio-en" style="display:none;">Home</a>
+            
+            <a href="productos.html" class="lang-es" id="nav-productos-es">Productos</a>
+            <a href="productos.html" class="lang-en" id="nav-productos-en" style="display:none;">Products</a>
+            
+            <a href="desarrolladores.html" class="lang-es" id="nav-desarrolladores-es">Desarrolladores</a>
+            <a href="desarrolladores.html" class="lang-en" id="nav-desarrolladores-en" style="display:none;">Developers</a>
+            
+            <a href="desafio.html" class="challenge-link lang-es" id="nav-desafio-es"><span class="skull-icon">🏴‍☠️</span> Desafío</a>
+            <a href="desafio.html" class="challenge-link lang-en" id="nav-desafio-en" style="display:none;"><span class="skull-icon">🏴‍☠️</span> Challenge</a>
+            
+            <a href="#contacto" class="lang-es" id="nav-contacto-es">Contacto</a>
+            <a href="#contacto" class="lang-en" id="nav-contacto-en" style="display:none;">Contact</a>
+            
+            <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
+        </div>
+    </nav>
+
+    <!-- ═══════════════ CONTENIDO ESPAÑOL ═══════════════ -->
+    <div class="lang-es">
+        <!-- HERO -->
+        <section class="hero" id="inicio">
+            <div class="particles" id="particles"></div>
+            <div class="hero-content">
+                <h1>ITZTLI FRACTAL CORE</h1>
+                <p class="tagline">"El Sistema Nervioso de la Tecnología"</p>
+                <div class="hero-image-container">
+                    <!-- RUTA ESPAÑOL -->
+                    <img src="imagenes/banner-superpowers.png" alt="Reprogramación, Seguridad y Auto-Reparación">
+                </div>
+            </div>
+        </section>
+
+        <div class="container" id="productos">
+            <h2 class="section-title">¿Por Qué Somos Totalmente Inhackeables?</h2>
+            <p class="section-subtitle">La clave NUNCA existe fuera del chip que la genera.</p>
+            <div class="cards-image-container" style="width: calc(100% - 20px); max-width: 100%; margin: 0 auto 2rem; border-radius: 16px; overflow: hidden; border: 1px solid var(--border);">
+                <!-- RUTA ESPAÑOL -->
+                <img src="imagenes/seis-tarjetas.png" alt="6 Razones de seguridad" style="width: 100%; height: auto; display: block;">
+            </div>
+        </div>
+
+        <div class="container" id="desarrolladores">
+            <h2 class="section-title">Validación Científica ⚔️ 5 Atacantes</h2>
+            <div class="validation-grid">
+                <div class="validation-box">
+                    <h3>📊 Pruebas de Rendimiento</h3>
+                    <table class="validation-table">
+                        <tr><td class="label">Sincronización (1,000,000 claves)</td><td class="passed">1,000,000/1,000,000 ✅ 100%</td></tr>
+                        <tr><td class="label">Sincronización (10,000 claves - estrés)</td><td class="passed">10,000/10,000 ✅ 100%</td></tr>
+                        <tr><td class="label">NIST SP 800-22</td><td class="passed">100/100 pruebas ✅</td></tr>
+                        <tr><td class="label">TestU01 BigCrush</td><td class="passed">All tests passed ✅</td></tr>
+                        <tr><td class="label">PractRand (256 GB)</td><td class="passed">0 FAIL ✅</td></tr>
+                        <tr><td class="label">Desconexión WiFi (recuperación)</td><td class="passed">Hasta 5+ minutos ✅</td></tr>
+                        <tr><td class="label">Sin batería (recuperación)</td><td class="passed">Miles de años ⚡ (re-sincronización perfecta)</td></tr>
+                    </table>
+                </div>
+                <div class="validation-box">
+                    <h3>⚔️ Defensa Contra Atacantes</h3>
+                    <table class="validation-table">
+                        <tr><td><strong>🔴 EVE</strong></td><td>Espionaje pasivo</td><td>0/100</td><td class="passed">DERROTADA ✅</td></tr>
+                        <tr><td><strong>🔴 MALLORY</strong></td><td>MITM</td><td>0/100</td><td class="passed">DERROTADA ✅</td></tr>
+                        <tr><td><strong>🔴 OSCAR</strong></td><td>Replay</td><td>0/100</td><td class="passed">DERROTADO ✅</td></tr>
+                        <tr><td><strong>🔴 TRUDY</strong></td><td>Diccionario</td><td>0/100</td><td class="passed">DERROTADA ✅</td></tr>
+                        <tr><td><strong>🔴 VICTOR</strong></td><td>Fuerza bruta</td><td>0/10,000</td><td class="passed">DERROTADO ✅</td></tr>
+                        <tr><td><strong>🟢 LIA, BOB y ALICE</strong></td><td>Sincronización legítima</td><td><strong>100/100</strong></td><td class="victory">VICTORIA 🏆</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2 class="section-title">Organismos Digitales que Creamos</h2>
+            <div class="infografia-container">
+                <!-- RUTA ESPAÑOL -->
+                <img src="imagenes/infografia-grande.png" alt="Infografía del Sistema ITZTLI">
+            </div>
+        </div>
+
+        <div class="container" id="contacto">
+            <h2 class="section-title">📡 Contacto</h2>
+            <p class="section-subtitle">¿Listo para construir el futuro con ITZTLI?</p>
+            <div class="contact-box">
+                <form name="contacto-es" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <input type="hidden" name="form-name" value="contacto-es">
+                    <p style="display:none;"><label>No llenar: <input name="bot-field"></label></p>
+                    <input type="text" name="nombre" placeholder="Nombre o Empresa" required>
+                    <input type="email" name="correo" placeholder="Correo electrónico" required>
+                    <textarea name="mensaje" rows="5" placeholder="¿Qué te gustaría construir con ITZTLI?" required></textarea>
+                    <button class="btn" type="submit" style="width:100%;">Enviar Mensaje</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- FOOTER EN ESPAÑOL -->
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE</span> — El Sistema Nervioso de la Tecnología
+        </footer>
+    </div>
+
+    <!-- ═══════════════ CONTENIDO INGLÉS ═══════════════ -->
+    <div class="lang-en">
+        <!-- HERO -->
+        <section class="hero" id="inicio">
+            <div class="particles" id="particles"></div>
+            <div class="hero-content">
+                <h1>ITZTLI FRACTAL CORE</h1>
+                <p class="tagline">"The Nervous System of Technology"</p>
+                <div class="hero-image-container">
+                    <!-- RUTA INGLÉS (Dentro de carpeta imagenes/ingles) -->
+                    <img src="imagenes/ingles/banner-superpowers-ingles.png" alt="Reprogramming, Security and Self-Repair">
+                </div>
+            </div>
+        </section>
+
+        <div class="container" id="productos">
+            <h2 class="section-title">Why Are We Totally Unhackable?</h2>
+            <p class="section-subtitle">The key NEVER exists outside the chip that generates it.</p>
+            <div class="cards-image-container" style="width: calc(100% - 20px); max-width: 100%; margin: 0 auto 2rem; border-radius: 16px; overflow: hidden; border: 1px solid var(--border);">
+                <!-- RUTA INGLÉS (Dentro de carpeta imagenes/ingles) -->
+                <img src="imagenes/ingles/seis-tarjetas-ingles.png" alt="6 Security Reasons" style="width: 100%; height: auto; display: block;">
+            </div>
+        </div>
+
+        <div class="container" id="desarrolladores">
+            <h2 class="section-title">Scientific Validation ⚔️ 5 Attackers</h2>
+            <div class="validation-grid">
+                <div class="validation-box">
+                    <h3>📊 Performance Tests</h3>
+                    <table class="validation-table">
+                        <tr><td class="label">Sync (1,000,000 keys)</td><td class="passed">1,000,000/1,000,000 ✅ 100%</td></tr>
+                        <tr><td class="label">Sync (10,000 keys - stress)</td><td class="passed">10,000/10,000 ✅ 100%</td></tr>
+                        <tr><td class="label">NIST SP 800-22</td><td class="passed">100/100 tests ✅</td></tr>
+                        <tr><td class="label">TestU01 BigCrush</td><td class="passed">All tests passed ✅</td></tr>
+                        <tr><td class="label">PractRand (256 GB)</td><td class="passed">0 FAIL ✅</td></tr>
+                        <tr><td class="label">WiFi Loss (Recovery)</td><td class="passed">Up to 5+ minutes ✅</td></tr>
+                        <tr><td class="label">No Battery (Recovery)</td><td class="passed">Thousands of years ⚡ (perfect re-sync)</td></tr>
+                    </table>
+                </div>
+                <div class="validation-box">
+                    <h3>⚔️ Defense Against Attackers</h3>
+                    <table class="validation-table">
+                        <tr><td><strong>🔴 EVE</strong></td><td>Passive Eavesdropping</td><td>0/100</td><td class="passed">DEFEATED ✅</td></tr>
+                        <tr><td><strong>🔴 MALLORY</strong></td><td>MITM</td><td>0/100</td><td class="passed">DEFEATED ✅</td></tr>
+                        <tr><td><strong>🔴 OSCAR</strong></td><td>Replay</td><td>0/100</td><td class="passed">DEFEATED ✅</td></tr>
+                        <tr><td><strong>🔴 TRUDY</strong></td><td>Dictionary</td><td>0/100</td><td class="passed">DEFEATED ✅</td></tr>
+                        <tr><td><strong>🔴 VICTOR</strong></td><td>Brute Force</td><td>0/10,000</td><td class="passed">DEFEATED ✅</td></tr>
+                        <tr><td><strong>🟢 LIA, BOB & ALICE</strong></td><td>Legitimate Sync</td><td><strong>100/100</strong></td><td class="victory">VICTORY 🏆</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2 class="section-title">Digital Organisms We Create</h2>
+            <div class="infografia-container">
+                <!-- RUTA INGLÉS (Dentro de carpeta imagenes/ingles) -->
+                <img src="imagenes/ingles/infografia-grande-ingles.png" alt="ITZTLI System Infographic">
+            </div>
+        </div>
+
+        <div class="container" id="contacto">
+            <h2 class="section-title">📡 Contact</h2>
+            <p class="section-subtitle">Ready to build the future with ITZTLI?</p>
+            <div class="contact-box">
+                <form name="contacto-en" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <input type="hidden" name="form-name" value="contacto-en">
+                    <p style="display:none;"><label>Don't fill: <input name="bot-field"></label></p>
+                    <input type="text" name="nombre" placeholder="Name or Company" required>
+                    <input type="email" name="correo" placeholder="Email" required>
+                    <textarea name="mensaje" rows="5" placeholder="What would you like to build with ITZTLI?" required></textarea>
+                    <button class="btn" type="submit" style="width:100%;">Send Message</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- FOOTER EN INGLÉS -->
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE</span> — The Nervous System of Technology
+        </footer>
+    </div>
+
+    <script>
+        // Partículas
+        const pc = document.getElementById('particles');
+        if(pc){for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}}
+        
+        // Lógica de cambio de idioma (Español <-> Inglés)
+        let isSpanish = true;
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            const btn = document.getElementById('langBtn');
+            const esContent = document.querySelectorAll('.lang-es');
+            const enContent = document.querySelectorAll('.lang-en');
+            
+            if(isSpanish) {
+                btn.innerHTML = '🇲🇽';
+                document.documentElement.lang = 'es';
+                esContent.forEach(el => el.style.display = 'block');
+                enContent.forEach(el => el.style.display = 'none');
+            } else {
+                btn.innerHTML = '🇺🇸';
+                document.documentElement.lang = 'en';
+                esContent.forEach(el => el.style.display = 'none');
+                enContent.forEach(el => el.style.display = 'block');
+            }
+        }
+    </script>
+</body>
+</html>

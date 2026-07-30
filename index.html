@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI FRACTAL CORE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: black;
+        }
+
+        /* Pantalla de presentación (splash) */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .logo-container {
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+        }
+
+        .logo-container img {
+            max-width: 80%;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.7); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Contenedor del rayo fractal */
+        #rayo-fractal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.05s linear;
+        }
+
+        /* Línea principal del rayo */
+        .rayo-linea {
+            position: absolute;
+            background: linear-gradient(180deg, #ffffff, #aaddff, #4488ff);
+            box-shadow: 0 0 20px #88aaff, 0 0 40px #2266cc;
+            border-radius: 2px;
+        }
+
+        /* Ramificaciones */
+        .rayo-rama {
+            position: absolute;
+            background: #bbddff;
+            box-shadow: 0 0 8px #88aaff;
+            border-radius: 1px;
+        }
+
+        /* Destello blanco final (lo conservamos) */
+        .destello-blanco {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease;
+        }
+
+        /* Estilo del iframe que contendrá la página original */
+        #mainFrame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de logo -->
+    <div id="splash">
+        <div class="logo-container">
+            <!-- RUTA CORREGIDA: Logo en la carpeta assets -->
+            <img src="assets/logo.jpg" alt="ITZTLI Fractal Core">
+        </div>
+    </div>
+
+    <!-- Contenedor del rayo fractal -->
+    <div id="rayo-fractal"></div>
+
+    <!-- Destello blanco final -->
+    <div id="destello" class="destello-blanco"></div>
+
+    <!-- Aquí se cargará tu página original -->
+    <iframe id="mainFrame" src="original.html"></iframe>
+
+    <script>
+        // Función para dibujar un rayo fractal con MUCHAS ramificaciones
+        function dibujarRayoFractal() {
+            const contenedor = document.getElementById('rayo-fractal');
+            contenedor.innerHTML = ''; // limpiar anteriores
+            contenedor.style.opacity = '1';
+
+            const ancho = window.innerWidth;
+            const alto = window.innerHeight;
+            
+            // Punto de inicio (centro superior) y fin (centro inferior)
+            const inicioX = ancho / 2;
+            const inicioY = 0;
+            const finX = ancho / 2 + (Math.random() - 0.5) * 100; // ligera desviación
+            const finY = alto;
+
+            // Generar puntos principales con zigzag más pronunciado
+            let puntos = [{x: inicioX, y: inicioY}];
+            let yActual = inicioY;
+            let xActual = inicioX;
+            
+            while (yActual < finY) {
+                yActual += Math.random() * 30 + 15; // segmentos más cortos para más ramas
+                xActual += (Math.random() - 0.5) * 80; // zigzag amplio
+                xActual = Math.min(ancho - 30, Math.max(30, xActual));
+                puntos.push({x: xActual, y: Math.min(finY, yActual)});
+            }
+            puntos.push({x: finX, y: finY});
+
+            // Dibujar segmentos principales
+            for (let i = 0; i < puntos.length - 1; i++) {
+                const p1 = puntos[i];
+                const p2 = puntos[i+1];
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const longitud = Math.hypot(dx, dy);
+                const angulo = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                const linea = document.createElement('div');
+                linea.className = 'rayo-linea';
+                linea.style.width = `${longitud}px`;
+                linea.style.height = `${Math.random() * 6 + 4}px`;
+                linea.style.left = `${p1.x}px`;
+                linea.style.top = `${p1.y}px`;
+                linea.style.transform = `rotate(${angulo}deg)`;
+                linea.style.transformOrigin = '0 0';
+                contenedor.appendChild(linea);
+
+                // === RAMIFICACIONES INTENSIFICADAS ===
+                // En cada punto intermedio (excepto el primero y último) y con alta probabilidad
+                if (i > 0 && i < puntos.length - 2) {
+                    // Primer nivel de ramas (casi siempre)
+                    if (Math.random() > 0.3) {
+                        const longitudRama = longitud * (0.4 + Math.random() * 0.6);
+                        const anguloRama = angulo + (Math.random() - 0.5) * 100;
+                        const ramaX = p2.x;
+                        const ramaY = p2.y;
+                        const ramaDx = Math.cos(anguloRama * Math.PI / 180) * longitudRama;
+                        const ramaDy = Math.sin(anguloRama * Math.PI / 180) * longitudRama;
+                        const rama = document.createElement('div');
+                        rama.className = 'rayo-rama';
+                        rama.style.width = `${longitudRama}px`;
+                        rama.style.height = `${Math.random() * 4 + 2}px`;
+                        rama.style.left = `${ramaX}px`;
+                        rama.style.top = `${ramaY}px`;
+                        rama.style.transform = `rotate(${anguloRama}deg)`;
+                        rama.style.transformOrigin = '0 0';
+                        contenedor.appendChild(rama);
+
+                        // Segundo nivel de ramas (subramas, más pequeñas) - MUY FRECUENTES
+                        if (Math.random() > 0.5) {
+                            const subLong = longitudRama * (0.3 + Math.random() * 0.4);
+                            const subAng = anguloRama + (Math.random() - 0.5) * 70;
+                            const subRama = document.createElement('div');
+                            subRama.className = 'rayo-rama';
+                            subRama.style.width = `${subLong}px`;
+                            subRama.style.height = `${Math.random() * 3 + 1}px`;
+                            subRama.style.left = `${ramaX + ramaDx * 0.7}px`;
+                            subRama.style.top = `${ramaY + ramaDy * 0.7}px`;
+                            subRama.style.transform = `rotate(${subAng}deg)`;
+                            subRama.style.transformOrigin = '0 0';
+                            contenedor.appendChild(subRama);
+                        }
+                    }
+                }
+            }
+
+            // Añadir algunas chispas o partículas (puntos brillantes) al azar
+            for (let s = 0; s < 40; s++) {
+                const chispa = document.createElement('div');
+                chispa.style.position = 'absolute';
+                chispa.style.width = `${Math.random() * 4 + 1}px`;
+                chispa.style.height = chispa.style.width;
+                chispa.style.backgroundColor = `rgba(255, 200, 100, ${Math.random() * 0.8 + 0.2})`;
+                chispa.style.borderRadius = '50%';
+                chispa.style.boxShadow = '0 0 6px gold';
+                chispa.style.left = `${Math.random() * ancho}px`;
+                chispa.style.top = `${Math.random() * alto}px`;
+                contenedor.appendChild(chispa);
+            }
+
+            // Desvanecer el rayo después de 0.3 segundos
+            setTimeout(() => {
+                contenedor.style.opacity = '0';
+            }, 300);
+        }
+
+        // Esperar a que la página cargue
+        window.addEventListener('load', function() {
+            const splash = document.getElementById('splash');
+            const destello = document.getElementById('destello');
+            const mainFrame = document.getElementById('mainFrame');
+
+            // RUTA CORREGIDA: Audio en la carpeta assets/audio
+            const audio = new Audio('assets/audio/trueno.mp3');
+            audio.play().catch(e => console.log("Audio no soportado"));
+
+            // Tiempo que se muestra el logo (3 segundos)
+            setTimeout(() => {
+                // === EFECTO DE RAYO FRACTAL ===
+                dibujarRayoFractal();
+
+                // Pequeña pausa para que el rayo se vea, luego destello blanco final
+                setTimeout(() => {
+                    // Destello blanco final (el que ya tenías)
+                    destello.style.opacity = '1';
+                    setTimeout(() => {
+                        destello.style.opacity = '0';
+                    }, 150);
+
+                    // Desvanecer el splash
+                    splash.style.opacity = '0';
+
+                    // Ocultar splash y mostrar iframe
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        mainFrame.style.display = 'block';
+                    }, 1000);
+                }, 200); // espera para que el rayo sea visible un instante
+            }, 3000); // 3 segundos viendo el logo
+        });
+    </script>
+</body>
+</html>

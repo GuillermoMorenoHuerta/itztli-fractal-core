@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI COMMAND CENTER — Un Anillo para Gobernarlos a Todos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --bg: #0a0a0f; --card: #12121f; --border: #1e1e3a;
+            --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88;
+            --red: #ff4444; --orange: #ff9100; --text: #e0e0e0; --dim: #8899aa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(0,180,216,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(226,160,63,0.05) 0%, transparent 50%);
+        }
+
+        .header {
+            background: rgba(18,18,31,0.95); border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem; display: flex; justify-content: space-between;
+            align-items: center; backdrop-filter: blur(12px);
+        }
+        .header .logo { 
+            font-family: 'Orbitron', sans-serif; color: var(--gold); 
+            font-size: 1.3rem; font-weight: 900; letter-spacing: 2px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .header .logo .ring { font-size: 1.8rem; animation: ringGlow 2s infinite; }
+        @keyframes ringGlow {
+            0%,100% { text-shadow: 0 0 10px rgba(226,160,63,0.5); }
+            50% { text-shadow: 0 0 30px rgba(226,160,63,1), 0 0 60px rgba(255,145,0,0.5); }
+        }
+        .status-dot { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--dim); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
+        .dot.online { background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .dot.offline { background: var(--red); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+        .dashboard { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 70px); }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+
+        .sidebar {
+            background: rgba(12,12,25,0.8); border-right: 1px solid var(--border);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 0.3rem;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: 8px; cursor: pointer;
+            transition: 0.3s; color: var(--dim); font-size: 0.9rem;
+            border: 1px solid transparent; text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0,180,216,0.1); border-color: var(--cyan); color: var(--cyan);
+        }
+        .nav-item i { width: 18px; text-align: center; }
+        .badge {
+            margin-left: auto; background: var(--red); color: white;
+            padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 900;
+        }
+
+        .main { padding: 2rem; overflow-y: auto; }
+        
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1.5rem; transition: 0.3s;
+            position: relative; overflow: hidden; cursor: pointer;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .stat-card.users::before { background: var(--cyan); }
+        .stat-card.devices::before { background: var(--green); }
+        .stat-card.revenue::before { background: var(--gold); }
+        .stat-card.attacks::before { background: var(--red); }
+        .stat-card .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .stat-card .stat-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; }
+        .stat-card .stat-label { color: var(--dim); font-size: 0.85rem; margin-top: 0.3rem; }
+
+        .table-container {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;
+        }
+        .table-header {
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .table-header h3 { font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            text-align: left; padding: 10px 14px; font-size: 0.75rem;
+            color: var(--dim); text-transform: uppercase; letter-spacing: 1px;
+            background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border);
+        }
+        td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+        tr:hover td { background: rgba(0,180,216,0.02); }
+
+        .badge-status {
+            display: inline-block; padding: 4px 10px; border-radius: 15px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .badge-status.online { background: rgba(0,255,136,0.15); color: var(--green); }
+        .badge-status.offline { background: rgba(136,153,170,0.15); color: var(--dim); }
+        .badge-status.premium { background: rgba(0,180,216,0.15); color: var(--cyan); }
+        .badge-status.platinum { background: rgba(226,160,63,0.15); color: var(--gold); }
+        .badge-status.demo { background: rgba(136,153,170,0.1); color: var(--dim); }
+
+        .btn {
+            background: var(--gold); color: var(--bg); padding: 8px 16px;
+            border: none; font-weight: 700; cursor: pointer; border-radius: 8px;
+            transition: 0.3s; font-size: 0.8rem; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .btn:hover { transform: scale(1.03); box-shadow: 0 0 20px rgba(226,160,63,0.4); }
+        .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--dim); }
+        .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+            padding: 12px 20px; border-radius: 10px; font-size: 0.85rem;
+            font-weight: 600; animation: slideIn 0.3s ease;
+            display: none; max-width: 400px;
+        }
+        .toast.show { display: block; }
+        .toast.success { background: rgba(0,255,136,0.2); border: 1px solid var(--green); color: var(--green); }
+        .toast.error { background: rgba(255,68,68,0.2); border: 1px solid var(--red); color: var(--red); }
+        @keyframes slideIn { from { opacity:0; transform:translateX(100px); } to { opacity:1; transform:translateX(0); } }
+
+        .connection-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600;
+        }
+        .connection-status.connected { background: rgba(0,255,136,0.1); color: var(--green); }
+        .connection-status.disconnected { background: rgba(255,68,68,0.1); color: var(--red); }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <span class="ring">💍</span> ITZTLI COMMAND CENTER
+        </div>
+        <div style="display:flex; gap:20px; align-items:center;">
+            <span id="connectionStatus" class="connection-status disconnected">
+                <span class="dot offline"></span> Desconectado
+            </span>
+            <span style="color:var(--dim);">|</span>
+            <span id="currentTime" style="font-family:'Orbitron',sans-serif; color:var(--cyan); font-size:0.9rem;"></span>
+            <button class="btn btn-sm" onclick="conectarSupabase()">🔌 Conectar</button>
+        </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="nav-item active" onclick="cargarVista('overview')">
+                <i class="fas fa-th-large"></i> Vista General
+            </div>
+            <div class="nav-item" onclick="cargarVista('usuarios')">
+                <i class="fas fa-users"></i> Usuarios <span class="badge" id="userCount">0</span>
+            </div>
+            <div class="nav-item" onclick="cargarVista('dispositivos')">
+                <i class="fas fa-microchip"></i> Dispositivos <span class="badge" id="deviceCount">0</span>
+            </div>
+            <div class="nav-item" onclick="cargarVista('licencias')">
+                <i class="fas fa-key"></i> Licencias
+            </div>
+            <div class="nav-item" onclick="cargarVista('transacciones')">
+                <i class="fas fa-credit-card"></i> Transacciones
+            </div>
+            <hr style="border-color:var(--border); margin:1rem 0;">
+            <a href="productos.html" class="nav-item" style="color:var(--gold);">
+                <i class="fas fa-external-link-alt"></i> Ver Sitio Web
+            </a>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+        </aside>
+
+        <main class="main" id="mainContent">
+            <div style="text-align:center; padding:4rem;">
+                <p style="font-size:4rem;">💍</p>
+                <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1rem;">
+                    UN ANILLO PARA GOBERNARLOS A TODOS
+                </h2>
+                <p style="color:var(--dim); margin-bottom:2rem;">
+                    Conecta Supabase para ver tus datos en tiempo real
+                </p>
+                <button class="btn" onclick="conectarSupabase()" style="font-size:1rem; padding:14px 28px;">
+                    🔌 Conectar a Supabase
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ═══════════════ CONFIGURACIÓN ═══════════════
+        const SUPABASE_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
+        
+        let supabase = null;
+        let datosLocales = {
+            usuarios: [
+                { id: '1', email: 'cliente1@itzli.com', nombre: 'Juan Pérez', plan: 'premium', created_at: '2026-01-15' },
+                { id: '2', email: 'cliente2@itzli.com', nombre: 'María García', plan: 'platinum', created_at: '2026-02-20' },
+                { id: '3', email: 'cliente3@itzli.com', nombre: 'Carlos López', plan: 'demo', created_at: '2026-06-01' }
+            ],
+            dispositivos: [
+                { id: '1', chip_id: 'CHIP-001', estado: 'online', licencia: 'NXP 32M', claves_generadas: 245000, ultima_sincro: new Date().toISOString() },
+                { id: '2', chip_id: 'CHIP-002', estado: 'online', licencia: 'STMicro 12M', claves_generadas: 180000, ultima_sincro: new Date().toISOString() },
+                { id: '3', chip_id: 'CHIP-003', estado: 'online', licencia: 'Microchip 3.3M', claves_generadas: 95000, ultima_sincro: new Date().toISOString() },
+                { id: '4', chip_id: 'CHIP-004', estado: 'offline', licencia: 'Bosch 8.5M', claves_generadas: 320000, ultima_sincro: '2026-07-20' },
+                { id: '5', chip_id: 'CHIP-005', estado: 'online', licencia: 'TI 5M', claves_generadas: 160000, ultima_sincro: new Date().toISOString() }
+            ],
+            licencias: [
+                { id: '1', fabricante: 'NXP', capacidad: '32M', activa: true },
+                { id: '2', fabricante: 'STMicro', capacidad: '12M', activa: true },
+                { id: '3', fabricante: 'Microchip', capacidad: '3.3M', activa: true },
+                { id: '4', fabricante: 'Bosch', capacidad: '8.5M', activa: true },
+                { id: '5', fabricante: 'TI', capacidad: '5M', activa: true }
+            ]
+        };
+
+        // ═══════════════ RELOJ ═══════════════
+        function updateClock() {
+            document.getElementById('currentTime').textContent = 
+                new Date().toLocaleString('es-MX', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ═══════════════ TOAST ═══════════════
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ═══════════════ CONEXIÓN A SUPABASE ═══════════════
+        async function conectarSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                
+                // Intentar obtener datos reales
+                const { data, error } = await supabase.from('usuarios').select('*');
+                
+                if (error) {
+                    console.warn('⚠️ Usando datos locales:', error.message);
+                    document.getElementById('connectionStatus').innerHTML = 
+                        '<span class="dot offline"></span> Modo Local';
+                    document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                    showToast('Usando datos locales (Supabase no disponible)', 'error');
+                } else if (data && data.length > 0) {
+                    datosLocales.usuarios = data;
+                    document.getElementById('connectionStatus').innerHTML = 
+                        '<span class="dot online"></span> Supabase Conectado';
+                    document.getElementById('connectionStatus').className = 'connection-status connected';
+                    showToast('✅ Conectado a Supabase', 'success');
+                    
+                    // Cargar más datos
+                    const [disp, lic] = await Promise.all([
+                        supabase.from('dispositivos').select('*'),
+                        supabase.from('licencias').select('*')
+                    ]);
+                    if (disp.data) datosLocales.dispositivos = disp.data;
+                    if (lic.data) datosLocales.licencias = lic.data;
+                }
+                
+                cargarVista('overview');
+            } catch (err) {
+                console.warn('⚠️ Error conectando:', err.message);
+                showToast('Usando datos locales', 'error');
+                cargarVista('overview');
+            }
+        }
+
+        // ═══════════════ CARGAR VISTAS ═══════════════
+        function cargarVista(vista) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            const d = datosLocales;
+            const main = document.getElementById('mainContent');
+            
+            if (vista === 'overview') {
+                const online = d.dispositivos.filter(x => x.estado === 'online').length;
+                const premium = d.usuarios.filter(x => x.plan !== 'demo').length;
+                const revenue = d.usuarios.filter(x => x.plan === 'premium').length * 29.99 + 
+                               d.usuarios.filter(x => x.plan === 'platinum').length * 49.99;
+                
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1.5rem; font-size:1.6rem;">
+                        💍 UN ANILLO PARA GOBERNARLOS A TODOS
+                    </h2>
+                    <div class="stats-grid">
+                        <div class="stat-card users">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-value">${d.usuarios.length}</div>
+                            <div class="stat-label">Usuarios Registrados</div>
+                        </div>
+                        <div class="stat-card devices">
+                            <div class="stat-icon">💻</div>
+                            <div class="stat-value">${online}/${d.dispositivos.length}</div>
+                            <div class="stat-label">Dispositivos Online</div>
+                        </div>
+                        <div class="stat-card revenue">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-value">$${revenue.toFixed(2)}</div>
+                            <div class="stat-label">Ingresos Mensuales (USD)</div>
+                        </div>
+                        <div class="stat-card attacks">
+                            <div class="stat-icon">🛡️</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Ataques Detectados</div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-microchip" style="color:var(--cyan);"></i> Dispositivos</h3>
+                            <button class="btn btn-sm" onclick="cargarVista('overview')"><i class="fas fa-sync-alt"></i> Actualizar</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>Chip ID</th><th>Licencia</th><th>Estado</th><th>Claves</th><th>Última Sincro</th></tr></thead>
+                            <tbody>
+                                ${d.dispositivos.map(disp => `
+                                    <tr>
+                                        <td style="font-family:'Courier New',monospace; color:var(--cyan);">${disp.chip_id}</td>
+                                        <td>${disp.licencia || disp.fabricante || 'N/A'}</td>
+                                        <td><span class="badge-status ${disp.estado}">${disp.estado}</span></td>
+                                        <td>${(disp.claves_generadas || 0).toLocaleString()}</td>
+                                        <td>${new Date(disp.ultima_sincro).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (vista === 'usuarios') {
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--cyan); margin-bottom:1.5rem;">👥 Usuarios</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Email</th><th>Nombre</th><th>Plan</th><th>Registro</th></tr></thead>
+                            <tbody>
+                                ${d.usuarios.map(u => `
+                                    <tr>
+                                        <td>${u.email}</td>
+                                        <td>${u.nombre || 'N/A'}</td>
+                                        <td><span class="badge-status ${u.plan}">${u.plan.toUpperCase()}</span></td>
+                                        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('userCount').textContent = d.usuarios.length;
+            } else if (vista === 'dispositivos') {
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--green); margin-bottom:1.5rem;">💻 Dispositivos</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Chip ID</th><th>Licencia</th><th>Estado</th><th>Claves</th></tr></thead>
+                            <tbody>
+                                ${d.dispositivos.map(disp => `
+                                    <tr>
+                                        <td style="font-family:'Courier New',monospace;">${disp.chip_id}</td>
+                                        <td>${disp.licencia || disp.fabricante || 'N/A'}</td>
+                                        <td><span class="badge-status ${disp.estado}">${disp.estado}</span></td>
+                                        <td>${(disp.claves_generadas || 0).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('deviceCount').textContent = d.dispositivos.length;
+            } else if (vista === 'licencias') {
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1.5rem;">🔑 Licencias</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Fabricante</th><th>Capacidad</th><th>Estado</th></tr></thead>
+                            <tbody>
+                                ${d.licencias.map(l => `
+                                    <tr>
+                                        <td>${l.fabricante}</td>
+                                        <td>${l.capacidad}</td>
+                                        <td><span class="badge-status ${l.activa ? 'online' : 'offline'}">${l.activa ? 'ACTIVA' : 'INACTIVA'}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (vista === 'transacciones') {
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1.5rem;">💳 Transacciones</h2>
+                    <div class="table-container">
+                        <div style="padding:3rem; text-align:center; color:var(--dim);">
+                            <p style="font-size:3rem;">💳</p>
+                            <p>Stripe será integrado en la siguiente fase</p>
+                            <p style="font-size:0.85rem;">Los pagos se procesarán a través de Stripe Connect</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ═══════════════ INICIAR ═══════════════
+        document.addEventListener('DOMContentLoaded', () => {
+            // Intentar conexión automática
+            conectarSupabase();
+        });
+    </script>
+</body>
+</html>

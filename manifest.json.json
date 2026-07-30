@@ -1,0 +1,35 @@
+{
+    "name": "ITZTLI FRACTAL CORE",
+    "short_name": "ITZTLI",
+    "description": "Sistema de sincronización caótica determinista para seguridad vehicular",
+    "start_url": "/login.html",
+    "display": "standalone",
+    "background_color": "#090a18",
+    "theme_color": "#090a18",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "assets/favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "imagenes/itzli-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "imagenes/itzli-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["security", "automotive", "utilities"],
+    "lang": "es",
+    "dir": "ltr",
+    "prefer_related_applications": false,
+    "scope": "/",
+    "id": "itzli-fractal-core-v1"
+}

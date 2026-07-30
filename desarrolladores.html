@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI FRACTAL CORE — Desarrolladores</title>
+    <meta name="description" content="Documentación técnica, descargas y demo de ITZTLI FRACTAL CORE.">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #050510; --card: #0d0d28; --border: #1a1a4a;
+            --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88;
+            --red: #ff4444; --text: #e0e0e0; --dim: #8899aa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Times New Roman', Times, serif; line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Times New Roman', Times, serif; font-weight: 700; }
+        
+        /* ═══════════ NAVBAR ESTÁNDAR (BILINGÜE) ═══════════ */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(5,5,16,0.95); border-bottom: 1px solid var(--border);
+            padding: 1.2rem 2rem; display: flex; justify-content: space-between;
+            align-items: center; backdrop-filter: blur(12px);
+        }
+        .navbar .brand { font-family: 'Orbitron', sans-serif; color: var(--gold); font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .navbar .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .navbar .nav-links a { color: var(--dim); text-decoration: none; font-size: 1.3rem; transition: 0.3s; font-family: 'Times New Roman', Times, serif; font-weight: 600; }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--cyan); }
+        
+        /* ═══════════ ESTILO ESPECIAL PARA LA PESTAÑA DESAFÍO (ROJO Y CALAVERA GRANDE) ═══════════ */
+        .navbar .nav-links a.challenge-link {
+            color: var(--red);
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .navbar .nav-links a.challenge-link:hover, .navbar .nav-links a.challenge-link.active {
+            color: #ff7777;
+            text-shadow: 0 0 25px rgba(255, 68, 68, 0.6);
+        }
+        .navbar .nav-links a.challenge-link .skull-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px rgba(255, 68, 68, 0.4));
+            display: inline-block;
+        }
+        
+        /* ═══════════ BOTÓN DE IDIOMA ═══════════ */
+        .lang-btn { background: transparent; border: none; cursor: pointer; font-size: 2.2rem; transition: 0.3s; line-height: 1; }
+        .lang-btn:hover { transform: scale(1.1); }
+        @media (max-width: 768px) { 
+            .navbar { padding: 1rem; } 
+            .navbar .brand { font-size: 1.4rem; } 
+            .navbar .nav-links { gap: 1rem; } 
+            .navbar .nav-links a { font-size: 1rem; } 
+            .navbar .nav-links a.challenge-link { font-size: 1.2rem; }
+            .navbar .nav-links a.challenge-link .skull-icon { font-size: 1.4rem; }
+            .lang-btn { font-size: 1.8rem; } 
+        }
+
+        /* ═══════════ CONTENIDO OCULTO POR IDIOMA ═══════════ */
+        .lang-es, .lang-en { display: block; }
+        .lang-en { display: none; } /* Por defecto, ocultamos el inglés */
+
+        /* ═══════════ PARTÍCULAS ═══════════ */
+        .particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .particle { position: absolute; width: 2px; height: 2px; background: var(--cyan); border-radius: 50%; animation: float 8s infinite ease-in-out; opacity: 0.4; }
+        @keyframes float { 0%,100%{transform:translateY(0)translateX(0);opacity:.2} 25%{transform:translateY(-80px)translateX(30px);opacity:.6} 50%{transform:translateY(-160px)translateX(-20px);opacity:.3} 75%{transform:translateY(-80px)translateX(-40px);opacity:.7} }
+
+        /* ═══════════ CONTENEDOR GENERAL ═══════════ */
+        .container { max-width: 1200px; margin: auto; padding: 2rem 2rem; }
+        .container-no-padding-top { padding-top: 0.5rem; }
+        
+        .section-title { 
+            font-size: 2.6rem; 
+            text-align: center; 
+            color: var(--cyan); 
+            margin-bottom: 1rem; 
+            font-family: 'Times New Roman', Times, serif; 
+            font-weight: 700; 
+        }
+        .section-subtitle { 
+            font-size: 1.4rem; 
+            text-align: center; 
+            color: var(--dim); 
+            margin-bottom: 2rem; 
+            max-width: 800px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            font-family: 'Times New Roman', Times, serif; 
+            font-weight: 500;
+        }
+
+        /* ═══════════ CONTENEDOR PARA IMAGEN DE PROGRAMACIÓN ═══════════ */
+        .image-container-full {
+            width: calc(100% - 20px);
+            max-width: 1000px;
+            margin: 0 auto 2rem;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .image-container-full img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ═══════════ TABLA COMPARATIVA ═══════════ */
+        .comparison-table { overflow-x: auto; margin: 1.5rem 0; }
+        .comparison-table table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .comparison-table th, .comparison-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        .comparison-table th { background: var(--card); color: var(--gold); font-size: 0.9rem; font-family: 'Times New Roman', Times, serif; }
+        .comparison-table td { font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
+        .comparison-table .winner { color: var(--green); font-weight: 700; }
+        .comparison-table .loser { color: var(--red); }
+        
+        /* ═══════════ VIDEO ═══════════ */
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; border: 2px solid var(--border); margin: 1.5rem 0; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        /* ═══════════ DESCARGA ═══════════ */
+        .download-box { background: linear-gradient(135deg, #1a1a3e, var(--bg)); border: 2px solid var(--green); border-radius: 20px; padding: 2.5rem; text-align: center; }
+        .download-box h3 { color: var(--green); font-size: 1.5rem; margin-bottom: 0.5rem; font-family: 'Times New Roman', Times, serif; }
+        .download-box p { color: var(--dim); font-size: 1rem; font-family: 'Times New Roman', Times, serif; }
+        
+        .btn { background: var(--gold); color: var(--bg); padding: 14px 28px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; border-radius: 8px; letter-spacing: 1px; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(226,160,63,0.4); }
+        .btn-green { background: var(--green); color: var(--bg); }
+        .btn-outline { background: transparent; border: 2px solid var(--cyan); color: var(--cyan); }
+        .btn-outline:hover { background: var(--cyan); color: var(--bg); }
+        
+        /* ═══════════ PASO A PASO ═══════════ */
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .step-card { text-align: center; padding: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: 0.3s; }
+        .step-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+        .step-card .step-num { font-size: 2.5rem; font-weight: 900; color: var(--gold); opacity: 0.3; font-family: 'Times New Roman', Times, serif; }
+        .step-card h3 { font-size: 1.2rem; color: var(--cyan); margin: 0.8rem 0; font-family: 'Times New Roman', Times, serif; }
+        .step-card p { color: var(--dim); font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
+
+        /* ═══════════ NUEVO CONTENEDOR PARA LA IMAGEN DE SINCRONIZACIÓN (Reemplaza el cuadro ASCII) ═══════════ */
+        .sync-image-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 1.5rem auto;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .sync-image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ═══════════ FOOTER ═══════════ */
+        footer { text-align: center; padding: 2rem; background: var(--bg); border-top: 1px solid var(--border); color: var(--dim); font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
+        footer .brand { font-weight: 700; color: var(--gold); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1.5rem 1rem; }
+            .section-title { font-size: 1.8rem; }
+            .section-subtitle { font-size: 1.1rem; }
+            .steps-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════ NAVBAR ═══════════════ -->
+    <nav class="navbar">
+        <a href="original.html" class="brand">ITZTLI FRACTAL</a>
+        <div class="nav-links">
+            <a href="original.html" class="lang-es">Inicio</a>
+            <a href="original.html" class="lang-en" style="display:none;">Home</a>
+            
+            <a href="productos.html" class="lang-es">Productos</a>
+            <a href="productos.html" class="lang-en" style="display:none;">Products</a>
+            
+            <a href="desarrolladores.html" class="active lang-es">Desarrolladores</a>
+            <a href="desarrolladores.html" class="active lang-en" style="display:none;">Developers</a>
+            
+            <a href="desafio.html" class="challenge-link lang-es"><span class="skull-icon">🏴‍☠️</span> Desafío</a>
+            <a href="desafio.html" class="challenge-link lang-en" style="display:none;"><span class="skull-icon">🏴‍☠️</span> Challenge</a>
+            
+            <a href="original.html#contacto" class="lang-es">Contacto</a>
+            <a href="original.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            
+            <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
+        </div>
+    </nav>
+
+    <!-- ═══════════════ PRIMERA SECCIÓN: CÓMO FUNCIONA ═══════════════ -->
+    <section class="hero" id="inicio" style="background: radial-gradient(ellipse at 50% 0%, #1a1a4e 0%, #0a0a1e 50%, var(--bg) 100%); min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 7rem 2rem 2rem; position: relative; overflow: hidden;">
+        <div class="particles" id="particles"></div>
+        <div class="hero-content" style="position: relative; z-index: 1; width: 100%; max-width: 100%;">
+            
+            <div class="lang-es">
+                <h1 style="font-family: 'Times New Roman', Times, serif; font-weight: 700; color: var(--cyan); font-size: 2.6rem; margin-bottom: 1rem;">Cómo Funciona Nuestra Reprogramación</h1>
+                <div class="image-container-full">
+                    <img id="img-programacion" src="imagenes/programacion.png" alt="Diagrama de reprogramación ITZTLI">
+                </div>
+            </div>
+            
+            <div class="lang-en">
+                <h1 style="font-family: 'Times New Roman', Times, serif; font-weight: 700; color: var(--cyan); font-size: 2.6rem; margin-bottom: 1rem;">How Our Reprogramming Works</h1>
+                <div class="image-container-full">
+                    <img id="img-programacion-en" src="imagenes/ingles/programacion-ingles.png" alt="ITZTLI Reprogramming Diagram">
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- ═══════════════ REPROGRAMACIÓN DESDE CELULAR (TABLA) ═══════════════ -->
+    <div class="lang-es">
+        <div class="container container-no-padding-top">
+            <h2 class="section-title">Reprogramación desde tu Celular</h2>
+            <!-- EL SUBTÍTULO HA SIDO ELIMINADO -->
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Programación Tradicional</th><th>ITZTLI FRACTAL CORE</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Equipo necesario</td><td class="loser">Programador físico + PC + cables</td><td class="winner">✅ Solo un navegador web</td></tr>
+                        <tr><td>Conexión física</td><td class="loser">Sí (USB, JTAG, SWD)</td><td class="winner">✅ No (WiFi/Internet)</td></tr>
+                        <tr><td>Software requerido</td><td class="loser">IDE + drivers + compilador</td><td class="winner">✅ Nada (solo navegador)</td></tr>
+                        <tr><td>Distancia máxima</td><td class="loser">2 metros (cable)</td><td class="winner">✅ Cualquier parte del mundo</td></tr>
+                        <tr><td>Tiempo por chip</td><td class="loser">30 min - 3 horas</td><td class="winner">✅ 30 segundos</td></tr>
+                        <tr><td>Chips simultáneos</td><td class="loser">1 a la vez</td><td class="winner">✅ Miles a la vez</td></tr>
+                        <tr><td>Detener producción</td><td class="loser">Sí (necesario)</td><td class="winner">✅ No (en caliente)</td></tr>
+                        <tr><td>Conocimiento requerido</td><td class="loser">Ingeniería electrónica</td><td class="winner">✅ Saber usar internet</td></tr>
+                        <tr><td>¿Hackeable remotamente?</td><td class="loser">Sí (contraseñas)</td><td class="winner">✅ No (token maestro secreto)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════════════ DEMOSTRACIÓN EN VIVO ═══════════════ -->
+        <div class="container container-no-padding-top">
+            <h2 class="section-title">Demostración de la Sincronización de dos Placas ESP32</h2>
+            <div class="video-container">
+                <!-- CAMBIA ESTO: Pega el ID de tu video de YouTube -->
+                <iframe src="https://www.youtube.com/embed/TU_VIDEO_ID" title="ITZTLI FRACTAL CORE Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p style="text-align:center;color:var(--dim);margin-top:1rem;font-family:'Times New Roman', Times, serif;">
+                <i class="fas fa-info-circle"></i> LIA y BOB generan la misma clave. EVE intercepta pero obtiene <strong style="color:var(--red);">94% de bits diferentes</strong>.
+            </p>
+        </div>
+
+        <!-- ═══════════════ PRUEBA ITZTLI - 100 SINCRONIZACIONES (CON ID kit-prueba) ═══════════════ -->
+        <div class="container container-no-padding-top" id="kit-prueba">
+            <h2 class="section-title">Prueba ITZTLI — 100 Sincronizaciones Gratis</h2>
+            <p class="section-subtitle">Sin registro. Sin tarjeta de crédito. Sin compromiso.</p>
+            <div class="download-box">
+                <h3>🔬 Kit de Prueba para 2 ESP32</h3>
+                <p style="margin-bottom: 1.5rem;">Descarga el firmware para 2 ESP32.</p>
+                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0;">
+                    <a href="firmware/itzli_lia_trial.ino" class="btn" download><i class="fas fa-download"></i> Firmware LIA (Maestro)</a>
+                    <a href="firmware/itzli_bob_trial.ino" class="btn btn-green" download><i class="fas fa-download"></i> Firmware BOB (Cliente)</a>
+                </div>
+                
+                <h3 style="color:var(--cyan); font-size:1.3rem; margin:2rem 0 1rem 0;">📡 Pasos para conectar LIA y BOB</h3>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-num">01</div>
+                        <h3>Carga los Firmwares</h3>
+                        <p>Descarga los archivos .ino. Abre cada uno en Arduino IDE. Configura tu SSID y contraseña WiFi.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">02</div>
+                        <h3>Carga LIA (Maestro)</h3>
+                        <p>Conecta el ESP32 #1, selecciona el puerto correcto y sube el firmware LIA.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">03</div>
+                        <h3>Carga BOB (Cliente)</h3>
+                        <p>Conecta el ESP32 #2, selecciona el puerto correcto y sube el firmware BOB.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">04</div>
+                        <h3>Abre los Monitores Seriales</h3>
+                        <p>Abre el Monitor Serial de ambos (115200 baud). Presiona RESET en ambos. ¡Observa cómo generan la MISMA clave!</p>
+                    </div>
+                </div>
+                
+                <!-- ═══════════════ NUEVO CONTENEDOR PARA LA IMAGEN DE SINCRONIZACIÓN ═══════════════ -->
+                <div class="sync-image-container">
+                    <!-- CAMBIA ESTO: Pon la ruta de tu captura de pantalla del celular sincronizado -->
+                    <img src="imagenes/sincronizacion-celular.png" alt="Captura de pantalla de la sincronización">
+                </div>
+                
+                <p style="color:var(--dim); font-size:0.9rem; margin-top:1rem;">
+                    <i class="fas fa-shield-alt"></i> Seguridad: El firmware solo contiene la URL de nuestra API.
+                </p>
+            </div>
+        </div>
+
+        <!-- FOOTER ESPAÑOL -->
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE</span> — El Sistema Nervioso de la Tecnología
+        </footer>
+    </div>
+
+    <!-- ═══════════════ CONTENIDO INGLÉS ═══════════════ -->
+    <div class="lang-en">
+        <div class="container container-no-padding-top">
+            <h2 class="section-title">Reprogramming from Your Cell Phone</h2>
+            <!-- SUBTITLE REMOVED -->
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr><th>Feature</th><th>Traditional Programming</th><th>ITZTLI FRACTAL CORE</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Hardware needed</td><td class="loser">Physical programmer + PC + cables</td><td class="winner">✅ Just a web browser</td></tr>
+                        <tr><td>Physical connection</td><td class="loser">Yes (USB, JTAG, SWD)</td><td class="winner">✅ No (WiFi/Internet)</td></tr>
+                        <tr><td>Software required</td><td class="loser">IDE + drivers + compiler</td><td class="winner">✅ Nothing (just a browser)</td></tr>
+                        <tr><td>Maximum distance</td><td class="loser">2 meters (cable)</td><td class="winner">✅ Anywhere in the world</td></tr>
+                        <tr><td>Time per chip</td><td class="loser">30 min - 3 hours</td><td class="winner">✅ 30 seconds</td></tr>
+                        <tr><td>Chips simultaneously</td><td class="loser">1 at a time</td><td class="winner">✅ Thousands at a time</td></tr>
+                        <tr><td>Stop production</td><td class="loser">Yes (required)</td><td class="winner">✅ No (hot-swap)</td></tr>
+                        <tr><td>Knowledge required</td><td class="loser">Electronic engineering</td><td class="winner">✅ Knowing how to use the internet</td></tr>
+                        <tr><td>Remotely hackable?</td><td class="loser">Yes (passwords)</td><td class="winner">✅ No (secret master token)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="container container-no-padding-top">
+            <h2 class="section-title">ESP32 Sync Demonstration</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/TU_VIDEO_ID" title="ITZTLI FRACTAL CORE Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p style="text-align:center;color:var(--dim);margin-top:1rem;font-family:'Times New Roman', Times, serif;">
+                <i class="fas fa-info-circle"></i> LIA and BOB generate the same key. EVE intercepts but gets <strong style="color:var(--red);">94% different bits</strong>.
+            </p>
+        </div>
+
+        <div class="container container-no-padding-top">
+            <h2 class="section-title">Try ITZTLI — 100 Free Synchronizations</h2>
+            <p class="section-subtitle">No registration. No credit card. No commitment.</p>
+            <div class="download-box">
+                <h3>🔬 Test Kit for 2 ESP32</h3>
+                <p style="margin-bottom: 1.5rem;">Download the firmware for 2 ESP32.</p>
+                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0;">
+                    <a href="firmware/itzli_lia_trial.ino" class="btn" download><i class="fas fa-download"></i> LIA Firmware (Master)</a>
+                    <a href="firmware/itzli_bob_trial.ino" class="btn btn-green" download><i class="fas fa-download"></i> BOB Firmware (Client)</a>
+                </div>
+                
+                <h3 style="color:var(--cyan); font-size:1.3rem; margin:2rem 0 1rem 0;">📡 Steps to connect LIA and BOB</h3>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-num">01</div>
+                        <h3>Flash the Firmware</h3>
+                        <p>Download the .ino files. Open each in Arduino IDE. Set your SSID and WiFi password.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">02</div>
+                        <h3>Flash LIA (Master)</h3>
+                        <p>Connect ESP32 #1, select the correct port and upload the LIA firmware.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">03</div>
+                        <h3>Flash BOB (Client)</h3>
+                        <p>Connect ESP32 #2, select the correct port and upload the BOB firmware.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">04</div>
+                        <h3>Open Serial Monitors</h3>
+                        <p>Open the Serial Monitor of both (115200 baud). Press RESET on both. Watch them generate the SAME key!</p>
+                    </div>
+                </div>
+                
+                <!-- ═══════════════ NUEVO CONTENEDOR PARA LA IMAGEN DE SINCRONIZACIÓN (INGLÉS) ═══════════════ -->
+                <div class="sync-image-container">
+                    <!-- CAMBIA ESTO: Pon la ruta de tu captura de pantalla del celular sincronizado en inglés -->
+                    <img src="imagenes/ingles/sincronizacion-celular-ingles.png" alt="Synchronization Screenshot">
+                </div>
+                
+                <p style="color:var(--dim); font-size:0.9rem; margin-top:1rem;">
+                    <i class="fas fa-shield-alt"></i> Security: The firmware only contains our API URL.
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE</span> — The Nervous System of Technology
+        </footer>
+    </div>
+
+    <script>
+        // ═══════════════ PARTÍCULAS ═══════════════
+        const pc = document.getElementById('particles');
+        if(pc){for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}}
+        
+        // ═══════════════ LÓGICA DE IDIOMA ═══════════════
+        let isSpanish = true;
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            const btn = document.getElementById('langBtn');
+            const esContent = document.querySelectorAll('.lang-es');
+            const enContent = document.querySelectorAll('.lang-en');
+            
+            if(isSpanish) {
+                btn.innerHTML = '🇲🇽';
+                document.documentElement.lang = 'es';
+                esContent.forEach(el => el.style.display = 'block');
+                enContent.forEach(el => el.style.display = 'none');
+                
+                // Imágenes en español
+                document.getElementById('img-programacion').src = 'imagenes/programacion.png';
+            } else {
+                btn.innerHTML = '🇺🇸';
+                document.documentElement.lang = 'en';
+                esContent.forEach(el => el.style.display = 'none');
+                enContent.forEach(el => el.style.display = 'block');
+                
+                // Imágenes en inglés
+                document.getElementById('img-programacion-en').src = 'imagenes/ingles/programacion-ingles.png';
+            }
+        }
+    </script>
+</body>
+</html>
