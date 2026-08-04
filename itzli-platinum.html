@@ -3,106 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITZTLI PLATINUM - Control Total</title>
-    
+    <title>ITZTLI PLATINUM — Control Total</title>
+
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ITZTLI PLATINUM">
     <meta name="theme-color" content="#050510">
-    
+    <meta name="description" content="ITZTLI FRACTAL CORE PLATINUM - Control total con cámaras, hot-swap y geolocalización avanzada.">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://js.stripe.com/v3/"></script>
-    
+
     <style>
         :root {
-            --bg: #090a18; --card: #12142e; --border: #2a2f5a;
-            --cyan: #00d4ff; --gold: #f5c542; --green: #00ff88;
-            --red: #ff4466; --yellow: #ffaa00; --text: #e8e8f0; --dim: #7a8aa0;
+            --bg: #0a0a1a;
+            --card: #14102e;
+            --border: #2a2f5a;
+            --gold: #f5c542;
+            --gold-light: #ffe484;
+            --cyan: #00d4ff;
+            --green: #00ff88;
+            --red: #ff4466;
+            --yellow: #ffaa00;
+            --text: #e8e8f0;
+            --dim: #8a8ab0;
             --font: 'Segoe UI', system-ui, sans-serif;
         }
-        
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg); color: var(--text);
-            font-family: var(--font);
-            line-height: 1.5; padding: 15px; max-width: 1100px; margin: auto;
+            font-family: var(--font); line-height: 1.5; padding: 15px; max-width: 1200px; margin: auto;
         }
-        
+
         .header {
-            text-align: center; padding: 30px 20px 15px;
-            margin-bottom: 20px; position: relative;
+            text-align: center; padding: 30px 20px 15px; margin-bottom: 20px; position: relative;
             border: 2px solid var(--gold); border-radius: 20px;
-            background: linear-gradient(135deg, rgba(245,197,66,0.05), rgba(0,212,255,0.05));
+            background: linear-gradient(135deg, rgba(245,197,66,0.08), rgba(0,212,255,0.03));
         }
         .header h1 {
             font-size: 28px;
-            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            background: linear-gradient(135deg, #f5c542, #ffaa00);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             letter-spacing: 2px; text-transform: uppercase;
         }
         .header .subtitle { color: var(--dim); font-size: 14px; margin-top: 4px; }
         .header .badge {
             display: inline-block;
-            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            background: linear-gradient(135deg, #f5c542, #e2a03f);
             color: #000; padding: 6px 20px; border-radius: 30px; font-weight: bold; font-size: 13px;
-            margin-top: 8px; box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+            margin-top: 8px; box-shadow: 0 0 25px rgba(245,197,66,0.4);
         }
-        
-        .header-buttons { 
-            position: absolute; top: 20px; right: 20px; 
-            display: flex; gap: 8px; flex-wrap: wrap; 
-        }
+
+        .header-buttons { position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
         @media (max-width: 600px) {
             .header-buttons { position: relative; top: 0; right: 0; justify-content: center; margin-bottom: 10px; }
             .header h1 { font-size: 22px; }
         }
-        
-        .lang-btn, .settings-btn, .logout-btn { 
-            background: transparent; border: 1px solid var(--border); 
-            border-radius: 8px; color: var(--text); padding: 5px 12px;
-            cursor: pointer; font-size: 13px; transition: 0.3s;
+
+        .lang-btn, .settings-btn, .logout-btn {
+            background: transparent; border: 1px solid var(--border); border-radius: 8px;
+            color: var(--text); padding: 5px 12px; cursor: pointer; font-size: 13px; transition: 0.3s;
         }
         .lang-btn:hover, .settings-btn:hover { border-color: var(--gold); color: var(--gold); }
         .logout-btn:hover { border-color: var(--red); color: var(--red); }
-        .lang-btn { background: rgba(0,212,255,0.1); border-color: var(--cyan); color: var(--cyan); font-weight: bold; }
-        .lang-btn:hover { background: var(--cyan); color: #000; }
-        
+        .lang-btn { background: rgba(245,197,66,0.1); border-color: var(--gold); color: var(--gold); font-weight: bold; }
+        .lang-btn:hover { background: var(--gold); color: #000; }
+
         .status-bar {
             display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 20px; margin-bottom: 20px;
-            font-size: 13px;
+            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 12px 20px; margin-bottom: 20px; font-size: 13px;
         }
         .status-bar span { display: flex; align-items: center; gap: 6px; }
         .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
         .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
-        .dot-yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+        .dot-gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
         .dot-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
-        
+
         .card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+            padding: 20px; margin-bottom: 20px;
         }
         .card-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; font-size: 15px; font-weight: bold;
-            color: var(--cyan);
+            margin-bottom: 15px; font-size: 15px; font-weight: bold; color: var(--gold);
         }
-        
+
         .hotswap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 600px) { .hotswap-grid { grid-template-columns: 1fr; } }
         .hotswap-card {
-            border: 2px solid var(--border); border-radius: 12px; padding: 15px;
-            background: rgba(0,0,0,0.3);
+            border: 2px solid var(--border); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.3);
         }
         .hotswap-card.fail { border-color: var(--red); background: rgba(255,68,102,0.05); }
         .hotswap-card.success { border-color: var(--green); background: rgba(0,255,136,0.05); }
         .hotswap-card h4 { font-size: 13px; margin-bottom: 4px; display: flex; gap: 8px; }
         .hotswap-card p { font-size: 11px; color: var(--dim); margin: 3px 0; }
         .hotswap-card .status-text { font-size: 11px; display: flex; align-items: center; gap: 5px; margin-top: 4px; }
-        
+
         .section-title { color: var(--gold); font-size: 13px; margin: 18px 0 10px 0; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         .control-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
         .btn {
@@ -118,171 +118,137 @@
         .btn-red:hover { background: var(--red); color: #000; }
         .btn-gold { border-color: var(--gold); color: var(--gold); }
         .btn-gold:hover { background: var(--gold); color: #000; }
+        .btn-gold.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
         .btn-cyan { border-color: var(--cyan); color: var(--cyan); }
         .btn-cyan:hover { background: var(--cyan); color: #000; }
         .btn-purple { border-color: #9b59b6; color: #9b59b6; }
         .btn-purple:hover { background: #9b59b6; color: #000; }
         .btn-blue { border-color: #4a8bf5; color: #4a8bf5; }
         .btn-blue:hover { background: #4a8bf5; color: #000; }
-        
+
         #cmdResult { text-align: center; font-size: 11px; color: var(--dim); margin-top: 15px; transition: color 0.3s; }
-        
+
         .camera-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
         @media (max-width: 600px) { .camera-grid { grid-template-columns: 1fr; } }
         .camera-feed {
             background: #000; border: 2px solid var(--border); border-radius: 12px;
-            aspect-ratio: 1 / 1;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
         }
-        .camera-feed:hover { border-color: var(--cyan); }
+        .camera-feed:hover { border-color: var(--gold); }
         .camera-name {
             position: absolute; bottom: 45px; width: 100%; text-align: center;
             font-size: 14px; font-weight: bold; text-transform: uppercase;
-            color: #fff; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            letter-spacing: 1px; pointer-events: none;
+            color: #fff; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 1px; pointer-events: none;
         }
-        .camera-feed.front .camera-name { color: #00d4ff; }
+        .camera-feed.front .camera-name { color: #f5c542; }
         .camera-feed.rear .camera-name { color: #9b59b6; }
         .camera-feed.interior .camera-name { color: #00ff88; }
-        .camera-image {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1; opacity: 1; transition: opacity 0.3s;
-        }
-        .camera-video {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1; opacity: 0; transition: opacity 0.3s; background: #0a0a1a;
-        }
-        .camera-feed.video-on .camera-image { opacity: 0; }
-        .camera-feed.video-on .camera-video { opacity: 1; }
+        .camera-image { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:1; opacity:1; transition: opacity 0.3s; }
+        .camera-video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:1; opacity:0; transition: opacity 0.3s; background:#0a0a1a; }
+        .camera-feed.video-on .camera-image { opacity:0; }
+        .camera-feed.video-on .camera-video { opacity:1; }
         .camera-feed.video-on { border-color: var(--green); }
-        .camera-recording {
-            position: absolute; top: 15px; right: 15px;
-            width: 12px; height: 12px; background: var(--red);
-            border-radius: 50%; animation: pulse-rec 1s infinite; z-index: 3; display: none;
-        }
-        .camera-feed.video-on.recording .camera-recording { display: block; }
+        .camera-recording { position: absolute; top:15px; right:15px; width:12px; height:12px; background:var(--red); border-radius:50%; animation:pulse-rec 1s infinite; z-index:3; display:none; }
+        .camera-feed.video-on.recording .camera-recording { display:block; }
         @keyframes pulse-rec { 0%,100%{opacity:1} 50%{opacity:0.3} }
         .record-btn-individual {
-            position: absolute; bottom: 15px; right: 15px; z-index: 3;
-            padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold;
-            background: rgba(0,0,0,0.7); border: 2px solid var(--red); color: var(--red);
-            cursor: pointer; transition: 0.3s;
+            position: absolute; bottom:15px; right:15px; z-index:3; padding:4px 10px; border-radius:20px;
+            font-size:10px; font-weight:bold; background:rgba(0,0,0,0.7); border:2px solid var(--red); color:var(--red);
+            cursor:pointer; transition:0.3s; display: none;
         }
-        .record-btn-individual:hover { transform: scale(1.05); }
-        .record-btn-individual.recording { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 0 15px rgba(255,68,102,0.5); }
-        .record-btn-individual.recording::before { content: "● "; }
-        .record-btn-individual:not(.recording)::before { content: "○ "; }
-        .cam-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-        .btn-online.on { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.1); }
-        .btn-online.off { border-color: var(--red); color: var(--red); background: rgba(255,68,102,0.1); }
+        .camera-feed.video-on .record-btn-individual { display: block; }
+        .record-btn-individual:hover { transform:scale(1.05); }
+        .record-btn-individual.recording { background:var(--red); color:#fff; border-color:var(--red); box-shadow:0 0 15px rgba(255,68,102,0.5); }
+        .record-btn-individual.recording::before { content:"● "; }
+        .record-btn-individual:not(.recording)::before { content:"○ "; }
+        .cam-actions { display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
+        .btn-online.on { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.1); }
+        .btn-online.off { border-color:var(--red); color:var(--red); background:rgba(255,68,102,0.1); }
         .btn-record-all {
-            width: auto; padding: 8px 20px; font-size: 12px; font-weight: bold;
-            background: rgba(0,0,0,0.7); border: 2px solid var(--red); color: var(--red);
-            cursor: pointer; transition: 0.3s; border-radius: 8px;
+            width:auto; padding:8px 20px; font-size:12px; font-weight:bold; background:rgba(0,0,0,0.7);
+            border:2px solid var(--red); color:var(--red); cursor:pointer; transition:0.3s; border-radius:8px;
         }
-        .btn-record-all.recording { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 0 15px rgba(255,68,102,0.5); }
-        .btn-record-all.recording::before { content: "⏺️ "; }
-        .btn-record-all.stopped { border-color: #666; color: #999; background: rgba(0,0,0,0.5); }
-        .btn-record-all.stopped::before { content: "⏹️ "; }
-        
+        .btn-record-all.recording { background:var(--red); color:#fff; border-color:var(--red); box-shadow:0 0 15px rgba(255,68,102,0.5); }
+        .btn-record-all.recording::before { content:"⏺️ "; }
+        .btn-record-all.stopped { border-color:#666; color:#999; background:rgba(0,0,0,0.5); }
+        .btn-record-all.stopped::before { content:"⏹️ "; }
+
         .cloud-modal, .settings-modal, .auth-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000;
-            justify-content: center; align-items: center; flex-direction: column;
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; flex-direction:column;
         }
-        .cloud-modal.active, .settings-modal.active, .auth-modal.active { display: flex; }
+        .cloud-modal.active, .settings-modal.active, .auth-modal.active { display:flex; }
         .modal-content {
-            background: var(--card); border: 2px solid var(--cyan);
-            border-radius: 20px; padding: 25px; max-width: 600px; width: 90%;
-            max-height: 80vh; overflow-y: auto;
+            background: var(--card); border: 2px solid var(--gold); border-radius: 20px;
+            padding: 25px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { color: var(--cyan); font-size: 18px; }
-        .modal-close-btn {
-            background: transparent; border: 1px solid var(--red); color: var(--red);
-            border-radius: 8px; padding: 5px 15px; cursor: pointer; font-size: 14px;
-            transition: 0.3s;
-        }
-        .modal-close-btn:hover { background: var(--red); color: #000; }
-        .cloud-tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .cloud-tab {
-            padding: 8px 16px; border-radius: 8px; font-size: 12px; cursor: pointer;
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            color: var(--text); transition: 0.3s;
-        }
-        .cloud-tab.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,212,255,0.1); }
-        #cloudVideoPlayer { width: 100%; border-radius: 10px; margin-top: 10px; background: #000; display: none; max-height: 300px; }
-        #cloudVideoPlayer.active { display: block; }
-        #cloudVideoList { max-height: 200px; overflow-y: auto; margin-bottom: 10px; }
-        .video-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;
-            margin: 4px 0; font-size: 11px; border: 1px solid var(--border); cursor: pointer;
-        }
-        .video-item:hover { border-color: var(--cyan); }
-        .video-item .video-actions { display: flex; gap: 8px; align-items: center; }
-        .video-item .video-actions button {
-            padding: 4px 10px; border-radius: 6px; font-size: 10px; cursor: pointer;
-            background: transparent; border: 1px solid var(--border); color: var(--text);
-        }
-        .download-btn:hover { border-color: var(--green) !important; color: var(--green) !important; }
-        
-        .auth-input {
-            width: 100%; padding: 12px; margin: 8px 0;
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            border-radius: 8px; color: var(--text); font-size: 14px;
-        }
-        .auth-input:focus { border-color: var(--cyan); outline: none; }
-        
-        .chip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-        .chip {
-            background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px;
-            padding: 14px; transition: 0.3s; cursor: pointer;
-        }
-        .chip:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
-        .chip-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .chip-icon-name { display: flex; align-items: center; gap: 8px; }
-        .chip-icon-name .icon { font-size: 20px; }
-        .chip-icon-name .name { font-weight: 600; font-size: 13px; }
-        .chip-status { font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
-        .chip-status .dot { width: 6px; height: 6px; }
-        .chip-metrics { margin-top: 8px; font-size: 11px; color: var(--dim); display: flex; gap: 12px; flex-wrap: wrap; }
-        .chip-metrics .val { color: var(--text); font-weight: 500; }
-        .chip-alert { font-size: 10px; margin-top: 6px; color: var(--yellow); display: flex; align-items: center; gap: 4px; }
-        .chip-alert.red { color: var(--red); }
-        .chip-detail { display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 11px; color: var(--dim); }
-        .chip.expanded .chip-detail { display: block; }
-        .chip.normal { border-left: 4px solid var(--green); }
-        .chip.warning { border-left: 4px solid var(--yellow); background: rgba(255,170,0,0.05); }
-        .chip.critical { border-left: 4px solid var(--red); background: rgba(255,68,102,0.08); animation: pulse-red 2s infinite; }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-header h3 { color: var(--gold); font-size:18px; }
+        .modal-close-btn { background:transparent; border:1px solid var(--red); color:var(--red); border-radius:8px; padding:5px 15px; cursor:pointer; font-size:14px; transition:0.3s; }
+        .modal-close-btn:hover { background:var(--red); color:#000; }
+        .cloud-tabs { display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap; }
+        .cloud-tab { padding:8px 16px; border-radius:8px; font-size:12px; cursor:pointer; background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--text); transition:0.3s; }
+        .cloud-tab.active { border-color:var(--gold); color:var(--gold); background:rgba(245,197,66,0.1); }
+        #cloudVideoPlayer { width:100%; border-radius:10px; margin-top:10px; background:#000; display:none; max-height:300px; }
+        #cloudVideoPlayer.active { display:block; }
+        #cloudVideoList { max-height:200px; overflow-y:auto; margin-bottom:10px; }
+        .video-item { display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:4px 0; font-size:11px; border:1px solid var(--border); cursor:pointer; }
+        .video-item:hover { border-color:var(--gold); }
+        .video-item .video-actions { display:flex; gap:8px; align-items:center; }
+        .video-item .video-actions button { padding:4px 10px; border-radius:6px; font-size:10px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text); }
+        .download-btn:hover { border-color:var(--green)!important; color:var(--green)!important; }
+        .delete-btn:hover { border-color:var(--red)!important; color:var(--red)!important; }
+
+        .auth-input { width:100%; padding:12px; margin:8px 0; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; }
+        .auth-input:focus { border-color:var(--gold); outline:none; }
+
+        .chip-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; }
+        .chip { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:14px; transition:0.3s; cursor:pointer; }
+        .chip:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,0.6); }
+        .chip-top { display:flex; justify-content:space-between; align-items:flex-start; }
+        .chip-icon-name { display:flex; align-items:center; gap:8px; }
+        .chip-icon-name .icon { font-size:20px; }
+        .chip-icon-name .name { font-weight:600; font-size:13px; }
+        .chip-status { font-size:10px; font-weight:bold; display:flex; align-items:center; gap:4px; }
+        .chip-status .dot { width:6px; height:6px; }
+        .chip-metrics { margin-top:8px; font-size:11px; color:var(--dim); display:flex; gap:12px; flex-wrap:wrap; }
+        .chip-metrics .val { color:var(--text); font-weight:500; }
+        .chip-alert { font-size:10px; margin-top:6px; color:var(--yellow); display:flex; align-items:center; gap:4px; }
+        .chip-alert.red { color:var(--red); }
+        .chip-detail { display:none; margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--dim); }
+        .chip.expanded .chip-detail { display:block; }
+        .chip.normal { border-left:4px solid var(--green); }
+        .chip.warning { border-left:4px solid var(--yellow); background:rgba(255,170,0,0.05); }
+        .chip.critical { border-left:4px solid var(--red); background:rgba(255,68,102,0.08); animation:pulse-red 2s infinite; }
         @keyframes pulse-red { 0%,100%{box-shadow:0 0 5px rgba(255,0,0,0.2)} 50%{box-shadow:0 0 15px rgba(255,0,0,0.4)} }
-        
-        .alert-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
-        .alert-list { display: flex; flex-direction: column; gap: 8px; }
-        .alert-item {
-            display: flex; align-items: flex-start; gap: 10px;
-            background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 12px;
-            font-size: 12px; border-left: 3px solid var(--border);
-        }
-        .alert-item.warning { border-left-color: var(--yellow); }
-        .alert-item.critical { border-left-color: var(--red); }
-        .alert-item .time { color: var(--dim); font-size: 10px; margin-top: 2px; }
-        
-        #map { height: 280px; width: 100%; border-radius: 12px; border: 1px solid var(--border); margin: 10px 0; background: #0d1424; }
-        .location-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
-        .location-info .item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; }
-        .location-info .item strong { color: var(--cyan); display: block; font-size: 10px; margin-bottom: 2px; }
-        .location-info .item .val { font-size: 13px; font-weight: 500; }
-        .map-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
-        .footer { text-align: center; font-size: 11px; color: var(--dim); padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
-        
+
+        .alert-container { max-height:250px; overflow-y:auto; padding-right:5px; }
+        .alert-list { display:flex; flex-direction:column; gap:8px; }
+        .alert-item { display:flex; align-items:flex-start; gap:10px; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px 12px; font-size:12px; border-left:3px solid var(--border); }
+        .alert-item.warning { border-left-color:var(--yellow); }
+        .alert-item.critical { border-left-color:var(--red); }
+        .alert-item .time { color:var(--dim); font-size:10px; margin-top:2px; }
+
+        #map { height: 420px; width:100%; border-radius:12px; border:1px solid var(--border); margin:10px 0; background:#0d1424; }
+        .location-info { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-top:10px; }
+        .location-info .item { background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-size:12px; }
+        .location-info .item strong { color:var(--gold); display:block; font-size:10px; margin-bottom:2px; }
+        .location-info .item .val { font-size:13px; font-weight:500; }
+        .map-actions { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:12px; }
+
+        .slider-container { display:flex; align-items:center; gap:10px; margin-top:10px; }
+        .slider-container input[type=range] { flex:1; accent-color:var(--gold); }
+        .slider-container span { font-size:11px; color:var(--dim); min-width:40px; }
+
+        .footer { text-align:center; font-size:11px; color:var(--dim); padding:20px 0; border-top:1px solid var(--border); margin-top:20px; }
+
         @media (max-width: 600px) {
             .chip-grid { grid-template-columns: 1fr 1fr; }
             .control-grid { grid-template-columns: 1fr 1fr; }
             .map-actions { grid-template-columns: 1fr; }
-            #map { height: 200px; }
-            .modal-content { padding: 15px; }
+            #map { height: 300px; }
+            .modal-content { padding:15px; }
         }
     </style>
 </head>
@@ -300,9 +266,9 @@
     </div>
 
     <div class="status-bar">
-        <span><span class="dot dot-green" id="statusDot"></span> <strong id="txtSecure">SEGURO</strong></span>
+        <span><span class="dot dot-gold" id="statusDot"></span> <strong id="txtSecure">SEGURO</strong></span>
         <span id="txtKey">🔑 Clave: <strong style="color:var(--gold);">21E41421...</strong></span>
-        <span id="txtRotation">🔄 <strong id="countdown">22s</strong></span>
+        <span id="txtRotation">🔄 <strong id="countdown" style="color:var(--gold);">5s</strong></span>
         <span id="txtCloud">☁️ <strong style="color:var(--green);">4.2/5 GB</strong></span>
     </div>
 
@@ -316,10 +282,10 @@
 
     <!-- VEHICLE CONTROL CENTER -->
     <div class="card">
-        <div class="card-header" style="color:var(--gold);">
+        <div class="card-header">
             <span>🎮 <span id="txtControlTitle">CONTROL TOTAL DEL VEHÍCULO</span></span>
         </div>
-        
+
         <p class="section-title" id="txtSecMotor">🚗 MOTOR Y ACCESO</p>
         <div class="control-grid">
             <button class="btn btn-green" onclick="sendCommand('arrancar')" id="btnStart">🚀 <span>ARRANCAR</span></button>
@@ -329,7 +295,7 @@
             <button class="btn btn-gold" onclick="sendCommand('luces')" id="btnLights">💡 <span>LUCES</span></button>
             <button class="btn btn-gold" onclick="sendCommand('claxon')" id="btnHorn">📢 <span>CLAXON</span></button>
         </div>
-        
+
         <p class="section-title" id="txtSecEnt">🎵 ENTRETENIMIENTO</p>
         <div class="control-grid">
             <button class="btn btn-purple" onclick="sendCommand('vol_up')" id="btnVolUp">🔊 <span>VOL +</span></button>
@@ -341,7 +307,7 @@
             <button class="btn btn-purple" onclick="sendCommand('aux')" id="btnAux">🎧 <span>AUX</span></button>
             <button class="btn btn-purple" onclick="sendCommand('next_track')" id="btnNext">⏭️ <span>SIGUIENTE</span></button>
         </div>
-        
+
         <p class="section-title" id="txtSecClimate">🌡️ CLIMA Y CONFORT</p>
         <div class="control-grid">
             <button class="btn btn-cyan" onclick="sendCommand('ac_on')" id="btnAcOn">❄️ <span>A/C ON</span></button>
@@ -353,7 +319,7 @@
             <button class="btn btn-gold" onclick="sendCommand('seat_heat')" id="btnSeat">🔥 <span>ASIENTOS</span></button>
             <button class="btn btn-cyan" onclick="sendCommand('defrost')" id="btnDefrost">❄️ <span>DESHIELO</span></button>
         </div>
-        
+
         <p class="section-title" id="txtSecNav">🗺️ NAVEGACIÓN Y ESPEJOS</p>
         <div class="control-grid">
             <button class="btn btn-gold" onclick="navigateToAddress('home')" id="btnNavHome">🏠 <span>NAV CASA</span></button>
@@ -362,29 +328,48 @@
             <button class="btn btn-gold" onclick="sendCommand('mirror_fold')" id="btnFold">🪞 <span>PLEGAR</span></button>
             <button class="btn btn-gold" onclick="sendCommand('mirror_unfold')" id="btnUnfold">🪞 <span>DESPLEGAR</span></button>
             <button class="btn btn-gold" onclick="sendCommand('mirror_heat')" id="btnMirrorHeat">🔥 <span>CALEFACCIÓN</span></button>
-            <button class="btn btn-cyan" onclick="toggleLocation()" id="btnLocation">📍 <span>UBICACIÓN</span></button>
-            <button class="btn btn-cyan" onclick="sendCommand('geo_alarm')" id="btnGeofence">📐 <span>GEOCERCA</span></button>
+            <button class="btn btn-gold" onclick="scrollToMap()" id="btnLocation">📍 <span>UBICACIÓN</span></button>
+            <button class="btn btn-gold" id="btnGeofenceToggle" onclick="toggleGeofence()">📐 <span id="txtGeofenceBtn">ACTIVAR GEOCERCA</span></button>
         </div>
-        
+
         <p id="cmdResult">Esperando comando...</p>
+    </div>
+
+    <!-- CONFIGURACIÓN DE GEOCERCA (SOLO RADIO) -->
+    <div class="card">
+        <div class="card-header">
+            <span>📐 <span id="txtGeofenceConfigTitle">CONFIGURACIÓN DE GEOCERCA</span></span>
+        </div>
+        <p style="color:var(--dim);font-size:11px;margin-bottom:8px;" id="txtGeofenceConfigDesc">
+            Define el radio de alerta alrededor de la posición actual del vehículo.
+        </p>
+        <div class="slider-container">
+            <span id="txtRangeMin">10m</span>
+            <input type="range" id="geofenceRadius" min="10" max="200" value="50" step="10" oninput="updateRadiusDisplay()">
+            <span id="txtRangeMax">200m</span>
+            <span style="color:var(--gold);font-weight:bold;" id="radiusValue">50m</span>
+        </div>
+        <p style="color:var(--dim);font-size:10px;margin-top:5px;" id="txtGeofenceHint">
+            * La geocerca se activa con el botón GEOCERCA en el panel de control.
+        </p>
     </div>
 
     <!-- CÁMARAS -->
     <div class="card">
-        <div class="card-header" style="color:var(--cyan);">
+        <div class="card-header">
             <span>📹 <span id="txtCamTitle">CÁMARAS EN VIVO</span></span>
             <button class="btn btn-online on" onclick="toggleAllCameras()" style="font-size:11px; padding:4px 14px;">
                 ● <span id="txtOnlineStatus">EN LÍNEA</span>
             </button>
         </div>
-        
+
         <div class="camera-grid" id="cameraGrid"></div>
 
         <div class="cam-actions">
             <button class="btn btn-record-all stopped" id="btnRecordAll" onclick="toggleRecordAll()">
                 <span id="txtBtnRecordAll">GRABAR TODO</span>
             </button>
-            <button class="btn btn-cyan" onclick="openCloudModal()" style="width:auto;padding:8px 20px;font-size:11px;">
+            <button class="btn btn-gold" onclick="openCloudModal()" style="width:auto;padding:8px 20px;font-size:11px;">
                 ☁️ <span id="txtViewCloud">VER NUBE</span>
             </button>
         </div>
@@ -411,8 +396,8 @@
     </div>
 
     <!-- MAPA -->
-    <div class="card" id="locationPanel" style="display:none;">
-        <div class="card-header" style="color:var(--cyan);">
+    <div class="card" id="mapSection">
+        <div class="card-header">
             <span id="txtMapTitle">📍 UBICACIÓN</span>
         </div>
         <div id="map"></div>
@@ -423,10 +408,9 @@
             <div class="item"><strong id="txtPrec">Precisión</strong><div class="val" style="color:var(--green);">3 m (GPS + WiFi)</div></div>
         </div>
         <div class="map-actions">
-            <button class="btn btn-cyan" onclick="updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
+            <button class="btn btn-gold" onclick="updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
             <button class="btn btn-gold" onclick="shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
             <button class="btn btn-blue" onclick="navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
-            <button class="btn btn-red" onclick="toggleLocation()" id="btnCloseMap">❌ <span>CERRAR</span></button>
         </div>
     </div>
 
@@ -458,7 +442,7 @@
             <input type="text" class="auth-input" id="homeAddress" placeholder="Av. Reforma 222, CDMX">
             <label class="section-title" id="txtWorkLabel">🏢 Dirección de Trabajo</label>
             <input type="text" class="auth-input" id="workAddress" placeholder="Paseo de la Reforma 500, CDMX">
-            <button class="btn btn-cyan" onclick="saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
+            <button class="btn btn-gold" onclick="saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
         </div>
     </div>
 
@@ -472,9 +456,9 @@
             <input type="email" class="auth-input" id="loginEmail" placeholder="usuario@email.com">
             <label class="section-title">🔑 <span id="txtPassword">Contraseña</span></label>
             <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••">
-            <button class="btn btn-cyan" onclick="login()" style="width:100%;margin-top:10px;">🚀 <span id="txtLoginBtn">INGRESAR</span></button>
+            <button class="btn btn-gold" onclick="login()" style="width:100%;margin-top:10px;">🚀 <span id="txtLoginBtn">INGRESAR</span></button>
             <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
-                <span id="txtNoAccount">¿No tienes cuenta?</span> <a href="#" onclick="showRegister()" style="color:var(--cyan);" id="txtRegisterLink">Regístrate</a>
+                <span id="txtNoAccount">¿No tienes cuenta?</span> <a href="#" onclick="showRegister()" style="color:var(--gold);" id="txtRegisterLink">Regístrate</a>
             </p>
             <button class="btn btn-gold" onclick="skipLogin()" style="width:100%;margin-top:5px;font-size:11px;">⚡ <span id="txtDemoBtn">Usar modo demo</span></button>
         </div>
@@ -495,19 +479,18 @@
             <input type="text" class="auth-input" id="regVIN" placeholder="1HGBH41JXMN109186">
             <button class="btn btn-gold" onclick="register()" style="width:100%;margin-top:10px;">✨ <span id="txtRegisterBtn">CREAR CUENTA PLATINUM</span></button>
             <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
-                <span id="txtHasAccount">¿Ya tienes cuenta?</span> <a href="#" onclick="showLogin()" style="color:var(--cyan);" id="txtLoginLink">Inicia sesión</a>
+                <span id="txtHasAccount">¿Ya tienes cuenta?</span> <a href="#" onclick="showLogin()" style="color:var(--gold);" id="txtLoginLink">Inicia sesión</a>
             </p>
         </div>
     </div>
 
     <div class="footer">
-        🌀 ITZTLI FRACTAL CORE © 2026 | Plan PLATINUM | <span id="currentTime"></span>
+         ITZTLI FRACTAL CORE © 2026 | Plan PLATINUM | <span id="currentTime"></span>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+
     <script>
-        // ═══════════════ DICCIONARIO DE IDIOMAS ═══════════════
         const langData = {
             es: {
                 subtitle: "Sistema Nervioso Digital para Vehículos",
@@ -533,299 +516,184 @@
                 secEnt: "🎵 ENTRETENIMIENTO",
                 secClimate: "🌡️ CLIMA Y CONFORT",
                 secNav: "🗺️ NAVEGACIÓN Y ESPEJOS",
-                btnStart: "ARRANCAR",
-                btnStop: "APAGAR",
-                btnOpen: "ABRIR",
-                btnClose: "CERRAR",
-                btnLights: "LUCES",
-                btnHorn: "CLAXON",
-                btnVolUp: "VOL +",
-                btnVolDown: "VOL -",
-                btnMute: "SILENCIO",
-                btnBt: "BLUETOOTH",
-                btnFm: "FM",
-                btnAm: "AM",
-                btnAux: "AUX",
-                btnNext: "SIGUIENTE",
-                btnAcOn: "A/C ON",
-                btnAcOff: "A/C OFF",
-                btnTempUp: "TEMP +",
-                btnTempDown: "TEMP -",
-                btnFanUp: "FAN +",
-                btnFanDown: "FAN -",
-                btnSeat: "ASIENTOS",
-                btnDefrost: "DESHIELO",
-                btnNavHome: "NAV CASA",
-                btnNavWork: "NAV TRABAJO",
-                btnNavStop: "DETENER RUTA",
-                btnFold: "PLEGAR",
-                btnUnfold: "DESPLEGAR",
-                btnMirrorHeat: "CALEFACCIÓN",
-                btnLocation: "UBICACIÓN",
-                btnGeofence: "GEOCERCA",
+                btnStart: "ARRANCAR", btnStop: "APAGAR", btnOpen: "ABRIR", btnClose: "CERRAR",
+                btnLights: "LUCES", btnHorn: "CLAXON", btnVolUp: "VOL +", btnVolDown: "VOL -",
+                btnMute: "SILENCIO", btnBt: "BLUETOOTH", btnFm: "FM", btnAm: "AM", btnAux: "AUX",
+                btnNext: "SIGUIENTE", btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +",
+                btnTempDown: "TEMP -", btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "ASIENTOS",
+                btnDefrost: "DESHIELO", btnNavHome: "NAV CASA", btnNavWork: "NAV TRABAJO",
+                btnNavStop: "DETENER RUTA", btnFold: "PLEGAR", btnUnfold: "DESPLEGAR",
+                btnMirrorHeat: "CALEFACCIÓN", btnLocation: "UBICACIÓN",
+                geofenceBtnActivate: "ACTIVAR GEOCERCA", geofenceBtnDeactivate: "DESACTIVAR GEOCERCA",
+                geofenceConfigTitle: "CONFIGURACIÓN DE GEOCERCA",
+                geofenceConfigDesc: "Define el radio de alerta alrededor de la posición actual del vehículo.",
+                rangeMin: "10m", rangeMax: "200m",
+                geofenceHint: "* La geocerca se activa con el botón GEOCERCA en el panel de control.",
                 cmdResult: "Esperando comando...",
-                camTitle: "CÁMARAS EN VIVO",
-                onlineStatus: "EN LÍNEA",
-                offlineStatus: "DESCONECTADO",
-                partialStatus: "PARCIAL",
-                camFront: "FRONTAL",
-                camRear: "REVERSA",
-                camInt: "INTERIOR",
-                recordBtn: "GRABAR",
-                recordBtnOn: "GRABANDO",
-                btnRecordAll: "GRABAR TODO",
-                btnRecordAllOff: "DETENER TODO",
-                btnViewCloud: "VER NUBE",
-                imgFrontal: "imagenes/frontal.png",
-                imgTrasera: "imagenes/reversa.png",
+                camTitle: "CÁMARAS EN VIVO", onlineStatus: "EN LÍNEA", offlineStatus: "DESCONECTADO",
+                partialStatus: "PARCIAL", camFront: "FRONTAL", camRear: "REVERSA", camInt: "INTERIOR",
+                recordBtn: "GRABAR", recordBtnOn: "GRABANDO", btnRecordAll: "GRABAR TODO",
+                btnRecordAllOff: "DETENER TODO", btnViewCloud: "VER NUBE",
+                imgFrontal: "imagenes/frontal.png", imgTrasera: "imagenes/reversa.png",
                 imgInterior: "imagenes/interior.png",
-                chipTitle: "MONITOREO DE CHIPS",
-                alertTitle: "ALERTAS",
-                noAlerts: "✅ Sin alertas.",
-                mapTitle: "📍 UBICACIÓN",
-                latLabel: "Latitud",
-                lngLabel: "Longitud",
-                refLabel: "Referencia",
-                precLabel: "Precisión",
-                refAddr: "Av. Reforma 222, CDMX",
-                btnUpdateLoc: "ACTUALIZAR",
-                btnShareLoc: "COMPARTIR",
+                chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
+                chipNormal: "Normal", chipWarning: "Precaución", chipCritical: "Crítico",
+                alertVoltage: "Voltaje crítico: ", alertTemp: "Temp elevada: ", alertErrors: "Errores: ",
+                chipTitle: "MONITOREO DE CHIPS", alertTitle: "ALERTAS", noAlerts: "✅ Sin alertas.",
+                mapTitle: "📍 UBICACIÓN", latLabel: "Latitud", lngLabel: "Longitud",
+                refLabel: "Referencia", precLabel: "Precisión", refAddr: "Av. Reforma 222, CDMX",
+                precValue: "3 m (GPS + WiFi)", btnUpdateLoc: "ACTUALIZAR", btnShareLoc: "COMPARTIR",
                 btnNavigate: "LLEGAR AL AUTO",
-                btnCloseMap: "CERRAR",
-                cloudModalTitle: "GRABACIONES EN LA NUBE",
-                closeCloud: "CERRAR",
-                tabFront: "FRONTAL",
-                tabRear: "TRASERA",
-                tabInt: "INTERIOR",
-                loadingCloud: "Cargando videos...",
-                noVideos: "📭 No hay grabaciones en esta cámara",
-                downloadBtn: "⬇ DESCARGAR",
-                settingsTitle: "CONFIGURACIÓN",
-                closeSettings: "CERRAR",
-                homeLabel: "🏠 Dirección de Casa",
-                workLabel: "🏢 Dirección de Trabajo",
-                saveSettings: "GUARDAR",
-                loginTitle: "INICIAR SESIÓN",
-                emailLabel: "Email",
-                passwordLabel: "Contraseña",
-                loginBtn: "INGRESAR",
-                noAccount: "¿No tienes cuenta?",
-                registerLink: "Regístrate",
-                demoBtn: "Usar modo demo",
-                registerTitle: "CREAR CUENTA",
-                regEmailLabel: "Email",
-                regPasswordLabel: "Contraseña",
-                regVinLabel: "VIN del Vehículo",
-                registerBtn: "CREAR CUENTA PLATINUM",
-                hasAccount: "¿Ya tienes cuenta?",
-                loginLink: "Inicia sesión",
-                navHomeMsg: "🏠 Calculando ruta a casa...",
-                navWorkMsg: "🏢 Calculando ruta al trabajo...",
-                shareAlert: "📍 Copiado al portapapeles",
-                settingsSaved: "✅ Configuración guardada"
+                cloudModalTitle: "GRABACIONES EN LA NUBE", closeCloud: "CERRAR",
+                tabFront: "FRONTAL", tabRear: "TRASERA", tabInt: "INTERIOR",
+                loadingCloud: "Cargando videos...", noVideos: "📭 No hay grabaciones en esta cámara",
+                downloadBtn: "⬇ DESCARGAR", deleteBtn: "🗑 ELIMINAR",
+                deleteConfirm: "¿Eliminar esta grabación permanentemente?",
+                settingsTitle: "CONFIGURACIÓN", closeSettings: "CERRAR",
+                homeLabel: "🏠 Dirección de Casa", workLabel: "🏢 Dirección de Trabajo",
+                saveSettings: "GUARDAR", loginTitle: "INICIAR SESIÓN", emailLabel: "Email",
+                passwordLabel: "Contraseña", loginBtn: "INGRESAR", noAccount: "¿No tienes cuenta?",
+                registerLink: "Regístrate", demoBtn: "Usar modo demo",
+                registerTitle: "CREAR CUENTA", regEmailLabel: "Email", regPasswordLabel: "Contraseña",
+                regVinLabel: "VIN del Vehículo", registerBtn: "CREAR CUENTA PLATINUM",
+                hasAccount: "¿Ya tienes cuenta?", loginLink: "Inicia sesión",
+                navHomeMsg: "🏠 Calculando ruta a casa...", navWorkMsg: "🏢 Calculando ruta al trabajo...",
+                shareAlert: "📍 Copiado al portapapeles", settingsSaved: "✅ Configuración guardada",
+                geofenceActivated: "📐 Geocerca ACTIVADA", geofenceDeactivated: "🔓 Geocerca DESACTIVADA"
             },
             en: {
                 subtitle: "Digital Nervous System for Vehicles",
                 badge: "🥇 PLATINUM PLAN ACTIVE",
-                secure: "SECURE",
-                keyLabel: "🔑 Key:",
-                rotationLabel: "🔄 Rotation:",
-                cloudLabel: "☁️ Cloud:",
-                logoutBtn: "LOGOUT",
+                secure: "SECURE", keyLabel: "🔑 Key:", rotationLabel: "🔄 Rotation:",
+                cloudLabel: "☁️ Cloud:", logoutBtn: "LOGOUT",
                 hotSwapTitle: "DIGITAL HOT-SWAP — Self-Healing",
-                hsFailName: "🔴 GPS/Navigation (UX7E5)",
-                hsFailVolt: "Voltage: 10.2V",
-                hsFailTemp: "Temp: 55°C",
-                hsFailStatus: "⚠️ Chip malfunction detected",
+                hsFailName: "🔴 GPS/Navigation (UX7E5)", hsFailVolt: "Voltage: 10.2V",
+                hsFailTemp: "Temp: 55°C", hsFailStatus: "⚠️ Chip malfunction detected",
                 hsFailCov: "🔄 Transmission handling functions",
-                hsBackName: "🟢 Transmission (UX7E1)",
-                hsBackVolt: "Voltage: 12.3V",
-                hsBackTemp: "Temp: 43°C",
-                hsBackStatus: "✅ Redundant mode active",
+                hsBackName: "🟢 Transmission (UX7E1)", hsBackVolt: "Voltage: 12.3V",
+                hsBackTemp: "Temp: 43°C", hsBackStatus: "✅ Redundant mode active",
                 hsBackBuy: "📦 Replacement requested",
                 controlTitle: "VEHICLE CONTROL CENTER",
-                secMotor: "🚗 ENGINE & ACCESS",
-                secEnt: "🎵 ENTERTAINMENT",
-                secClimate: "🌡️ CLIMATE & COMFORT",
-                secNav: "🗺️ NAVIGATION & MIRRORS",
-                btnStart: "START",
-                btnStop: "STOP",
-                btnOpen: "UNLOCK",
-                btnClose: "LOCK",
-                btnLights: "LIGHTS",
-                btnHorn: "HORN",
-                btnVolUp: "VOL +",
-                btnVolDown: "VOL -",
-                btnMute: "MUTE",
-                btnBt: "BLUETOOTH",
-                btnFm: "FM",
-                btnAm: "AM",
-                btnAux: "AUX",
-                btnNext: "NEXT",
-                btnAcOn: "A/C ON",
-                btnAcOff: "A/C OFF",
-                btnTempUp: "TEMP +",
-                btnTempDown: "TEMP -",
-                btnFanUp: "FAN +",
-                btnFanDown: "FAN -",
-                btnSeat: "SEATS",
-                btnDefrost: "DEFROST",
-                btnNavHome: "HOME",
-                btnNavWork: "WORK",
-                btnNavStop: "STOP ROUTE",
-                btnFold: "FOLD",
-                btnUnfold: "UNFOLD",
-                btnMirrorHeat: "HEATED",
-                btnLocation: "LOCATION",
-                btnGeofence: "GEOFENCE",
+                secMotor: "🚗 ENGINE & ACCESS", secEnt: "🎵 ENTERTAINMENT",
+                secClimate: "🌡️ CLIMATE & COMFORT", secNav: "🗺️ NAVIGATION & MIRRORS",
+                btnStart: "START", btnStop: "STOP", btnOpen: "UNLOCK", btnClose: "LOCK",
+                btnLights: "LIGHTS", btnHorn: "HORN", btnVolUp: "VOL +", btnVolDown: "VOL -",
+                btnMute: "MUTE", btnBt: "BLUETOOTH", btnFm: "FM", btnAm: "AM", btnAux: "AUX",
+                btnNext: "NEXT", btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +",
+                btnTempDown: "TEMP -", btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "SEATS",
+                btnDefrost: "DEFROST", btnNavHome: "HOME", btnNavWork: "WORK",
+                btnNavStop: "STOP ROUTE", btnFold: "FOLD", btnUnfold: "UNFOLD",
+                btnMirrorHeat: "HEATED", btnLocation: "LOCATION",
+                geofenceBtnActivate: "ACTIVATE GEOFENCE", geofenceBtnDeactivate: "DEACTIVATE GEOFENCE",
+                geofenceConfigTitle: "GEOFENCE SETTINGS",
+                geofenceConfigDesc: "Set the alert radius around the current vehicle position.",
+                rangeMin: "33ft", rangeMax: "660ft",
+                geofenceHint: "* Geofence is activated with the GEOFENCE button in the control panel.",
                 cmdResult: "Waiting for command...",
-                camTitle: "LIVE VIDEO STREAMS",
-                onlineStatus: "ONLINE",
-                offlineStatus: "OFFLINE",
-                partialStatus: "PARTIAL",
-                camFront: "FRONT",
-                camRear: "REAR",
-                camInt: "INTERIOR",
-                recordBtn: "RECORD",
-                recordBtnOn: "RECORDING",
-                btnRecordAll: "RECORD ALL",
-                btnRecordAllOff: "STOP ALL",
-                btnViewCloud: "VIEW CLOUD",
-                imgFrontal: "imagenes/ingles/front.png",
-                imgTrasera: "imagenes/ingles/rear.png",
+                camTitle: "LIVE VIDEO STREAMS", onlineStatus: "ONLINE", offlineStatus: "OFFLINE",
+                partialStatus: "PARTIAL", camFront: "FRONT", camRear: "REAR", camInt: "INTERIOR",
+                recordBtn: "RECORD", recordBtnOn: "RECORDING", btnRecordAll: "RECORD ALL",
+                btnRecordAllOff: "STOP ALL", btnViewCloud: "VIEW CLOUD",
+                imgFrontal: "imagenes/ingles/front.png", imgTrasera: "imagenes/ingles/rear.png",
                 imgInterior: "imagenes/ingles/interior.png",
-                chipTitle: "ECU HEALTH MONITORING",
-                alertTitle: "CRITICAL EVENTS",
-                noAlerts: "✅ No alerts.",
-                mapTitle: "📍 LOCATION",
-                latLabel: "Latitude",
-                lngLabel: "Longitude",
-                refLabel: "Reference",
-                precLabel: "Accuracy",
-                refAddr: "222 Reforma Ave, Mexico City",
-                btnUpdateLoc: "REFRESH",
-                btnShareLoc: "SHARE",
+                chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
+                chipNormal: "Normal", chipWarning: "Warning", chipCritical: "Critical",
+                alertVoltage: "Critical voltage: ", alertTemp: "High temp: ", alertErrors: "Errors: ",
+                chipTitle: "ECU HEALTH MONITORING", alertTitle: "CRITICAL EVENTS", noAlerts: "✅ No alerts.",
+                mapTitle: "📍 LOCATION", latLabel: "Latitude", lngLabel: "Longitude",
+                refLabel: "Reference", precLabel: "Accuracy", refAddr: "222 Reforma Ave, Mexico City",
+                precValue: "10 ft (GPS + WiFi)", btnUpdateLoc: "REFRESH", btnShareLoc: "SHARE",
                 btnNavigate: "NAVIGATE TO CAR",
-                btnCloseMap: "CLOSE",
-                cloudModalTitle: "CLOUD RECORDINGS",
-                closeCloud: "CLOSE",
-                tabFront: "FRONT",
-                tabRear: "REAR",
-                tabInt: "INTERIOR",
-                loadingCloud: "Loading videos...",
-                noVideos: "📭 No recordings on this camera",
-                downloadBtn: "⬇ DOWNLOAD",
-                settingsTitle: "SETTINGS",
-                closeSettings: "CLOSE",
-                homeLabel: "🏠 Home Address",
-                workLabel: "🏢 Work Address",
-                saveSettings: "SAVE",
-                loginTitle: "SIGN IN",
-                emailLabel: "Email",
-                passwordLabel: "Password",
-                loginBtn: "SIGN IN",
-                noAccount: "Don't have an account?",
-                registerLink: "Register",
-                demoBtn: "Use demo mode",
-                registerTitle: "CREATE ACCOUNT",
-                regEmailLabel: "Email",
-                regPasswordLabel: "Password",
-                regVinLabel: "Vehicle VIN",
-                registerBtn: "CREATE PLATINUM ACCOUNT",
-                hasAccount: "Already have an account?",
-                loginLink: "Sign in",
-                navHomeMsg: "🏠 Calculating route home...",
-                navWorkMsg: "🏢 Calculating route to work...",
-                shareAlert: "📍 Copied to clipboard",
-                settingsSaved: "✅ Settings saved"
+                cloudModalTitle: "CLOUD RECORDINGS", closeCloud: "CLOSE",
+                tabFront: "FRONT", tabRear: "REAR", tabInt: "INTERIOR",
+                loadingCloud: "Loading videos...", noVideos: "📭 No recordings on this camera",
+                downloadBtn: "⬇ DOWNLOAD", deleteBtn: "🗑 DELETE",
+                deleteConfirm: "Delete this recording permanently?",
+                settingsTitle: "SETTINGS", closeSettings: "CLOSE",
+                homeLabel: "🏠 Home Address", workLabel: "🏢 Work Address",
+                saveSettings: "SAVE", loginTitle: "SIGN IN", emailLabel: "Email",
+                passwordLabel: "Password", loginBtn: "SIGN IN", noAccount: "Don't have an account?",
+                registerLink: "Register", demoBtn: "Use demo mode",
+                registerTitle: "CREATE ACCOUNT", regEmailLabel: "Email", regPasswordLabel: "Password",
+                regVinLabel: "Vehicle VIN", registerBtn: "CREATE PLATINUM ACCOUNT",
+                hasAccount: "Already have an account?", loginLink: "Sign in",
+                navHomeMsg: "🏠 Calculating route home...", navWorkMsg: "🏢 Calculating route to work...",
+                shareAlert: "📍 Copied to clipboard", settingsSaved: "✅ Settings saved",
+                geofenceActivated: "📐 Geofence ACTIVATED", geofenceDeactivated: "🔓 Geofence DEACTIVATED"
             }
         };
 
-        // ═══════════════ ESTADO GLOBAL ═══════════════
         let isSpanish = true;
-        let userSettings = JSON.parse(localStorage.getItem('itzli_settings') || '{}');
+        let countdown = 5; // Rotación cada 5 segundos
+        let userSettings = JSON.parse(localStorage.getItem('itzli_platinum_settings') || '{}');
         if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
         if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
+        userSettings.geofenceRadius = userSettings.geofenceRadius || 50;
+        let geofenceActive = false;
+        let geofenceCircle = null;
 
         let cameraStates = { frontal: true, trasera: true, interior: true };
         let recordStates = { frontal: false, trasera: false, interior: false };
         let currentCloudCam = 'frontal';
         let currentUser = null;
+        let cloudVideos = {
+            frontal: [{ name: '2026-07-29_14-30-00.mp4', size: 45200000 }, { name: '2026-07-29_12-15-00.mp4', size: 38900000 }],
+            trasera: [{ name: '2026-07-29_14-30-00.mp4', size: 42300000 }],
+            interior: [{ name: '2026-07-29_14-30-00.mp4', size: 41000000 }, { name: '2026-07-29_09-10-00.mp4', size: 35600000 }]
+        };
 
-        // ═══════════════ FUNCIÓN PRINCIPAL DE IDIOMA ═══════════════
+        const chips = [
+            { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"" },
+            { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"" },
+            { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"" },
+            { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+            { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
+        ];
+        const alertLog = [];
+
+        let map, marker, mapInitialized = false;
+        let currentLat = 19.4326, currentLng = -99.1332;
+
         function toggleLang() {
             isSpanish = !isSpanish;
             const lang = isSpanish ? 'es' : 'en';
             const d = langData[lang];
-            
-            // Botón de idioma
             document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
             document.documentElement.lang = isSpanish ? 'es' : 'en';
-            
-            // Header
             document.getElementById('txtSubtitle').innerText = d.subtitle;
             document.getElementById('txtBadge').innerHTML = d.badge;
             document.getElementById('txtLogout').innerText = d.logoutBtn;
-            
-            // Status Bar
             document.getElementById('txtSecure').innerText = d.secure;
             document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--gold);">21E41421...</strong>';
-            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">22s</strong>';
+            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown" style="color:var(--gold);">' + countdown + 's</strong>';
             document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">4.2/5 GB</strong>';
-            
-            // Hot-Swap
             document.getElementById('txtHotSwapTitle').innerText = d.hotSwapTitle;
-            
-            // Control
             document.getElementById('txtControlTitle').innerText = d.controlTitle;
             document.getElementById('txtSecMotor').innerHTML = d.secMotor;
             document.getElementById('txtSecEnt').innerHTML = d.secEnt;
             document.getElementById('txtSecClimate').innerHTML = d.secClimate;
             document.getElementById('txtSecNav').innerHTML = d.secNav;
-            
-            // Botones de control
-            document.getElementById('btnStart').innerHTML = '🚀 <span>' + d.btnStart + '</span>';
-            document.getElementById('btnStop').innerHTML = '🛑 <span>' + d.btnStop + '</span>';
-            document.getElementById('btnOpen').innerHTML = '🔓 <span>' + d.btnOpen + '</span>';
-            document.getElementById('btnClose').innerHTML = '🔒 <span>' + d.btnClose + '</span>';
-            document.getElementById('btnLights').innerHTML = '💡 <span>' + d.btnLights + '</span>';
-            document.getElementById('btnHorn').innerHTML = '📢 <span>' + d.btnHorn + '</span>';
-            document.getElementById('btnVolUp').innerHTML = '🔊 <span>' + d.btnVolUp + '</span>';
-            document.getElementById('btnVolDown').innerHTML = '🔉 <span>' + d.btnVolDown + '</span>';
-            document.getElementById('btnMute').innerHTML = '🔇 <span>' + d.btnMute + '</span>';
-            document.getElementById('btnBt').innerHTML = '📱 <span>' + d.btnBt + '</span>';
-            document.getElementById('btnFm').innerHTML = '📻 <span>' + d.btnFm + '</span>';
-            document.getElementById('btnAm').innerHTML = '📻 <span>' + d.btnAm + '</span>';
-            document.getElementById('btnAux').innerHTML = '🎧 <span>' + d.btnAux + '</span>';
-            document.getElementById('btnNext').innerHTML = '⏭️ <span>' + d.btnNext + '</span>';
-            document.getElementById('btnAcOn').innerHTML = '❄️ <span>' + d.btnAcOn + '</span>';
-            document.getElementById('btnAcOff').innerHTML = '🌡️ <span>' + d.btnAcOff + '</span>';
-            document.getElementById('btnTempUp').innerHTML = '🔺 <span>' + d.btnTempUp + '</span>';
-            document.getElementById('btnTempDown').innerHTML = '🔻 <span>' + d.btnTempDown + '</span>';
-            document.getElementById('btnFanUp').innerHTML = '💨 <span>' + d.btnFanUp + '</span>';
-            document.getElementById('btnFanDown').innerHTML = '💨 <span>' + d.btnFanDown + '</span>';
-            document.getElementById('btnSeat').innerHTML = '🔥 <span>' + d.btnSeat + '</span>';
-            document.getElementById('btnDefrost').innerHTML = '❄️ <span>' + d.btnDefrost + '</span>';
-            document.getElementById('btnNavHome').innerHTML = '🏠 <span>' + d.btnNavHome + '</span>';
-            document.getElementById('btnNavWork').innerHTML = '🏢 <span>' + d.btnNavWork + '</span>';
-            document.getElementById('btnNavStop').innerHTML = '🛑 <span>' + d.btnNavStop + '</span>';
-            document.getElementById('btnFold').innerHTML = '🪞 <span>' + d.btnFold + '</span>';
-            document.getElementById('btnUnfold').innerHTML = '🪞 <span>' + d.btnUnfold + '</span>';
-            document.getElementById('btnMirrorHeat').innerHTML = '🔥 <span>' + d.btnMirrorHeat + '</span>';
-            document.getElementById('btnLocation').innerHTML = '📍 <span>' + d.btnLocation + '</span>';
-            document.getElementById('btnGeofence').innerHTML = '📐 <span>' + d.btnGeofence + '</span>';
-            
+
+            const btnMap = { btnStart:d.btnStart, btnStop:d.btnStop, btnOpen:d.btnOpen, btnClose:d.btnClose, btnLights:d.btnLights, btnHorn:d.btnHorn, btnVolUp:d.btnVolUp, btnVolDown:d.btnVolDown, btnMute:d.btnMute, btnBt:d.btnBt, btnFm:d.btnFm, btnAm:d.btnAm, btnAux:d.btnAux, btnNext:d.btnNext, btnAcOn:d.btnAcOn, btnAcOff:d.btnAcOff, btnTempUp:d.btnTempUp, btnTempDown:d.btnTempDown, btnFanUp:d.btnFanUp, btnFanDown:d.btnFanDown, btnSeat:d.btnSeat, btnDefrost:d.btnDefrost, btnNavHome:d.btnNavHome, btnNavWork:d.btnNavWork, btnNavStop:d.btnNavStop, btnFold:d.btnFold, btnUnfold:d.btnUnfold, btnMirrorHeat:d.btnMirrorHeat, btnLocation:d.btnLocation };
+            Object.entries(btnMap).forEach(([id, text]) => { const el = document.getElementById(id); if(el) el.innerHTML = el.innerHTML.replace(/<span>.*<\/span>/, `<span>${text}</span>`); });
+            updateGeofenceButtonText();
+            document.getElementById('txtGeofenceConfigTitle').innerText = d.geofenceConfigTitle;
+            document.getElementById('txtGeofenceConfigDesc').innerText = d.geofenceConfigDesc;
+            document.getElementById('txtRangeMin').innerText = d.rangeMin;
+            document.getElementById('txtRangeMax').innerText = d.rangeMax;
+            document.getElementById('txtGeofenceHint').innerHTML = d.geofenceHint;
             document.getElementById('cmdResult').innerText = d.cmdResult;
-            
-            // Cámaras
             document.getElementById('txtCamTitle').innerText = d.camTitle;
             document.getElementById('txtViewCloud').innerText = d.btnViewCloud;
-            
-            // Chips y Alertas
             document.getElementById('txtChipTitle').innerText = d.chipTitle;
             document.getElementById('txtAlertTitle').innerText = d.alertTitle;
-            
-            // Mapa
             document.getElementById('txtMapTitle').textContent = d.mapTitle;
             document.getElementById('txtLat').textContent = d.latLabel;
             document.getElementById('txtLng').textContent = d.lngLabel;
@@ -835,23 +703,16 @@
             document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
             document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
             document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
-            document.getElementById('btnCloseMap').innerHTML = '❌ <span>' + d.btnCloseMap + '</span>';
-            
-            // Modal Nube
             document.getElementById('txtCloudModalTitle').innerText = d.cloudModalTitle;
             document.getElementById('txtCloseCloud').innerText = d.closeCloud;
             document.getElementById('txtTabFront').innerText = d.tabFront;
             document.getElementById('txtTabRear').innerText = d.tabRear;
             document.getElementById('txtTabInt').innerText = d.tabInt;
-            
-            // Configuración
             document.getElementById('txtSettingsTitle').innerText = d.settingsTitle;
             document.getElementById('txtCloseSettings').innerText = d.closeSettings;
             document.getElementById('txtHomeLabel').innerText = d.homeLabel;
             document.getElementById('txtWorkLabel').innerText = d.workLabel;
             document.getElementById('txtSaveSettings').innerText = d.saveSettings;
-            
-            // Login
             document.getElementById('txtLoginTitle').innerText = d.loginTitle;
             document.getElementById('txtEmail').innerText = d.emailLabel;
             document.getElementById('txtPassword').innerText = d.passwordLabel;
@@ -859,8 +720,6 @@
             document.getElementById('txtNoAccount').innerText = d.noAccount;
             document.getElementById('txtRegisterLink').innerText = d.registerLink;
             document.getElementById('txtDemoBtn').innerText = d.demoBtn;
-            
-            // Registro
             document.getElementById('txtRegisterTitle').innerText = d.registerTitle;
             document.getElementById('txtRegEmail').innerText = d.regEmailLabel;
             document.getElementById('txtRegPassword').innerText = d.regPasswordLabel;
@@ -868,537 +727,232 @@
             document.getElementById('txtRegisterBtn').innerText = d.registerBtn;
             document.getElementById('txtHasAccount').innerText = d.hasAccount;
             document.getElementById('txtLoginLink').innerText = d.loginLink;
-            
-            // Re-renderizar secciones dinámicas
+            updateRadiusDisplay();
             renderHotSwap();
             renderCameras();
-        }
-
-        // ═══════════════ RENDERIZADO DE SECCIONES ═══════════════
-        function renderHotSwap() {
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            
-            document.getElementById('hotswapGrid').innerHTML = `
-                <div class="hotswap-card fail">
-                    <h4>${d.hsFailName}</h4>
-                    <p>${d.hsFailVolt} | ${d.hsFailTemp}</p>
-                    <div class="status-text" style="color:var(--red);">${d.hsFailStatus}</div>
-                    <div class="status-text" style="color:var(--gold);">${d.hsFailCov}</div>
-                </div>
-                <div class="hotswap-card success">
-                    <h4>${d.hsBackName}</h4>
-                    <p>${d.hsBackVolt} | ${d.hsBackTemp}</p>
-                    <div class="status-text" style="color:var(--green);">${d.hsBackStatus}</div>
-                    <div class="status-text" style="color:var(--dim);">${d.hsBackBuy}</div>
-                </div>
-            `;
-        }
-
-        function renderCameras() {
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            
-            const cameras = [
-                { id: 'frontal', name: d.camFront, color: 'front', img: d.imgFrontal },
-                { id: 'trasera', name: d.camRear, color: 'rear', img: d.imgTrasera },
-                { id: 'interior', name: d.camInt, color: 'interior', img: d.imgInterior }
-            ];
-            
-            document.getElementById('cameraGrid').innerHTML = cameras.map(cam => `
-                <div class="camera-feed ${cam.color} ${cameraStates[cam.id] ? 'video-on' : ''} ${recordStates[cam.id] ? 'recording' : ''}" 
-                     id="cam-${cam.id}">
-                    <img src="${cam.img}" alt="${cam.name}" class="camera-image" id="img-${cam.id}" 
-                         onerror="this.style.display='none'; this.nextElementSibling.style.opacity='1';">
-                    <video class="camera-video" id="video-${cam.id}" muted loop playsinline></video>
-                    <button class="record-btn-individual ${recordStates[cam.id] ? 'recording' : ''}" 
-                            onclick="event.stopPropagation(); toggleRecordIndividual('${cam.id}')">
-                        ${recordStates[cam.id] ? d.recordBtnOn : d.recordBtn}
-                    </button>
-                    <div class="camera-name">${cam.name}</div>
-                    <div class="camera-recording"></div>
-                </div>
-            `).join('');
-            
-            // Re-agregar event listeners
-            document.querySelectorAll('.camera-feed').forEach(feed => {
-                const camId = feed.id.replace('cam-', '');
-                feed.onclick = function(e) {
-                    if(e.detail === 1) toggleCamera(camId);
-                };
-                feed.ondblclick = function() {
-                    handleDoubleClick(camId);
-                };
-            });
-            
+            renderChips();
+            renderAlerts();
+            switchCloudTab(currentCloudCam);
             updateOnlineButton();
             updateRecordAllButton();
         }
 
-        function toggleCamera(camId) {
-            cameraStates[camId] = !cameraStates[camId];
-            renderCameras();
+        function updateGeofenceButtonText() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('txtGeofenceBtn').innerText = geofenceActive ? d.geofenceBtnDeactivate : d.geofenceBtnActivate;
+            const btn = document.getElementById('btnGeofenceToggle');
+            btn.classList.toggle('active', geofenceActive);
         }
 
-        function toggleAllCameras() {
-            const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
-            cameraStates.frontal = cameraStates.trasera = cameraStates.interior = !allOn;
-            renderCameras();
-        }
-
-        function toggleRecordIndividual(camId) {
-            recordStates[camId] = !recordStates[camId];
-            renderCameras();
-        }
-
-        function toggleRecordAll() {
-            const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior;
-            recordStates.frontal = recordStates.trasera = recordStates.interior = !allRecording;
-            renderCameras();
-        }
-
-        function updateOnlineButton() {
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
-            const allOff = !cameraStates.frontal && !cameraStates.trasera && !cameraStates.interior;
-            const btn = document.querySelector('.btn-online');
-            if (btn) {
-                btn.className = 'btn btn-online ' + (allOn ? 'on' : allOff ? 'off' : '');
-                document.getElementById('txtOnlineStatus').innerText = allOn ? d.onlineStatus : allOff ? d.offlineStatus : d.partialStatus;
+        function updateRadiusDisplay() {
+            const val = parseInt(document.getElementById('geofenceRadius').value);
+            const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+            document.getElementById('radiusValue').textContent = displayVal + (isSpanish ? 'm' : 'ft');
+            userSettings.geofenceRadius = val;
+            localStorage.setItem('itzli_platinum_settings', JSON.stringify(userSettings));
+            if (geofenceCircle && map) {
+                map.removeLayer(geofenceCircle);
+                geofenceCircle = L.circle([currentLat, currentLng], { color: '#f5c542', fillColor: '#f5c542', fillOpacity: 0.15, radius: val }).addTo(map);
             }
         }
 
-        function updateRecordAllButton() {
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior;
-            const btn = document.getElementById('btnRecordAll');
-            if (btn) {
-                btn.className = 'btn btn-record-all ' + (allRecording ? 'recording' : 'stopped');
-                document.getElementById('txtBtnRecordAll').innerText = allRecording ? d.btnRecordAll : d.btnRecordAllOff;
-            }
-        }
-
-        function handleDoubleClick(camId) {
-            const feed = document.getElementById('cam-' + camId);
-            if (!document.fullscreenElement) {
-                feed.requestFullscreen().catch(() => {});
+        function toggleGeofence() {
+            geofenceActive = !geofenceActive;
+            const d = langData[isSpanish ? 'es' : 'en'];
+            if (geofenceActive) {
+                if (map) {
+                    if (geofenceCircle) map.removeLayer(geofenceCircle);
+                    const radius = userSettings.geofenceRadius || 50;
+                    geofenceCircle = L.circle([currentLat, currentLng], { color: '#f5c542', fillColor: '#f5c542', fillOpacity: 0.15, radius: radius }).addTo(map);
+                }
+                document.getElementById('cmdResult').textContent = d.geofenceActivated;
+                document.getElementById('cmdResult').style.color = 'var(--gold)';
             } else {
-                document.exitFullscreen();
+                if (geofenceCircle && map) {
+                    map.removeLayer(geofenceCircle);
+                    geofenceCircle = null;
+                }
+                document.getElementById('cmdResult').textContent = d.geofenceDeactivated;
+                document.getElementById('cmdResult').style.color = 'var(--red)';
             }
-        }
-
-        // ═══════════════ CHIPS ═══════════════
-        const chips = [
-            { id:"0x7E0", name:"ECU Motor", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E1", name:"Transmisión", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E2", name:"ABS/Frenos", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"⚠️ Voltaje descendente" },
-            { id:"0x7E3", name:"Airbags", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E4", name:"Puertas", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E5", name:"GPS/Navegación", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"🔴 CRÍTICO" },
-            { id:"0x7E6", name:"Radio/Media", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E7", name:"Climatización", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E8", name:"Arranque", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E9", name:"Iluminación", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"⚠️ Voltaje bajo" },
-            { id:"0x7EA", name:"Tablero", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7EB", name:"Estacionamiento", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
-        ];
-        
-        const alertLog = [];
-
-        function renderChips() {
-            chips.forEach(chip => analyzePatterns(chip));
-            document.getElementById('chipGrid').innerHTML = chips.map(chip => {
-                const statusLabel = chip.nivel === 'normal' ? 'Normal' : chip.nivel === 'warning' ? 'Precaución' : 'Crítico';
-                const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
-                return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
-                    <div class="chip-top">
-                        <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${chip.name}</span></div>
-                        <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
-                    </div>
-                    <div class="chip-metrics">
-                        <span>⚡ <span class="val">${chip.voltage}V</span></span>
-                        <span>🌡️ <span class="val">${chip.temp}°C</span></span>
-                        <span>🔄 <span class="val">${chip.syncs}</span></span>
-                    </div>
-                    ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel === 'critical' ? 'red' : ''}">${chip.alertaMsg}</div>` : ''}
-                    <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
-                </div>`;
-            }).join('');
-        }
-
-        function toggleChip(id) { document.getElementById('chip-' + id).classList.toggle('expanded'); }
-
-        function analyzePatterns(chip) {
-            if (chip.vH.length >= 4) {
-                if (chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", "Voltaje crítico: " + chip.voltage + "V"); }
-            }
-            if (chip.tH.length >= 4) {
-                if (chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", "Temp elevada: " + chip.temp + "°C"); }
-            }
-            if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", "Errores: " + chip.errors); }
-        }
-
-        function addAlert(chip, nivel, mensaje) {
-            const exists = alertLog.find(a => a.chip === chip.name && a.mensaje === mensaje);
-            if (!exists) {
-                alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chip.name, icon: chip.icon, nivel, mensaje });
-                if (alertLog.length > 20) alertLog.pop();
-            }
-        }
-
-        function renderAlerts() {
-            const container = document.getElementById('alertList');
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            if (alertLog.length === 0) {
-                container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
-                return;
-            }
-            container.innerHTML = alertLog.map(a => `
-                <div class="alert-item ${a.nivel}">
-                    <div class="icon">${a.icon}</div>
-                    <div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div>
-                </div>
-            `).join('');
-        }
-
-        // ═══════════════ COMANDOS ═══════════════
-        function sendCommand(cmd) {
-            const messages = {
-                'arrancar': '🚀 Motor ARRANCADO.',
-                'apagar': '🛑 Motor APAGADO.',
-                'abrir': '🔓 Puertas ABIERTAS.',
-                'cerrar': '🔒 Puertas CERRADAS.',
-                'luces': '💡 Luces ENCENDIDAS.',
-                'claxon': '📢 Claxon ACTIVADO.',
-                'vol_up': '🔊 Volumen subido.',
-                'vol_down': '🔉 Volumen bajado.',
-                'mute': '🔇 Silenciado.',
-                'bluetooth': '📱 Bluetooth activado.',
-                'radio_fm': '📻 Radio FM.',
-                'radio_am': '📻 Radio AM.',
-                'aux': '🎧 Modo AUX.',
-                'next_track': '⏭️ Siguiente pista.',
-                'ac_on': '❄️ A/C encendido.',
-                'ac_off': '🌡️ A/C apagado.',
-                'temp_up': '🔺 Temperatura +',
-                'temp_down': '🔻 Temperatura -',
-                'fan_up': '💨 Ventilador +',
-                'fan_down': '💨 Ventilador -',
-                'seat_heat': '🔥 Asientos calefactados.',
-                'defrost': '❄️ Desempañador activado.',
-                'nav_stop': '🛑 Ruta detenida.',
-                'mirror_fold': '🪞 Espejos plegados.',
-                'mirror_unfold': '🪞 Espejos desplegados.',
-                'mirror_heat': '🔥 Calefacción espejos.',
-                'geo_alarm': '📐 Geocerca activada.'
-            };
-            const result = document.getElementById('cmdResult');
-            result.textContent = messages[cmd] || '✅ Comando ejecutado';
-            result.style.color = 'var(--green)';
-            setTimeout(() => {
-                result.textContent = isSpanish ? 'Esperando comando...' : 'Waiting for command...';
-                result.style.color = 'var(--dim)';
-            }, 3000);
-        }
-
-        function navigateToAddress(type) {
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            const address = type === 'home' ? userSettings.homeAddress : userSettings.workAddress;
-            document.getElementById('cmdResult').textContent = type === 'home' ? d.navHomeMsg : d.navWorkMsg;
-            document.getElementById('cmdResult').style.color = 'var(--cyan)';
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
+            updateGeofenceButtonText();
             setTimeout(() => {
                 document.getElementById('cmdResult').textContent = d.cmdResult;
                 document.getElementById('cmdResult').style.color = 'var(--dim)';
             }, 3000);
         }
 
-        // ═══════════════ NUBE ═══════════════
-        function openCloudModal() {
-            document.getElementById('cloudModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            switchCloudTab('frontal');
+        function renderHotSwap() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('hotswapGrid').innerHTML = `
+                <div class="hotswap-card fail"><h4>${d.hsFailName}</h4><p>${d.hsFailVolt} | ${d.hsFailTemp}</p><div class="status-text" style="color:var(--red);">${d.hsFailStatus}</div><div class="status-text" style="color:var(--gold);">${d.hsFailCov}</div></div>
+                <div class="hotswap-card success"><h4>${d.hsBackName}</h4><p>${d.hsBackVolt} | ${d.hsBackTemp}</p><div class="status-text" style="color:var(--green);">${d.hsBackStatus}</div><div class="status-text" style="color:var(--dim);">${d.hsBackBuy}</div></div>`;
         }
 
-        function closeCloudModal() {
-            document.getElementById('cloudModal').classList.remove('active');
-            document.body.style.overflow = '';
-            const player = document.getElementById('cloudVideoPlayer');
-            player.pause();
-            player.src = '';
-            player.classList.remove('active');
+        function renderCameras() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const cameras = [
+                { id:'frontal', name:d.camFront, color:'front', img:d.imgFrontal },
+                { id:'trasera', name:d.camRear, color:'rear', img:d.imgTrasera },
+                { id:'interior', name:d.camInt, color:'interior', img:d.imgInterior }
+            ];
+            document.getElementById('cameraGrid').innerHTML = cameras.map(cam => `
+                <div class="camera-feed ${cam.color} ${cameraStates[cam.id]?'video-on':''} ${recordStates[cam.id]?'recording':''}" id="cam-${cam.id}">
+                    <img src="${cam.img}" alt="${cam.name}" class="camera-image" id="img-${cam.id}" onerror="this.style.display='none'; this.nextElementSibling.style.opacity='1';">
+                    <video class="camera-video" id="video-${cam.id}" muted loop playsinline></video>
+                    <button class="record-btn-individual ${recordStates[cam.id]?'recording':''}" onclick="event.stopPropagation(); toggleRecordIndividual('${cam.id}')">${recordStates[cam.id]?d.recordBtnOn:d.recordBtn}</button>
+                    <div class="camera-name">${cam.name}</div>
+                    <div class="camera-recording"></div>
+                </div>`).join('');
+            document.querySelectorAll('.camera-feed').forEach(feed => {
+                const camId = feed.id.replace('cam-','');
+                feed.onclick = function(e) { if(e.detail === 1) toggleCamera(camId); };
+                feed.ondblclick = function() { handleDoubleClick(camId); };
+            });
+            updateOnlineButton();
+            updateRecordAllButton();
         }
 
+        function toggleCamera(camId) { cameraStates[camId] = !cameraStates[camId]; if (!cameraStates[camId]) recordStates[camId] = false; renderCameras(); }
+        function toggleAllCameras() { const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior; cameraStates.frontal = cameraStates.trasera = cameraStates.interior = !allOn; if (!allOn) { recordStates.frontal = recordStates.trasera = recordStates.interior = false; } renderCameras(); }
+        function toggleRecordIndividual(camId) { if (!cameraStates[camId]) return; recordStates[camId] = !recordStates[camId]; renderCameras(); }
+        function toggleRecordAll() { const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior; recordStates.frontal = recordStates.trasera = recordStates.interior = !allRecording; renderCameras(); }
+        function updateOnlineButton() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
+            const allOff = !cameraStates.frontal && !cameraStates.trasera && !cameraStates.interior;
+            const btn = document.querySelector('.btn-online');
+            if(btn) { btn.className = 'btn btn-online ' + (allOn ? 'on' : allOff ? 'off' : ''); document.getElementById('txtOnlineStatus').innerText = allOn ? d.onlineStatus : allOff ? d.offlineStatus : d.partialStatus; }
+        }
+        function updateRecordAllButton() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior;
+            const btn = document.getElementById('btnRecordAll');
+            if(btn) { btn.className = 'btn btn-record-all ' + (allRecording ? 'recording' : 'stopped'); document.getElementById('txtBtnRecordAll').innerText = allRecording ? d.btnRecordAll : d.btnRecordAllOff; }
+        }
+        function handleDoubleClick(camId) { const feed = document.getElementById('cam-'+camId); if(!document.fullscreenElement) feed.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); }
+
+        function renderChips() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            chips.forEach(chip => analyzePatterns(chip));
+            document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
+                const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
+                const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
+                return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
+                    <div class="chip-top"><div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div><div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div></div>
+                    <div class="chip-metrics"><span>⚡ <span class="val">${chip.voltage}V</span></span><span>🌡️ <span class="val">${chip.temp}°C</span></span><span>🔄 <span class="val">${chip.syncs}</span></span></div>
+                    ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
+                    <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
+                </div>`;
+            }).join('');
+        }
+        function toggleChip(id) { document.getElementById('chip-'+id).classList.toggle('expanded'); }
+        function analyzePatterns(chip) {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); }
+            if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); }
+            if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertErrors + chip.errors); }
+        }
+        function addAlert(chip, nivel, mensaje) {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const name = d.chipNames[chips.indexOf(chip)];
+            const exists = alertLog.find(a => a.chip === name && a.mensaje === mensaje);
+            if (!exists) { alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: name, icon: chip.icon, nivel, mensaje }); if (alertLog.length > 20) alertLog.pop(); }
+        }
+        function renderAlerts() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const container = document.getElementById('alertList');
+            if (alertLog.length === 0) { container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`; return; }
+            container.innerHTML = alertLog.map(a => `<div class="alert-item ${a.nivel}"><div class="icon">${a.icon}</div><div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div></div>`).join('');
+        }
+
+        function sendCommand(cmd) {
+            const messages = { arrancar:'🚀 Motor ARRANCADO.', apagar:'🛑 Motor APAGADO.', abrir:'🔓 Puertas ABIERTAS.', cerrar:'🔒 Puertas CERRADAS.', luces:'💡 Luces ENCENDIDAS.', claxon:'📢 Claxon ACTIVADO.', vol_up:'🔊 Volumen subido.', vol_down:'🔉 Volumen bajado.', mute:'🔇 Silenciado.', bluetooth:'📱 Bluetooth activado.', radio_fm:'📻 Radio FM.', radio_am:'📻 Radio AM.', aux:'🎧 Modo AUX.', next_track:'⏭️ Siguiente pista.', ac_on:'❄️ A/C encendido.', ac_off:'🌡️ A/C apagado.', temp_up:'🔺 Temperatura +', temp_down:'🔻 Temperatura -', fan_up:'💨 Ventilador +', fan_down:'💨 Ventilador -', seat_heat:'🔥 Asientos calefactados.', defrost:'❄️ Desempañador activado.', nav_stop:'🛑 Ruta detenida.', mirror_fold:'🪞 Espejos plegados.', mirror_unfold:'🪞 Espejos desplegados.', mirror_heat:'🔥 Calefacción espejos.' };
+            const result = document.getElementById('cmdResult');
+            result.textContent = messages[cmd] || '✅ Comando ejecutado';
+            result.style.color = 'var(--green)';
+            setTimeout(() => { result.textContent = isSpanish ? 'Esperando comando...' : 'Waiting for command...'; result.style.color = 'var(--dim)'; }, 3000);
+        }
+        function navigateToAddress(type) {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const address = type === 'home' ? userSettings.homeAddress : userSettings.workAddress;
+            document.getElementById('cmdResult').textContent = type === 'home' ? d.navHomeMsg : d.navWorkMsg;
+            document.getElementById('cmdResult').style.color = 'var(--gold)';
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
+            setTimeout(() => { document.getElementById('cmdResult').textContent = d.cmdResult; document.getElementById('cmdResult').style.color = 'var(--dim)'; }, 3000);
+        }
+
+        function openCloudModal() { document.getElementById('cloudModal').classList.add('active'); document.body.style.overflow='hidden'; switchCloudTab('frontal'); }
+        function closeCloudModal() { document.getElementById('cloudModal').classList.remove('active'); document.body.style.overflow=''; const p=document.getElementById('cloudVideoPlayer'); p.pause(); p.src=''; p.classList.remove('active'); }
         function switchCloudTab(cam) {
             currentCloudCam = cam;
             document.querySelectorAll('.cloud-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
+            document.querySelector(`[onclick="switchCloudTab('${cam}')"]`).classList.add('active');
+            const d = langData[isSpanish ? 'es' : 'en'];
             const container = document.getElementById('cloudVideoList');
-            container.innerHTML = `<p style="color:var(--dim);text-align:center;">${d.loadingCloud}</p>`;
-            
-            const localVideos = {
-                frontal: [{name:'2026-07-29_14-30-00.mp4',size:45200000},{name:'2026-07-29_12-15-00.mp4',size:38900000}],
-                trasera: [{name:'2026-07-29_14-30-00.mp4',size:42300000}],
-                interior: [{name:'2026-07-29_14-30-00.mp4',size:41000000},{name:'2026-07-29_09-10-00.mp4',size:35600000}]
-            };
-            
-            const videos = localVideos[cam] || [];
+            const videos = cloudVideos[cam] || [];
             container.innerHTML = videos.length ? videos.map(v => `
-                <div class="video-item" onclick="playLocalVideo('${cam}','${v.name}')">
-                    <span>🎬 ${v.name}</span>
-                    <div class="video-actions">
-                        <span style="color:var(--dim);">${formatSize(v.size)}</span>
-                        <button class="download-btn" onclick="event.stopPropagation(); downloadLocalVideo('${cam}','${v.name}')">${d.downloadBtn}</button>
-                    </div>
-                </div>
-            `).join('') : `<p style="color:var(--dim);text-align:center;">${d.noVideos}</p>`;
+                <div class="video-item"><span style="cursor:pointer;" onclick="playLocalVideo('${cam}','${v.name}')">🎬 ${v.name}</span>
+                <div class="video-actions"><span style="color:var(--dim);">${formatSize(v.size)}</span>
+                <button class="download-btn" onclick="event.stopPropagation(); downloadLocalVideo('${cam}','${v.name}')">${d.downloadBtn}</button>
+                <button class="delete-btn" onclick="event.stopPropagation(); deleteCloudVideo('${cam}','${v.name}')">${d.deleteBtn}</button></div></div>`).join('') : `<p style="color:var(--dim);text-align:center;">${d.noVideos}</p>`;
         }
-
-        function playLocalVideo(cam, name) {
-            const player = document.getElementById('cloudVideoPlayer');
-            player.classList.add('active');
-            const canvas = document.createElement('canvas');
-            canvas.width = 640; canvas.height = 360;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0, 0, 640, 360);
-            ctx.fillStyle = '#00d4ff'; ctx.font = 'bold 24px Segoe UI'; ctx.textAlign = 'center';
-            ctx.fillText(cam.toUpperCase(), 320, 160);
-            ctx.fillStyle = '#7a8aa0'; ctx.font = '14px Segoe UI';
-            ctx.fillText(name, 320, 200);
-            player.srcObject = canvas.captureStream(30);
-            player.play();
-        }
-
-        function downloadLocalVideo(cam, name) {
-            const blob = new Blob(['Video ITZTLI - ' + cam], { type: 'video/mp4' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = name; a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function formatSize(bytes) {
-            if (!bytes) return '0 B';
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / 1048576).toFixed(1) + ' MB';
-        }
-
-        // ═══════════════ MAPA ═══════════════
-        let map = null, marker = null, mapInitialized = false;
-        let currentLat = 19.4326, currentLng = -99.1332;
+        function deleteCloudVideo(cam, name) { if (!confirm(langData[isSpanish?'es':'en'].deleteConfirm)) return; cloudVideos[cam] = cloudVideos[cam].filter(v => v.name !== name); switchCloudTab(cam); }
+        function playLocalVideo(cam, name) { const p=document.getElementById('cloudVideoPlayer'); p.classList.add('active'); const c=document.createElement('canvas'); c.width=640; c.height=360; const x=c.getContext('2d'); x.fillStyle='#0a0a1a'; x.fillRect(0,0,640,360); x.fillStyle='#f5c542'; x.font='bold 24px Segoe UI'; x.textAlign='center'; x.fillText(cam.toUpperCase(),320,160); x.fillStyle='#8a8ab0'; x.font='14px Segoe UI'; x.fillText(name,320,200); p.srcObject=c.captureStream(30); p.play(); }
+        function downloadLocalVideo(cam, name) { const b=new Blob(['Video ITZTLI - '+cam],{type:'video/mp4'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+        function formatSize(bytes) { if(!bytes) return '0 B'; if(bytes<1024) return bytes+' B'; if(bytes<1048576) return (bytes/1024).toFixed(1)+' KB'; return (bytes/1048576).toFixed(1)+' MB'; }
 
         function initMap() {
-            if (mapInitialized) { setTimeout(() => { if(map) map.invalidateSize(); }, 100); return; }
+            if(mapInitialized) { setTimeout(() => { if(map) map.invalidateSize(); },100); return; }
             const d = document.getElementById('map');
-            if (!d || d.offsetHeight === 0) { setTimeout(initMap, 300); return; }
+            if(!d || d.offsetHeight===0) { setTimeout(initMap,300); return; }
             mapInitialized = true;
-            
-            map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Esri',
-                maxZoom: 19
-            }).addTo(map);
-            
-            marker = L.marker([currentLat, currentLng]).addTo(map)
-                .bindPopup('<strong>🚗 Tu auto está aquí</strong>');
-            
-            L.circle([currentLat, currentLng], { 
-                color: '#00c8ff', fillColor: '#00c8ff', fillOpacity: 0.15, radius: 30 
-            }).addTo(map);
-            
-            setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+            map = L.map('map', { center:[currentLat,currentLng], zoom:17, zoomControl:true });
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { attribution:'Esri', maxZoom:19 }).addTo(map);
+            marker = L.marker([currentLat,currentLng]).addTo(map).bindPopup('<strong>🚗 Tu auto está aquí</strong>');
+            setTimeout(() => { if(map) map.invalidateSize(); },500);
         }
+        function scrollToMap() { document.getElementById('mapSection').scrollIntoView({ behavior:'smooth' }); if(map) { map.setView([currentLat,currentLng], 17); } }
+        function updateLocation() { currentLat += (Math.random()-0.5)*0.001; currentLng += (Math.random()-0.5)*0.001; document.getElementById('lat').textContent = currentLat.toFixed(4)+'° N'; document.getElementById('lng').textContent = currentLng.toFixed(4)+'° W'; if(marker && map) { marker.setLatLng([currentLat,currentLng]); map.setView([currentLat,currentLng],17); } }
+        function shareLocation() { const d=langData[isSpanish?'es':'en']; const loc=`📍 Mi auto: https://www.google.com/maps?q=${currentLat},${currentLng}`; if(navigator.share) navigator.share({title:'📍 Ubicación',text:loc}); else { navigator.clipboard.writeText(loc); alert(d.shareAlert); } }
+        function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
 
-        function toggleLocation() {
-            const p = document.getElementById('locationPanel');
-            if (p.style.display === 'none' || p.style.display === '') {
-                p.style.display = 'block';
-                setTimeout(initMap, 400);
-            } else {
-                p.style.display = 'none';
-            }
-        }
+        function skipLogin() { currentUser={id:'demo-user',email:'demo@itzli.com'}; document.getElementById('authModal').classList.remove('active'); document.getElementById('btnLogout').style.display='inline-block'; updateStatusDot('online'); }
+        function login() { const email=document.getElementById('loginEmail').value; if(!email) return; currentUser={id:'user-'+Date.now(),email:email}; document.getElementById('authModal').classList.remove('active'); document.getElementById('btnLogout').style.display='inline-block'; updateStatusDot('online'); }
+        function register() { const email=document.getElementById('regEmail').value; if(!email) return; currentUser={id:'user-'+Date.now(),email:email}; document.getElementById('registerModal').classList.remove('active'); document.getElementById('btnLogout').style.display='inline-block'; updateStatusDot('online'); }
+        function logout() { currentUser=null; document.getElementById('btnLogout').style.display='none'; document.getElementById('authModal').classList.add('active'); updateStatusDot('offline'); }
+        function showRegister() { document.getElementById('authModal').classList.remove('active'); document.getElementById('registerModal').classList.add('active'); }
+        function showLogin() { document.getElementById('authModal').classList.add('active'); document.getElementById('registerModal').classList.remove('active'); }
+        function closeRegister() { document.getElementById('registerModal').classList.remove('active'); }
+        function updateStatusDot(status) { const dot=document.getElementById('statusDot'); dot.className='dot'; if(status==='online') dot.classList.add('dot-green'); else dot.classList.add('dot-red'); document.getElementById('txtSecure').innerText = status==='online' ? langData[isSpanish?'es':'en'].secure : 'DESCONECTADO'; }
 
-        function updateLocation() {
-            currentLat += (Math.random() - 0.5) * 0.001;
-            currentLng += (Math.random() - 0.5) * 0.001;
-            document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
-            document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
-            if (marker && map) {
-                marker.setLatLng([currentLat, currentLng]);
-                map.setView([currentLat, currentLng], 17);
-            }
-        }
+        function openSettings() { document.getElementById('settingsModal').classList.add('active'); document.getElementById('homeAddress').value=userSettings.homeAddress; document.getElementById('workAddress').value=userSettings.workAddress; }
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+        function saveSettings() { userSettings.homeAddress=document.getElementById('homeAddress').value; userSettings.workAddress=document.getElementById('workAddress').value; localStorage.setItem('itzli_platinum_settings', JSON.stringify(userSettings)); alert(langData[isSpanish?'es':'en'].settingsSaved); closeSettings(); }
 
-        function shareLocation() {
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            const loc = `📍 Mi auto: https://www.google.com/maps?q=${currentLat},${currentLng}`;
-            if (navigator.share) {
-                navigator.share({ title: '📍 Ubicación', text: loc });
-            } else {
-                navigator.clipboard.writeText(loc);
-                alert(d.shareAlert);
-            }
-        }
-
-        function navigateToCar() {
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank');
-        }
-
-        // ═══════════════ AUTENTICACIÓN ═══════════════
-        function skipLogin() {
-            currentUser = { id: 'demo-user', email: 'demo@itzli.com' };
-            document.getElementById('authModal').classList.remove('active');
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            document.getElementById('keyDisplay').textContent = '21E41421A7B9C3D5...';
-            updateStatusDot('online');
-        }
-
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                alert('Por favor ingresa email y contraseña');
-                return;
-            }
-            
-            currentUser = { id: 'user-' + Date.now(), email: email };
-            document.getElementById('authModal').classList.remove('active');
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            updateStatusDot('online');
-        }
-
-        async function register() {
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            
-            if (!email || !password) {
-                alert('Completa todos los campos');
-                return;
-            }
-            
-            currentUser = { id: 'user-' + Date.now(), email: email };
-            document.getElementById('registerModal').classList.remove('active');
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            updateStatusDot('online');
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('btnLogout').style.display = 'none';
-            document.getElementById('authModal').classList.add('active');
-            updateStatusDot('offline');
-        }
-
-        function showRegister() {
-            document.getElementById('authModal').classList.remove('active');
-            document.getElementById('registerModal').classList.add('active');
-        }
-
-        function showLogin() {
-            document.getElementById('authModal').classList.add('active');
-            document.getElementById('registerModal').classList.remove('active');
-        }
-
-        function closeRegister() {
-            document.getElementById('registerModal').classList.remove('active');
-        }
-
-        function updateStatusDot(status) {
-            const dot = document.getElementById('statusDot');
-            dot.className = 'dot';
-            if (status === 'online') dot.classList.add('dot-green');
-            else if (status === 'warning') dot.classList.add('dot-yellow');
-            else dot.classList.add('dot-red');
-            
-            const lang = isSpanish ? 'es' : 'en';
-            document.getElementById('txtSecure').innerText = status === 'online' ? langData[lang].secure : 'DESCONECTADO';
-        }
-
-        // ═══════════════ CONFIGURACIÓN ═══════════════
-        function openSettings() {
-            document.getElementById('settingsModal').classList.add('active');
-            document.getElementById('homeAddress').value = userSettings.homeAddress;
-            document.getElementById('workAddress').value = userSettings.workAddress;
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('active');
-        }
-
-        function saveSettings() {
-            const lang = isSpanish ? 'es' : 'en';
-            userSettings.homeAddress = document.getElementById('homeAddress').value;
-            userSettings.workAddress = document.getElementById('workAddress').value;
-            localStorage.setItem('itzli_settings', JSON.stringify(userSettings));
-            alert(langData[lang].settingsSaved);
-            closeSettings();
-        }
-
-        // ═══════════════ SIMULACIÓN ═══════════════
         function simulateUpdate() {
             chips.forEach(chip => {
-                chip.voltage += (Math.random() - 0.5) * 0.2;
-                chip.voltage = Math.round(chip.voltage * 10) / 10;
-                chip.temp += (Math.random() - 0.5) * 1;
-                chip.temp = Math.round(chip.temp);
-                chip.vH.push(chip.voltage);
-                chip.tH.push(chip.temp);
-                if (chip.vH.length > 10) chip.vH.shift();
-                if (chip.tH.length > 10) chip.tH.shift();
-                if (Math.random() > 0.95) chip.errors++;
-                chip.syncs += Math.floor(Math.random() * 10);
+                chip.voltage += (Math.random()-0.5)*0.2; chip.voltage = Math.round(chip.voltage*10)/10;
+                chip.temp += (Math.random()-0.5)*1; chip.temp = Math.round(chip.temp);
+                chip.vH.push(chip.voltage); chip.tH.push(chip.temp);
+                if(chip.vH.length>10) chip.vH.shift(); if(chip.tH.length>10) chip.tH.shift();
+                if(Math.random()>0.95) chip.errors++; chip.syncs += Math.floor(Math.random()*10);
             });
-            renderChips();
-            renderAlerts();
+            renderChips(); renderAlerts();
         }
 
-        // ═══════════════ INICIALIZACIÓN ═══════════════
-        let countdown = 22;
-        setInterval(() => {
-            countdown--;
-            if (countdown <= 0) countdown = 22;
-            const el = document.getElementById('countdown');
-            if (el) el.textContent = countdown + 's';
-            
-            const timeEl = document.getElementById('currentTime');
-            if (timeEl) timeEl.textContent = new Date().toLocaleString();
-        }, 1000);
+        setInterval(() => { countdown--; if(countdown<=0) countdown=5; const el=document.getElementById('countdown'); if(el) el.textContent=countdown+'s'; document.getElementById('currentTime').textContent = new Date().toLocaleString(); }, 1000);
+        document.addEventListener('keydown', function(e) { if(e.key==='Escape') { closeCloudModal(); closeSettings(); } });
+        document.getElementById('cloudModal').addEventListener('click', function(e) { if(e.target===this) closeCloudModal(); });
+        document.getElementById('settingsModal').addEventListener('click', function(e) { if(e.target===this) closeSettings(); });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeCloudModal();
-                closeSettings();
-            }
-        });
-
-        document.getElementById('cloudModal').addEventListener('click', function(e) {
-            if (e.target === this) closeCloudModal();
-        });
-
-        document.getElementById('settingsModal').addEventListener('click', function(e) {
-            if (e.target === this) closeSettings();
-        });
-
-        // ═══════════════ ARRANQUE ═══════════════
         function init() {
-            renderHotSwap();
-            renderCameras();
-            renderChips();
-            renderAlerts();
+            document.getElementById('geofenceRadius').value = userSettings.geofenceRadius;
+            updateRadiusDisplay();
+            renderHotSwap(); renderCameras(); renderChips(); renderAlerts();
             document.getElementById('authModal').classList.add('active');
+            setTimeout(initMap, 600);
         }
-
         init();
         setInterval(simulateUpdate, 15000);
     </script>

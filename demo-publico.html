@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI DEMO — Exhibición Completa</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ITZTLI DEMO">
+    <meta name="theme-color" content="#0a0a1a">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --bg: #0a0a1a; --card: #14102e; --border: #2a2060;
+            --cyan: #00d4ff; --gold: #f5c542; --green: #00ff88;
+            --red: #ff4466; --yellow: #ffaa00; --text: #e8e8f0; --dim: #8a8ab0;
+            --purple: #8b5cf6; --purple-glow: #a78bfa; --purple-electric: #7c3aed;
+            --font: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: var(--font);
+            line-height: 1.5; padding: 15px; max-width: 1100px; margin: auto;
+        }
+        
+        .header {
+            text-align: center; padding: 30px 20px 15px;
+            margin-bottom: 20px; position: relative;
+            border: 2px solid var(--purple-glow); border-radius: 20px;
+            background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(167,139,250,0.05));
+            box-shadow: 0 0 30px rgba(139,92,246,0.15);
+        }
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+        .header .subtitle { color: var(--dim); font-size: 14px; margin-top: 4px; }
+        .header .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: #fff; padding: 6px 20px; border-radius: 30px; font-weight: bold; font-size: 13px;
+            margin-top: 8px; box-shadow: 0 0 25px rgba(139,92,246,0.4);
+        }
+        
+        .header-buttons { 
+            position: absolute; top: 20px; right: 20px; 
+            display: flex; gap: 8px; flex-wrap: wrap; 
+        }
+        @media (max-width: 600px) {
+            .header-buttons { position: relative; top: 0; right: 0; justify-content: center; margin-bottom: 10px; }
+            .header h1 { font-size: 22px; }
+        }
+        
+        .lang-btn { 
+            background: rgba(139,92,246,0.2); border: 1px solid var(--purple-glow); 
+            border-radius: 8px; color: var(--purple-glow); padding: 5px 12px;
+            cursor: pointer; font-size: 13px; transition: 0.3s; font-weight: bold;
+        }
+        .lang-btn:hover { background: var(--purple); color: #fff; }
+        
+        .sim-warning {
+            background: rgba(255,170,0,0.1); border: 2px solid var(--yellow);
+            border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;
+            color: var(--yellow); font-size: 13px; font-weight: 600;
+            animation: pulse-warning 2s infinite;
+        }
+        @keyframes pulse-warning { 0%,100%{box-shadow:0 0 10px rgba(255,170,0,0.2)} 50%{box-shadow:0 0 25px rgba(255,170,0,0.4)} }
+        
+        .status-bar {
+            display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px 20px; margin-bottom: 20px;
+            font-size: 13px;
+        }
+        .status-bar span { display: flex; align-items: center; gap: 6px; }
+        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+        .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+        .dot-purple { background: var(--purple-glow); box-shadow: 0 0 8px var(--purple-glow); }
+        .dot-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+        
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; font-size: 15px; font-weight: bold;
+            color: var(--purple-glow);
+        }
+        
+        .hotswap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 600px) { .hotswap-grid { grid-template-columns: 1fr; } }
+        .hotswap-card {
+            border: 2px solid var(--border); border-radius: 12px; padding: 15px;
+            background: rgba(0,0,0,0.3);
+        }
+        .hotswap-card.fail { border-color: var(--red); background: rgba(255,68,102,0.05); }
+        .hotswap-card.success { border-color: var(--green); background: rgba(0,255,136,0.05); }
+        .hotswap-card h4 { font-size: 13px; margin-bottom: 4px; display: flex; gap: 8px; }
+        .hotswap-card p { font-size: 11px; color: var(--dim); margin: 3px 0; }
+        .hotswap-card .status-text { font-size: 11px; display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+        
+        .control-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        .section-title { color: var(--purple-glow); font-size: 13px; margin: 18px 0 10px 0; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        
+        .btn {
+            padding: 12px 6px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: 0.3s; text-align: center;
+            background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;
+            border: 2px solid var(--border); color: var(--text);
+        }
+        .btn:hover { transform: scale(1.02); filter: brightness(1.3); box-shadow: 0 0 20px currentColor; }
+        .btn-green { border-color: var(--green); color: var(--green); }
+        .btn-green:hover { background: var(--green); color: #000; }
+        .btn-red { border-color: var(--red); color: var(--red); }
+        .btn-red:hover { background: var(--red); color: #000; }
+        .btn-gold { border-color: var(--gold); color: var(--gold); }
+        .btn-gold:hover { background: var(--gold); color: #000; }
+        .btn-cyan { border-color: var(--cyan); color: var(--cyan); }
+        .btn-cyan:hover { background: var(--cyan); color: #000; }
+        .btn-purple { border-color: var(--purple-glow); color: var(--purple-glow); }
+        .btn-purple:hover { background: var(--purple); color: #fff; box-shadow: 0 0 25px rgba(139,92,246,0.5); }
+        .btn-blue { border-color: #4a8bf5; color: #4a8bf5; }
+        .btn-blue:hover { background: #4a8bf5; color: #000; }
+        
+        #cmdResult { text-align: center; font-size: 12px; color: var(--dim); margin-top: 15px; transition: color 0.3s; min-height: 20px; }
+        .sim-alert { color: var(--yellow) !important; font-weight: bold; }
+        
+        .camera-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        @media (max-width: 600px) { .camera-grid { grid-template-columns: 1fr; } }
+        .camera-feed {
+            background: #000; border: 2px solid var(--border); border-radius: 12px;
+            aspect-ratio: 1 / 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .camera-feed:hover { border-color: var(--purple-glow); }
+        .camera-name {
+            position: absolute; bottom: 45px; width: 100%; text-align: center;
+            font-size: 14px; font-weight: bold; text-transform: uppercase;
+            color: #fff; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            letter-spacing: 1px; pointer-events: none;
+        }
+        .camera-feed.front .camera-name { color: #a78bfa; }
+        .camera-feed.rear .camera-name { color: #c4b5fd; }
+        .camera-feed.interior .camera-name { color: #8b5cf6; }
+        .camera-image {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            object-fit:cover; z-index:1; opacity:1; transition: opacity 0.3s;
+        }
+        .camera-video {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            object-fit:cover; z-index:1; opacity:0; transition: opacity 0.3s; background:#0a0a1a;
+        }
+        .camera-feed.video-on .camera-image { opacity:0; }
+        .camera-feed.video-on .camera-video { opacity:1; }
+        .camera-recording {
+            position: absolute; top: 15px; right: 15px;
+            width: 12px; height: 12px; background: var(--red);
+            border-radius: 50%; animation: pulse-rec 1s infinite; z-index: 3; display: none;
+        }
+        .camera-feed.recording .camera-recording { display: block; }
+        @keyframes pulse-rec { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .record-btn-individual {
+            position: absolute; bottom: 15px; right: 15px; z-index: 3;
+            padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold;
+            background: rgba(0,0,0,0.7); border: 2px solid var(--red); color: var(--red);
+            cursor: pointer; transition: 0.3s; display: none;
+        }
+        .camera-feed.video-on .record-btn-individual { display: block; }
+        .record-btn-individual.recording { background: var(--red); color: #fff; box-shadow: 0 0 15px rgba(255,68,102,0.5); }
+        .record-btn-individual.recording::before { content: "● "; }
+        .record-btn-individual:not(.recording)::before { content: "○ "; }
+        
+        .cam-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .btn-online.on { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.1); }
+        .btn-online.off { border-color: var(--red); color: var(--red); background: rgba(255,68,102,0.1); }
+        
+        .chip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .chip {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px;
+            padding: 14px; transition: 0.3s; cursor: pointer;
+        }
+        .chip:hover { border-color: var(--purple-glow); transform: translateY(-2px); }
+        .chip-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .chip-icon-name { display: flex; align-items: center; gap: 8px; }
+        .chip-icon-name .icon { font-size: 20px; }
+        .chip-icon-name .name { font-weight: 600; font-size: 13px; }
+        .chip-status { font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .chip-metrics { margin-top: 8px; font-size: 11px; color: var(--dim); display: flex; gap: 12px; flex-wrap: wrap; }
+        .chip-metrics .val { color: var(--text); font-weight: 500; }
+        .chip.normal { border-left: 4px solid var(--green); }
+        .chip.warning { border-left: 4px solid var(--yellow); }
+        .chip.critical { border-left: 4px solid var(--red); animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0%,100%{box-shadow:0 0 5px rgba(255,0,0,0.2)} 50%{box-shadow:0 0 15px rgba(255,0,0,0.4)} }
+        .chip-alert { font-size: 10px; margin-top: 6px; color: var(--yellow); }
+        .chip-alert.red { color: var(--red); }
+        .chip-detail { display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 11px; color: var(--dim); }
+        .chip.expanded .chip-detail { display: block; }
+        
+        .alert-container { max-height:250px; overflow-y:auto; padding-right:5px; }
+        .alert-list { display:flex; flex-direction:column; gap:8px; }
+        .alert-item { display:flex; align-items:flex-start; gap:10px; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px 12px; font-size:12px; border-left:3px solid var(--border); }
+        .alert-item.warning { border-left-color:var(--yellow); }
+        .alert-item.critical { border-left-color:var(--red); }
+        .alert-item .time { color:var(--dim); font-size:10px; margin-top:2px; }
+        
+        #map { height: 280px; width: 100%; border-radius: 12px; border: 1px solid var(--border); margin: 10px 0; background: #0d1424; }
+        .location-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
+        .location-info .item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; }
+        .location-info .item strong { color: var(--purple-glow); display: block; font-size: 10px; margin-bottom: 2px; }
+        .location-info .item .val { font-size: 13px; font-weight: 500; }
+        .map-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+        
+        .slider-container { display:flex; align-items:center; gap:10px; margin-top:10px; }
+        .slider-container input[type=range] { flex:1; accent-color:var(--purple); }
+        .slider-container span { font-size:11px; color:var(--dim); min-width:40px; }
+
+        .cloud-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000;
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        .cloud-modal.active { display: flex; }
+        .modal-content {
+            background: var(--card); border: 2px solid var(--purple-glow);
+            border-radius: 20px; padding: 25px; max-width: 600px; width: 90%;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--purple-glow); font-size: 18px; }
+        .modal-close-btn {
+            background: transparent; border: 1px solid var(--red); color: var(--red);
+            border-radius: 8px; padding: 5px 15px; cursor: pointer; font-size: 14px;
+        }
+        .modal-close-btn:hover { background: var(--red); color: #000; }
+        .cloud-tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .cloud-tab {
+            padding: 8px 16px; border-radius: 8px; font-size: 12px; cursor: pointer;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            color: var(--text); transition: 0.3s;
+        }
+        .cloud-tab.active { border-color: var(--purple-glow); color: var(--purple-glow); background: rgba(139,92,246,0.1); }
+        #cloudVideoList { max-height: 200px; overflow-y: auto; margin-bottom: 10px; }
+        .video-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;
+            margin: 4px 0; font-size: 11px; border: 1px solid var(--border); cursor: pointer;
+        }
+        .video-item:hover { border-color: var(--purple-glow); }
+        .video-item .download-btn {
+            padding: 4px 10px; border-radius: 6px; font-size: 10px; cursor: pointer;
+            background: transparent; border: 1px solid var(--green); color: var(--green);
+        }
+        .download-btn:hover { background: var(--green); color: #000; }
+        
+        .promo-banner {
+            background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.1));
+            border: 2px solid var(--purple-glow); border-radius: 16px; padding: 20px;
+            text-align: center; margin: 20px 0;
+            box-shadow: 0 0 30px rgba(139,92,246,0.2);
+        }
+        .promo-banner h3 { color: var(--purple-glow); font-size: 18px; margin-bottom: 10px; }
+        .promo-banner p { color: var(--dim); font-size: 13px; margin-bottom: 15px; }
+        .btn-upgrade {
+            display: inline-block;
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: #fff; padding: 14px 30px; border-radius: 30px;
+            font-weight: bold; font-size: 14px; text-decoration: none;
+            box-shadow: 0 0 30px rgba(139,92,246,0.5);
+            transition: 0.3s;
+        }
+        .btn-upgrade:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(139,92,246,0.7); }
+        
+        .footer { text-align: center; font-size: 11px; color: var(--dim); padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
+        
+        @media (max-width: 600px) {
+            .chip-grid { grid-template-columns: 1fr 1fr; }
+            .control-grid { grid-template-columns: 1fr 1fr; }
+            #map { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-buttons">
+            <button class="lang-btn" id="langToggle" onclick="toggleLang()">🇲🇽 ESP</button>
+        </div>
+        <h1>ITZTLI FRACTAL CORE</h1>
+        <p class="subtitle" id="txtSubtitle">Exhibición Completa — Todos los Controles</p>
+        <div class="badge" id="txtBadge">🆓 MODO DEMOSTRACIÓN — SHOWCASE PLATINUM</div>
+    </div>
+
+    <div class="sim-warning" id="simWarning">
+        ⚠️ <span id="txtSimWarning">ESTE ES UN SIMULADOR DE EXHIBICIÓN. NINGÚN COMANDO AFECTA UN VEHÍCULO REAL. ES SOLO UNA DEMOSTRACIÓN VISUAL.</span>
+    </div>
+
+    <div class="status-bar">
+        <span><span class="dot dot-purple"></span> <strong id="txtStatus">MODO EXHIBICIÓN</strong></span>
+        <span id="txtKey">🔑 Clave: <strong style="color:var(--purple-glow);" id="dynamicKey">DEMO-21E41421...</strong></span>
+        <span id="txtRotation">🔄 Rotación: <strong style="color:var(--purple-glow);" id="countdown">5s</strong></span>
+        <span id="txtCloud">☁️ <strong style="color:var(--green);">4.2/5 GB</strong></span>
+    </div>
+
+    <!-- HOT-SWAP DIGITAL -->
+    <div class="card">
+        <div class="card-header">
+            <span>🔄 <span id="txtHotSwapTitle">HOT-SWAP DIGITAL — Auto-Reparación</span></span>
+        </div>
+        <div class="hotswap-grid" id="hotswapGrid"></div>
+    </div>
+
+    <!-- CONTROL TOTAL -->
+    <div class="card">
+        <div class="card-header">
+            <span>🎮 <span id="txtControlTitle">CONTROL TOTAL DEL VEHÍCULO (SIMULACIÓN)</span></span>
+        </div>
+        
+        <p class="section-title" id="txtSecMotor">🚗 MOTOR Y ACCESO</p>
+        <div class="control-grid">
+            <button class="btn btn-green" onclick="simCommand('arrancar')" id="btnStart">🚀 <span>ARRANCAR</span></button>
+            <button class="btn btn-red" onclick="simCommand('apagar')" id="btnStop">🛑 <span>APAGAR</span></button>
+            <button class="btn btn-green" onclick="simCommand('abrir')" id="btnOpen">🔓 <span>ABRIR</span></button>
+            <button class="btn btn-red" onclick="simCommand('cerrar')" id="btnClose">🔒 <span>CERRAR</span></button>
+            <button class="btn btn-gold" onclick="simCommand('luces')" id="btnLights">💡 <span>LUCES</span></button>
+            <button class="btn btn-gold" onclick="simCommand('claxon')" id="btnHorn">📢 <span>CLAXON</span></button>
+        </div>
+        
+        <p class="section-title" id="txtSecEnt">🎵 ENTRETENIMIENTO</p>
+        <div class="control-grid">
+            <button class="btn btn-purple" onclick="simCommand('vol_up')" id="btnVolUp">🔊 <span>VOL +</span></button>
+            <button class="btn btn-purple" onclick="simCommand('vol_down')" id="btnVolDown">🔉 <span>VOL -</span></button>
+            <button class="btn btn-purple" onclick="simCommand('mute')" id="btnMute">🔇 <span>SILENCIO</span></button>
+            <button class="btn btn-purple" onclick="simCommand('bluetooth')" id="btnBt">📱 <span>BLUETOOTH</span></button>
+            <button class="btn btn-purple" onclick="simCommand('radio_fm')" id="btnFm">📻 <span>FM</span></button>
+            <button class="btn btn-purple" onclick="simCommand('radio_am')" id="btnAm">📻 <span>AM</span></button>
+            <button class="btn btn-purple" onclick="simCommand('aux')" id="btnAux">🎧 <span>AUX</span></button>
+            <button class="btn btn-purple" onclick="simCommand('next_track')" id="btnNext">⏭️ <span>SIGUIENTE</span></button>
+        </div>
+        
+        <p class="section-title" id="txtSecClimate">🌡️ CLIMA Y CONFORT</p>
+        <div class="control-grid">
+            <button class="btn btn-cyan" onclick="simCommand('ac_on')" id="btnAcOn">❄️ <span>A/C ON</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('ac_off')" id="btnAcOff">🌡️ <span>A/C OFF</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('temp_up')" id="btnTempUp">🔺 <span>TEMP +</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('temp_down')" id="btnTempDown">🔻 <span>TEMP -</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('fan_up')" id="btnFanUp">💨 <span>FAN +</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('fan_down')" id="btnFanDown">💨 <span>FAN -</span></button>
+            <button class="btn btn-gold" onclick="simCommand('seat_heat')" id="btnSeat">🔥 <span>ASIENTOS</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('defrost')" id="btnDefrost">❄️ <span>DESHIELO</span></button>
+        </div>
+        
+        <p class="section-title" id="txtSecNav">🗺️ NAVEGACIÓN Y ESPEJOS</p>
+        <div class="control-grid">
+            <button class="btn btn-gold" onclick="simCommand('nav_home')" id="btnNavHome">🏠 <span>NAV CASA</span></button>
+            <button class="btn btn-gold" onclick="simCommand('nav_work')" id="btnNavWork">🏢 <span>NAV TRABAJO</span></button>
+            <button class="btn btn-red" onclick="simCommand('nav_stop')" id="btnNavStop">🛑 <span>DETENER RUTA</span></button>
+            <button class="btn btn-gold" onclick="simCommand('mirror_fold')" id="btnFold">🪞 <span>PLEGAR</span></button>
+            <button class="btn btn-gold" onclick="simCommand('mirror_unfold')" id="btnUnfold">🪞 <span>DESPLEGAR</span></button>
+            <button class="btn btn-gold" onclick="simCommand('mirror_heat')" id="btnMirrorHeat">🔥 <span>CALEFACCIÓN</span></button>
+            <button class="btn btn-cyan" onclick="simCommand('location')" id="btnLocation">📍 <span>UBICACIÓN</span></button>
+            <button class="btn btn-purple" id="btnGeofenceToggle" onclick="toggleGeofence()">📐 <span id="txtGeofenceBtn">ACTIVAR GEOCERCA</span></button>
+        </div>
+        
+        <p id="cmdResult">Listo para simular...</p>
+    </div>
+
+    <!-- CONFIGURACIÓN DE GEOCERCA (SIMULADA) -->
+    <div class="card">
+        <div class="card-header">
+            <span>📐 <span id="txtGeofenceConfigTitle">CONFIGURACIÓN DE GEOCERCA (SIMULADA)</span></span>
+        </div>
+        <p style="color:var(--dim);font-size:11px;margin-bottom:8px;" id="txtGeofenceConfigDesc">
+            Define el radio de alerta alrededor de la posición actual del vehículo (simulada).
+        </p>
+        <div class="slider-container">
+            <span id="txtRangeMin">10m</span>
+            <input type="range" id="geofenceRadius" min="10" max="200" value="50" step="10" oninput="updateRadiusDisplay()">
+            <span id="txtRangeMax">200m</span>
+            <span style="color:var(--purple-glow);font-weight:bold;" id="radiusValue">50m</span>
+        </div>
+        <p style="color:var(--dim);font-size:10px;margin-top:5px;" id="txtGeofenceHint">
+            * La geocerca se activa con el botón GEOCERCA en el panel de control.
+        </p>
+    </div>
+
+    <!-- CÁMARAS -->
+    <div class="card">
+        <div class="card-header">
+            <span>📹 <span id="txtCamTitle">CÁMARAS EN VIVO (SIMULACIÓN)</span></span>
+            <button class="btn btn-online on" onclick="toggleAllCameras()" style="font-size:11px; padding:4px 14px;">
+                ● <span id="txtOnlineStatus">EN LÍNEA</span>
+            </button>
+        </div>
+        
+        <div class="camera-grid" id="cameraGrid"></div>
+
+        <div class="cam-actions">
+            <button class="btn btn-purple" onclick="openCloudModal()" style="width:auto;padding:8px 20px;font-size:11px;">
+                ☁️ <span id="txtViewCloud">VER NUBE (SIMULADA)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- CHIPS -->
+    <div class="card">
+        <div class="card-header">
+            <span>🧠 <span id="txtChipTitle">MONITOREO DE CHIPS</span></span>
+        </div>
+        <div class="chip-grid" id="chipGrid"></div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="card">
+        <div class="card-header" style="color:var(--red);">
+            <span>🔔 <span id="txtAlertTitle">ALERTAS DE SEGURIDAD</span></span>
+        </div>
+        <div class="alert-container">
+            <div class="alert-list" id="alertList">
+                <p style="color:var(--dim);font-size:13px;" id="txtNoAlerts">✅ Sin alertas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAPA -->
+    <div class="card" id="locationPanel">
+        <div class="card-header">
+            <span id="txtMapTitle">📍 GEOLOCALIZACIÓN (SIMULADA)</span>
+        </div>
+        <div id="map"></div>
+        <div class="location-info">
+            <div class="item"><strong id="txtLat">Latitud</strong><div class="val" id="lat">19.4326° N</div></div>
+            <div class="item"><strong id="txtLng">Longitud</strong><div class="val" id="lng">-99.1332° W</div></div>
+            <div class="item"><strong id="txtRef">Referencia</strong><div class="val" id="refAddress">Av. Reforma 222, CDMX</div></div>
+            <div class="item"><strong id="txtPrec">Precisión</strong><div class="val" style="color:var(--green);">3 m (GPS + WiFi)</div></div>
+        </div>
+        <div class="map-actions">
+            <button class="btn btn-purple" onclick="updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
+            <button class="btn btn-gold" onclick="shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
+            <button class="btn btn-blue" onclick="navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
+        </div>
+        <p style="text-align:center;font-size:10px;color:var(--dim);margin-top:8px;" id="txtMapSim">📍 Ubicación simulada — No es la ubicación real de ningún vehículo</p>
+    </div>
+
+    <!-- MODAL NUBE -->
+    <div class="cloud-modal" id="cloudModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>☁️ <span id="txtCloudModalTitle">GRABACIONES (SIMULADAS)</span></h3>
+                <button class="modal-close-btn" onclick="closeCloudModal()">✕ <span id="txtCloseCloud">CERRAR</span></button>
+            </div>
+            <div class="cloud-tabs">
+                <button class="cloud-tab active" onclick="switchCloudTab('frontal')">📹 <span id="txtTabFront">FRONTAL</span></button>
+                <button class="cloud-tab" onclick="switchCloudTab('trasera')">📹 <span id="txtTabRear">TRASERA</span></button>
+                <button class="cloud-tab" onclick="switchCloudTab('interior')">📹 <span id="txtTabInt">INTERIOR</span></button>
+            </div>
+            <div id="cloudVideoList"><p style="color:var(--dim);text-align:center;">Cargando...</p></div>
+        </div>
+    </div>
+
+    <!-- PROMO -->
+    <div class="promo-banner">
+        <h3 id="txtPromoTitle">🚀 ¿QUIERES CONTROL REAL?</h3>
+        <p id="txtPromoDesc">Actualiza a <strong>PREMIUM ($29.99 USD/mes)</strong> o <strong>PLATINUM ($49.99 USD/mes)</strong> y obtén control real, GPS en vivo, cámaras reales y rotación de claves cada 5 segundos.</p>
+        <a href="itzli-login.html" class="btn-upgrade" id="txtPromoBtn">⚡ VER PLANES REALES</a>
+    </div>
+
+    <div class="footer">
+         ITZTLI FRACTAL CORE © 2026 | <span id="txtFooterMode">Exhibición Demostrativa — Sin conexión real</span> | <span id="currentTime"></span>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // ═══════════════ DICCIONARIO COMPLETO (con claves para la barra de estado) ═══════════════
+        const langData = {
+            es: {
+                subtitle: "Exhibición Completa — Todos los Controles",
+                badge: "🆓 MODO DEMOSTRACIÓN — SHOWCASE PLATINUM",
+                simWarning: "ESTE ES UN SIMULADOR DE EXHIBICIÓN. NINGÚN COMANDO AFECTA UN VEHÍCULO REAL. ES SOLO UNA DEMOSTRACIÓN VISUAL.",
+                status: "MODO EXHIBICIÓN",
+                key: "🔑 Clave:",
+                rotation: "🔄 Rotación:",
+                cloud: "☁️ Nube:",
+                hotSwapTitle: "HOT-SWAP DIGITAL — Auto-Reparación",
+                hsFailName: "🔴 GPS/Navegación (UX7E5)",
+                hsFailVolt: "Voltaje: 10.2V",
+                hsFailTemp: "Temp: 55°C",
+                hsFailStatus: "⚠️ Chip malfunction detectado",
+                hsFailCov: "🔄 Transmisión manejando funciones",
+                hsBackName: "🟢 Transmisión (UX7E1)",
+                hsBackVolt: "Voltaje: 12.3V",
+                hsBackTemp: "Temp: 43°C",
+                hsBackStatus: "✅ Modo redundante activo",
+                hsBackBuy: "📦 Reemplazo solicitado",
+                controlTitle: "CONTROL TOTAL DEL VEHÍCULO (SIMULACIÓN)",
+                secMotor: "🚗 MOTOR Y ACCESO",
+                secEnt: "🎵 ENTRETENIMIENTO",
+                secClimate: "🌡️ CLIMA Y CONFORT",
+                secNav: "🗺️ NAVEGACIÓN Y ESPEJOS",
+                btnStart: "ARRANCAR", btnStop: "APAGAR", btnOpen: "ABRIR", btnClose: "CERRAR",
+                btnLights: "LUCES", btnHorn: "CLAXON",
+                btnVolUp: "VOL +", btnVolDown: "VOL -", btnMute: "SILENCIO", btnBt: "BLUETOOTH",
+                btnFm: "FM", btnAm: "AM", btnAux: "AUX", btnNext: "SIGUIENTE",
+                btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +", btnTempDown: "TEMP -",
+                btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "ASIENTOS", btnDefrost: "DESHIELO",
+                btnNavHome: "NAV CASA", btnNavWork: "NAV TRABAJO", btnNavStop: "DETENER RUTA",
+                btnFold: "PLEGAR", btnUnfold: "DESPLEGAR", btnMirrorHeat: "CALEFACCIÓN",
+                btnLocation: "UBICACIÓN", 
+                geofenceBtnActivate: "ACTIVAR GEOCERCA", geofenceBtnDeactivate: "DESACTIVAR GEOCERCA",
+                geofenceConfigTitle: "CONFIGURACIÓN DE GEOCERCA (SIMULADA)",
+                geofenceConfigDesc: "Define el radio de alerta alrededor de la posición actual del vehículo (simulada).",
+                rangeMin: "10m", rangeMax: "200m",
+                geofenceHint: "* La geocerca se activa con el botón GEOCERCA en el panel de control.",
+                cmdReady: "Listo para simular...",
+                simPrefix: "⚠️ SIMULACIÓN: ",
+                camTitle: "CÁMARAS EN VIVO (SIMULACIÓN)",
+                onlineStatus: "EN LÍNEA", offlineStatus: "DESCONECTADO",
+                camFront: "FRONTAL", camRear: "REVERSA", camInt: "INTERIOR",
+                recordBtn: "GRABAR", recordBtnOn: "GRABANDO",
+                viewCloud: "VER NUBE (SIMULADA)",
+                imgFrontal: "imagenes/frontal.png",
+                imgTrasera: "imagenes/reversa.png",
+                imgInterior: "imagenes/interior.png",
+                chipTitle: "MONITOREO DE CHIPS",
+                chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
+                chipNormal: "Normal", chipWarning: "Precaución", chipCritical: "Crítico",
+                alertTitle: "ALERTAS DE SEGURIDAD",
+                noAlerts: "✅ Sin alertas.",
+                alertMessages: {
+                    voltageWarning: "⚠️ Voltaje bajo",
+                    critical: "🔴 CRÍTICO",
+                    voltageDescending: "⚠️ Voltaje descendente",
+                    genericWarning: "⚠️ Evento detectado"
+                },
+                mapTitle: "📍 GEOLOCALIZACIÓN (SIMULADA)",
+                latLabel: "Latitud", lngLabel: "Longitud", refLabel: "Referencia", precLabel: "Precisión",
+                refAddr: "Av. Reforma 222, CDMX",
+                updateLoc: "ACTUALIZAR", shareLoc: "COMPARTIR", navigate: "LLEGAR AL AUTO",
+                mapSim: "📍 Ubicación simulada — No es la ubicación real de ningún vehículo",
+                cloudModalTitle: "GRABACIONES (SIMULADAS)", closeCloud: "CERRAR",
+                tabFront: "FRONTAL", tabRear: "TRASERA", tabInt: "INTERIOR",
+                loadingCloud: "Cargando videos simulados...",
+                noVideos: "📭 No hay grabaciones en esta cámara",
+                downloadBtn: "⬇ DESCARGAR (SIMULADO)",
+                promoTitle: "🚀 ¿QUIERES CONTROL REAL?",
+                promoDesc: "Actualiza a <strong>PREMIUM ($29.99 USD/mes)</strong> o <strong>PLATINUM ($49.99 USD/mes)</strong> y obtén control real, GPS en vivo, cámaras reales y rotación de claves cada 5 segundos.",
+                promoBtn: "⚡ VER PLANES REALES",
+                footerMode: "Exhibición Demostrativa — Sin conexión real",
+                shareAlert: "📍 Copiado al portapapeles",
+                navHomeMsg: "🏠 Calculando ruta a casa...",
+                navWorkMsg: "🏢 Calculando ruta al trabajo...",
+                geofenceActivated: "📐 Geocerca ACTIVADA (simulación)",
+                geofenceDeactivated: "🔓 Geocerca DESACTIVADA"
+            },
+            en: {
+                subtitle: "Complete Showcase — All Controls",
+                badge: "🆓 DEMO MODE — PLATINUM SHOWCASE",
+                simWarning: "THIS IS A DEMO SHOWCASE. NO COMMAND AFFECTS A REAL VEHICLE. IT IS ONLY A VISUAL DEMONSTRATION.",
+                status: "SHOWCASE MODE",
+                key: "🔑 Key:",
+                rotation: "🔄 Rotation:",
+                cloud: "☁️ Cloud:",
+                hotSwapTitle: "DIGITAL HOT-SWAP — Self-Healing",
+                hsFailName: "🔴 GPS/Navigation (UX7E5)",
+                hsFailVolt: "Voltage: 10.2V",
+                hsFailTemp: "Temp: 55°C",
+                hsFailStatus: "⚠️ Chip malfunction detected",
+                hsFailCov: "🔄 Transmission handling functions",
+                hsBackName: "🟢 Transmission (UX7E1)",
+                hsBackVolt: "Voltage: 12.3V",
+                hsBackTemp: "Temp: 43°C",
+                hsBackStatus: "✅ Redundant mode active",
+                hsBackBuy: "📦 Replacement requested",
+                controlTitle: "TOTAL VEHICLE CONTROL (SIMULATION)",
+                secMotor: "🚗 ENGINE & ACCESS",
+                secEnt: "🎵 ENTERTAINMENT",
+                secClimate: "🌡️ CLIMATE & COMFORT",
+                secNav: "🗺️ NAVIGATION & MIRRORS",
+                btnStart: "START", btnStop: "STOP", btnOpen: "UNLOCK", btnClose: "LOCK",
+                btnLights: "LIGHTS", btnHorn: "HORN",
+                btnVolUp: "VOL +", btnVolDown: "VOL -", btnMute: "MUTE", btnBt: "BLUETOOTH",
+                btnFm: "FM", btnAm: "AM", btnAux: "AUX", btnNext: "NEXT",
+                btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +", btnTempDown: "TEMP -",
+                btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "SEATS", btnDefrost: "DEFROST",
+                btnNavHome: "HOME", btnNavWork: "WORK", btnNavStop: "STOP ROUTE",
+                btnFold: "FOLD", btnUnfold: "UNFOLD", btnMirrorHeat: "HEATED",
+                btnLocation: "LOCATION",
+                geofenceBtnActivate: "ACTIVATE GEOFENCE", geofenceBtnDeactivate: "DEACTIVATE GEOFENCE",
+                geofenceConfigTitle: "GEOFENCE SETTINGS (SIMULATED)",
+                geofenceConfigDesc: "Set the alert radius around the current vehicle position (simulated).",
+                rangeMin: "33ft", rangeMax: "660ft",
+                geofenceHint: "* Geofence is activated with the GEOFENCE button in the control panel.",
+                cmdReady: "Ready to simulate...",
+                simPrefix: "⚠️ SIMULATION: ",
+                camTitle: "LIVE CAMERAS (SIMULATION)",
+                onlineStatus: "ONLINE", offlineStatus: "OFFLINE",
+                camFront: "FRONT", camRear: "REAR", camInt: "INTERIOR",
+                recordBtn: "RECORD", recordBtnOn: "RECORDING",
+                viewCloud: "VIEW CLOUD (SIMULATED)",
+                imgFrontal: "imagenes/ingles/front.png",
+                imgTrasera: "imagenes/ingles/rear.png",
+                imgInterior: "imagenes/ingles/interior.png",
+                chipTitle: "CHIP MONITORING",
+                chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
+                chipNormal: "Normal", chipWarning: "Warning", chipCritical: "Critical",
+                alertTitle: "SECURITY ALERTS",
+                noAlerts: "✅ No alerts.",
+                alertMessages: {
+                    voltageWarning: "⚠️ Low voltage",
+                    critical: "🔴 CRITICAL",
+                    voltageDescending: "⚠️ Voltage descending",
+                    genericWarning: "⚠️ Event detected"
+                },
+                mapTitle: "📍 GEOLOCATION (SIMULATED)",
+                latLabel: "Latitude", lngLabel: "Longitude", refLabel: "Reference", precLabel: "Accuracy",
+                refAddr: "222 Reforma Ave, Mexico City",
+                updateLoc: "REFRESH", shareLoc: "SHARE", navigate: "NAVIGATE TO CAR",
+                mapSim: "📍 Simulated location — Not a real vehicle location",
+                cloudModalTitle: "RECORDINGS (SIMULATED)", closeCloud: "CLOSE",
+                tabFront: "FRONT", tabRear: "REAR", tabInt: "INTERIOR",
+                loadingCloud: "Loading simulated videos...",
+                noVideos: "📭 No recordings on this camera",
+                downloadBtn: "⬇ DOWNLOAD (SIMULATED)",
+                promoTitle: "🚀 WANT REAL CONTROL?",
+                promoDesc: "Upgrade to <strong>PREMIUM ($29.99 USD/mo)</strong> or <strong>PLATINUM ($49.99 USD/mo)</strong> and get real control, live GPS, real cameras, and key rotation every 5 seconds.",
+                promoBtn: "⚡ VIEW REAL PLANS",
+                footerMode: "Demo Showcase — No real connection",
+                shareAlert: "📍 Copied to clipboard",
+                navHomeMsg: "🏠 Calculating route home...",
+                navWorkMsg: "🏢 Calculating route to work...",
+                geofenceActivated: "📐 Geofence ACTIVATED (simulation)",
+                geofenceDeactivated: "🔓 Geofence DEACTIVATED"
+            }
+        };
+
+        let isSpanish = true;
+        let countdown = 5;
+        let geofenceActive = false;
+        let cameraStates = { frontal: true, trasera: true, interior: true };
+        let recordStates = { frontal: false, trasera: false, interior: false };
+        let currentCloudCam = 'frontal';
+        let alertLog = [];
+
+        const chipsData = [
+            { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, nivel:"normal", alerta: null },
+            { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, nivel:"normal", alerta: null },
+            { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, nivel:"warning", alerta: 'voltageWarning' },
+            { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, nivel:"normal", alerta: null },
+            { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, nivel:"normal", alerta: null },
+            { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, nivel:"critical", alerta: 'critical' },
+            { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, nivel:"normal", alerta: null },
+            { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, nivel:"normal", alerta: null },
+            { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, nivel:"normal", alerta: null },
+            { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, nivel:"warning", alerta: 'voltageDescending' },
+            { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, nivel:"normal", alerta: null },
+            { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, nivel:"normal", alerta: null }
+        ];
+
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+            
+            document.getElementById('txtSubtitle').textContent = d.subtitle;
+            document.getElementById('txtBadge').textContent = d.badge;
+            document.getElementById('txtStatus').textContent = d.status;
+            document.getElementById('txtHotSwapTitle').textContent = d.hotSwapTitle;
+            document.getElementById('txtControlTitle').textContent = d.controlTitle;
+            document.getElementById('txtSecMotor').textContent = d.secMotor;
+            document.getElementById('txtSecEnt').textContent = d.secEnt;
+            document.getElementById('txtSecClimate').textContent = d.secClimate;
+            document.getElementById('txtSecNav').textContent = d.secNav;
+            document.getElementById('txtCamTitle').textContent = d.camTitle;
+            document.getElementById('txtViewCloud').textContent = d.viewCloud;
+            document.getElementById('txtChipTitle').textContent = d.chipTitle;  // <--- Título de chips
+            document.getElementById('txtAlertTitle').textContent = d.alertTitle;
+            document.getElementById('txtMapTitle').textContent = d.mapTitle;
+            document.getElementById('txtLat').textContent = d.latLabel;
+            document.getElementById('txtLng').textContent = d.lngLabel;
+            document.getElementById('txtRef').textContent = d.refLabel;
+            document.getElementById('txtPrec').textContent = d.precLabel;
+            document.getElementById('refAddress').textContent = d.refAddr;
+            document.getElementById('txtMapSim').textContent = d.mapSim;
+            document.getElementById('txtGeofenceConfigTitle').textContent = d.geofenceConfigTitle;
+            document.getElementById('txtGeofenceConfigDesc').textContent = d.geofenceConfigDesc;
+            document.getElementById('txtRangeMin').textContent = d.rangeMin;
+            document.getElementById('txtRangeMax').textContent = d.rangeMax;
+            document.getElementById('txtGeofenceHint').textContent = d.geofenceHint;
+            document.getElementById('txtPromoTitle').textContent = d.promoTitle;
+            document.getElementById('txtPromoDesc').innerHTML = d.promoDesc;
+            document.getElementById('txtPromoBtn').textContent = d.promoBtn;
+            document.getElementById('txtFooterMode').textContent = d.footerMode;
+            document.getElementById('txtCloudModalTitle').textContent = d.cloudModalTitle;
+            document.getElementById('txtCloseCloud').textContent = d.closeCloud;
+            document.getElementById('txtTabFront').textContent = d.tabFront;
+            document.getElementById('txtTabRear').textContent = d.tabRear;
+            document.getElementById('txtTabInt').textContent = d.tabInt;
+            document.getElementById('cmdResult').textContent = d.cmdReady;
+            
+            // Actualizar barra de estado (clave y rotación)
+            document.getElementById('txtKey').innerHTML = d.key + ' <strong style="color:var(--purple-glow);">DEMO-21E41421...</strong>';
+            document.getElementById('txtRotation').innerHTML = d.rotation + ' <strong style="color:var(--purple-glow);" id="countdown">' + countdown + 's</strong>';
+            
+            document.getElementById('simWarning').innerHTML = '⚠️ <span>' + d.simWarning + '</span>';
+            
+            updateGeofenceButtonText();
+            updateButtonTexts();
+            updateRadiusDisplay();
+            renderHotSwap();
+            renderCameras();
+            renderChips();
+            renderAlerts();
+            updateOnlineButton();
+        }
+
+        function updateGeofenceButtonText() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('txtGeofenceBtn').innerText = geofenceActive ? d.geofenceBtnDeactivate : d.geofenceBtnActivate;
+        }
+
+        function updateRadiusDisplay() {
+            const val = parseInt(document.getElementById('geofenceRadius').value);
+            const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+            document.getElementById('radiusValue').textContent = displayVal + (isSpanish ? 'm' : 'ft');
+        }
+
+        function toggleGeofence() {
+            geofenceActive = !geofenceActive;
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('cmdResult').textContent = geofenceActive ? d.geofenceActivated : d.geofenceDeactivated;
+            document.getElementById('cmdResult').className = 'sim-alert';
+            updateGeofenceButtonText();
+            setTimeout(() => {
+                document.getElementById('cmdResult').textContent = d.cmdReady;
+                document.getElementById('cmdResult').className = '';
+            }, 3000);
+        }
+
+        function updateButtonTexts() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const buttons = {
+                btnStart: d.btnStart, btnStop: d.btnStop, btnOpen: d.btnOpen, btnClose: d.btnClose,
+                btnLights: d.btnLights, btnHorn: d.btnHorn,
+                btnVolUp: d.btnVolUp, btnVolDown: d.btnVolDown, btnMute: d.btnMute, btnBt: d.btnBt,
+                btnFm: d.btnFm, btnAm: d.btnAm, btnAux: d.btnAux, btnNext: d.btnNext,
+                btnAcOn: d.btnAcOn, btnAcOff: d.btnAcOff, btnTempUp: d.btnTempUp, btnTempDown: d.btnTempDown,
+                btnFanUp: d.btnFanUp, btnFanDown: d.btnFanDown, btnSeat: d.btnSeat, btnDefrost: d.btnDefrost,
+                btnNavHome: d.btnNavHome, btnNavWork: d.btnNavWork, btnNavStop: d.btnNavStop,
+                btnFold: d.btnFold, btnUnfold: d.btnUnfold, btnMirrorHeat: d.btnMirrorHeat,
+                btnLocation: d.btnLocation,
+                btnUpdateLoc: d.updateLoc, btnShareLoc: d.shareLoc, btnNavigate: d.navigate
+            };
+            Object.entries(buttons).forEach(([id, text]) => {
+                const el = document.getElementById(id);
+                if(el) el.innerHTML = el.innerHTML.replace(/<span>.*<\/span>/, `<span>${text}</span>`);
+            });
+        }
+
+        // ═══════════════ HOT‑SWAP ═══════════════
+        function renderHotSwap() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('hotswapGrid').innerHTML = `
+                <div class="hotswap-card fail">
+                    <h4>${d.hsFailName}</h4>
+                    <p>${d.hsFailVolt} | ${d.hsFailTemp}</p>
+                    <div class="status-text" style="color:var(--red);">${d.hsFailStatus}</div>
+                    <div class="status-text" style="color:var(--gold);">${d.hsFailCov}</div>
+                </div>
+                <div class="hotswap-card success">
+                    <h4>${d.hsBackName}</h4>
+                    <p>${d.hsBackVolt} | ${d.hsBackTemp}</p>
+                    <div class="status-text" style="color:var(--green);">${d.hsBackStatus}</div>
+                    <div class="status-text" style="color:var(--dim);">${d.hsBackBuy}</div>
+                </div>
+            `;
+        }
+
+        // ═══════════════ COMANDOS ═══════════════
+        function simCommand(cmd) {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const messages = {
+                'arrancar': '🚀 Motor ARRANCADO.', 'apagar': '🛑 Motor APAGADO.',
+                'abrir': '🔓 Puertas ABIERTAS.', 'cerrar': '🔒 Puertas CERRADAS.',
+                'luces': '💡 Luces ENCENDIDAS.', 'claxon': '📢 Claxon ACTIVADO.',
+                'vol_up': '🔊 Volumen +', 'vol_down': '🔉 Volumen -', 'mute': '🔇 Silenciado.',
+                'bluetooth': '📱 Bluetooth activado.', 'radio_fm': '📻 Radio FM.', 'radio_am': '📻 Radio AM.',
+                'aux': '🎧 Modo AUX.', 'next_track': '⏭️ Siguiente pista.',
+                'ac_on': '❄️ A/C ON', 'ac_off': '🌡️ A/C OFF',
+                'temp_up': '🔺 Temperatura +', 'temp_down': '🔻 Temperatura -',
+                'fan_up': '💨 Ventilador +', 'fan_down': '💨 Ventilador -',
+                'seat_heat': '🔥 Asientos calefactados.', 'defrost': '❄️ Desempañador.',
+                'nav_home': d.navHomeMsg, 'nav_work': d.navWorkMsg, 'nav_stop': '🛑 Ruta detenida.',
+                'mirror_fold': '🪞 Espejos plegados.', 'mirror_unfold': '🪞 Espejos desplegados.',
+                'mirror_heat': '🔥 Calefacción espejos.', 'location': '📍 Mostrando ubicación.'
+            };
+            const result = document.getElementById('cmdResult');
+            result.textContent = d.simPrefix + (messages[cmd] || '✅ Comando ejecutado');
+            result.className = 'sim-alert';
+            setTimeout(() => { result.textContent = d.cmdReady; result.className = ''; }, 3000);
+        }
+
+        // ═══════════════ CÁMARAS ═══════════════
+        function renderCameras() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const cameras = [
+                { id: 'frontal', name: d.camFront, img: d.imgFrontal },
+                { id: 'trasera', name: d.camRear, img: d.imgTrasera },
+                { id: 'interior', name: d.camInt, img: d.imgInterior }
+            ];
+            document.getElementById('cameraGrid').innerHTML = cameras.map(cam => `
+                <div class="camera-feed front ${cameraStates[cam.id] ? 'video-on' : ''} ${recordStates[cam.id] ? 'recording' : ''}" id="cam-${cam.id}">
+                    <img src="${cam.img}" alt="${cam.name}" class="camera-image" onerror="this.style.display='none'">
+                    <canvas class="camera-video" id="canvas-${cam.id}"></canvas>
+                    <button class="record-btn-individual ${recordStates[cam.id] ? 'recording' : ''}" 
+                            onclick="event.stopPropagation(); toggleRecord('${cam.id}')">${recordStates[cam.id] ? d.recordBtnOn : d.recordBtn}</button>
+                    <div class="camera-name">${cam.name}</div>
+                    <div class="camera-recording"></div>
+                </div>
+            `).join('');
+            
+            cameras.forEach(cam => {
+                if (cameraStates[cam.id]) startStreamAnimation(cam.id);
+                else stopStreamAnimation(cam.id);
+            });
+            
+            document.querySelectorAll('.camera-feed').forEach(feed => {
+                const camId = feed.id.replace('cam-','');
+                feed.onclick = function(e) { if(e.detail === 1) toggleCamera(camId); };
+            });
+            
+            updateOnlineButton();
+        }
+
+        function startStreamAnimation(camId) {
+            const canvas = document.getElementById('canvas-' + camId);
+            if (!canvas) return;
+            canvas.width = canvas.parentElement.clientWidth || 320;
+            canvas.height = canvas.parentElement.clientHeight || 320;
+            const ctx = canvas.getContext('2d');
+            let frame = 0;
+            function draw() {
+                if (!cameraStates[camId]) return;
+                frame++;
+                ctx.fillStyle = '#0a1a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < 15; i++) {
+                    const y = (frame * 2 + i * 17) % canvas.height;
+                    ctx.fillStyle = `rgba(${100+Math.random()*100},${180+Math.random()*75},${50+Math.random()*50},0.4)`;
+                    ctx.fillRect(0, y, canvas.width, 2);
+                }
+                ctx.fillStyle = '#a78bfa';
+                ctx.font = 'bold 16px monospace';
+                ctx.fillText('🔴 LIVE', 10, 30);
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px monospace';
+                ctx.fillText(new Date().toLocaleTimeString(), 10, 55);
+                ctx.strokeStyle = '#8b5cf6';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function stopStreamAnimation(camId) {}
+
+        function toggleCamera(camId) {
+            cameraStates[camId] = !cameraStates[camId];
+            if (!cameraStates[camId]) recordStates[camId] = false;
+            renderCameras();
+        }
+
+        function toggleAllCameras() {
+            const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
+            cameraStates.frontal = cameraStates.trasera = cameraStates.interior = !allOn;
+            if (!allOn) recordStates.frontal = recordStates.trasera = recordStates.interior = false;
+            renderCameras();
+        }
+
+        function toggleRecord(camId) {
+            if (!cameraStates[camId]) return;
+            recordStates[camId] = !recordStates[camId];
+            renderCameras();
+        }
+
+        function updateOnlineButton() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
+            const allOff = !cameraStates.frontal && !cameraStates.trasera && !cameraStates.interior;
+            document.getElementById('txtOnlineStatus').textContent = allOn ? d.onlineStatus : (allOff ? d.offlineStatus : d.onlineStatus);
+            const btn = document.querySelector('.btn-online');
+            btn.className = 'btn btn-online ' + (allOn ? 'on' : 'off');
+        }
+
+        // ═══════════════ NUBE ═══════════════
+        function openCloudModal() { document.getElementById('cloudModal').classList.add('active'); switchCloudTab('frontal'); }
+        function closeCloudModal() { document.getElementById('cloudModal').classList.remove('active'); }
+        function switchCloudTab(cam) {
+            currentCloudCam = cam;
+            document.querySelectorAll('.cloud-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const container = document.getElementById('cloudVideoList');
+            const videos = { frontal: 2, trasera: 1, interior: 2 };
+            container.innerHTML = videos[cam] 
+                ? Array.from({length: videos[cam]}, (_, i) => `
+                    <div class="video-item"><span>🎬 2026-07-29_${14-i}_30_00.mp4</span><button class="download-btn">${d.downloadBtn}</button></div>`).join('')
+                : `<p style="color:var(--dim);text-align:center;">${d.noVideos}</p>`;
+        }
+
+        // ═══════════════ CHIPS ═══════════════
+        function renderChips() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('chipGrid').innerHTML = chipsData.map((chip, index) => {
+                const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
+                return `
+                <div class="chip ${chip.nivel}" onclick="this.classList.toggle('expanded')">
+                    <div class="chip-top">
+                        <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
+                        <div class="chip-status"><span class="dot ${chip.nivel==='critical'?'dot-red':'dot-green'}"></span>${statusLabel}</div>
+                    </div>
+                    <div class="chip-metrics">
+                        <span>⚡ <span class="val">${chip.voltage}V</span></span>
+                        <span>🌡️ <span class="val">${chip.temp}°C</span></span>
+                        <span>🔄 <span class="val">${chip.syncs}</span></span>
+                    </div>
+                    ${chip.alerta ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${d.alertMessages[chip.alerta] || ''}</div>` : ''}
+                    <div class="chip-detail"><strong>ID:</strong> ${chip.id} | <strong>Última sincro:</strong> ${new Date().toLocaleTimeString()}</div>
+                </div>`;
+            }).join('');
+        }
+
+        // ═══════════════ ALERTAS (totalmente bilingües) ═══════════════
+        function addAlert(chip, nivel, alertKey) {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const mensaje = d.alertMessages[alertKey] || alertKey;
+            alertLog.unshift({ time: new Date().toLocaleTimeString(), chipId: chip.id, icon: chip.icon, nivel, alertKey });
+            if (alertLog.length > 10) alertLog.pop();
+            renderAlerts();
+        }
+        function renderAlerts() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const container = document.getElementById('alertList');
+            if (alertLog.length === 0) {
+                container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
+                return;
+            }
+            container.innerHTML = alertLog.map(a => {
+                const chipIndex = chipsData.findIndex(c => c.id === a.chipId);
+                const chipName = d.chipNames[chipIndex] || a.chipId;
+                const mensaje = d.alertMessages[a.alertKey] || a.alertKey;
+                return `
+                <div class="alert-item ${a.nivel}">
+                    <span>${a.icon}</span>
+                    <div><strong>${chipName}</strong> — ${mensaje}<div class="time">🕐 ${a.time}</div></div>
+                </div>`;
+            }).join('');
+        }
+
+        // ═══════════════ MAPA ═══════════════
+        let map = null, marker = null;
+        let currentLat = 19.4326, currentLng = -99.1332;
+
+        function initMap() {
+            if (map) { map.invalidateSize(); return; }
+            map = L.map('map', { center: [currentLat, currentLng], zoom: 16, zoomControl: true });
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Esri', maxZoom: 19
+            }).addTo(map);
+            marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 Simulación</strong>');
+            L.circle([currentLat, currentLng], { color: '#8b5cf6', fillColor: '#8b5cf6', fillOpacity: 0.15, radius: 30 }).addTo(map);
+        }
+
+        function updateLocation() {
+            currentLat += (Math.random() - 0.5) * 0.002;
+            currentLng += (Math.random() - 0.5) * 0.002;
+            document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
+            document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
+            if (marker && map) { marker.setLatLng([currentLat, currentLng]); map.setView([currentLat, currentLng], 16); }
+        }
+
+        function shareLocation() {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            const loc = `📍 ITZTLI DEMO: https://www.google.com/maps?q=${currentLat},${currentLng}`;
+            if (navigator.share) { navigator.share({ title: '📍 Ubicación', text: loc }); }
+            else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
+        }
+
+        function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
+
+        // Simular algunas alertas después de un tiempo
+        setTimeout(() => { addAlert(chipsData[5], 'critical', 'critical'); }, 5000);
+        setInterval(() => {
+            const chip = chipsData[Math.floor(Math.random()*12)];
+            if (chip.alerta) addAlert(chip, chip.nivel, chip.alerta);
+        }, 20000);
+
+        // Rotación de clave cada 5 segundos
+        setInterval(() => {
+            countdown--;
+            if (countdown <= 0) countdown = 5;
+            document.getElementById('countdown').textContent = countdown + 's';
+            document.getElementById('dynamicKey').textContent = 'DEMO-' + Math.random().toString(16).substring(2,10).toUpperCase() + '...';
+        }, 1000);
+
+        // Inicialización
+        function init() {
+            applyLanguage();  // Aplica español inicial y fuerza todos los textos
+            renderHotSwap();
+            renderCameras();
+            renderChips();
+            renderAlerts();
+            document.getElementById('geofenceRadius').value = 50;
+            updateRadiusDisplay();
+            setTimeout(initMap, 500);
+            setInterval(() => { document.getElementById('currentTime').textContent = new Date().toLocaleString(); }, 1000);
+        }
+
+        document.getElementById('cloudModal').addEventListener('click', function(e) { if (e.target === this) closeCloudModal(); });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCloudModal(); });
+
+        init();
+    </script>
+</body>
+</html>

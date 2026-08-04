@@ -1,0 +1,23 @@
+itzli-fractal-core/
+│
+├── index.html                    # Página de Inicio
+├── autos.html                    # Página de Autos (antes Productos)
+├── empresas.html                 # Página de Empresas
+├── desarrolladores.html          # Página de Desarrolladores (ESTA)
+├── desafio.html                  # Página de Desafío
+│
+├── assets/
+│   └── favicon.ico
+│
+├── imagenes/
+│   ├── programacion.png          # Diagrama de reprogramación (ES)
+│   ├── sincronizacion-celular.png # Captura sincronización (ES)
+│   └── ingles/
+│       ├── programacion-ingles.png
+│       └── sincronizacion-celular-ingles.png
+│
+├── firmware/
+│   ├── itzli_lia_trial.ino       # Firmware LIA (Maestro)
+│   └── itzli_bob_trial.ino       # Firmware BOB (Cliente)
+│
+└── README.md

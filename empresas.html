@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI PARA EMPRESAS — Seguridad Sin Transmisión de Datos</title>
+    <meta name="description" content="No vendemos llaves. Vendemos la capacidad de generar cerraduras idénticas sin transmitir datos.">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root{--bg:#050510;--card:#0d0d28;--border:#1a1a4a;--cyan:#00b4d8;--gold:#e2a03f;--green:#00ff88;--red:#ff4444;--text:#e0e0e0;--dim:#8899aa}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:'Times New Roman',Times,serif;line-height:1.6;overflow-x:hidden}
+        h1,h2,h3{font-family:'Times New Roman',Times,serif;font-weight:700}
+        .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(5,5,16,0.95);border-bottom:1px solid var(--border);padding:1.2rem 2rem;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(12px)}
+        .navbar .brand{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:1.8rem;font-weight:700;text-decoration:none}
+        .navbar .nav-links{display:flex;gap:2rem;align-items:center;flex-wrap:wrap}
+        .navbar .nav-links a{color:var(--dim);text-decoration:none;font-size:1.3rem;transition:0.3s;font-family:'Times New Roman',Times,serif;font-weight:600}
+        .navbar .nav-links a:hover,.navbar .nav-links a.active{color:var(--cyan)}
+        .navbar .nav-links a.challenge-link{color:var(--red);font-weight:900;font-size:1.5rem;text-shadow:0 0 15px rgba(255,68,68,0.3);display:flex;align-items:center;gap:5px}
+        .navbar .nav-links a.challenge-link:hover,.navbar .nav-links a.challenge-link.active{color:#ff7777;text-shadow:0 0 25px rgba(255,68,68,0.6)}
+        .navbar .nav-links a.challenge-link .skull-icon{font-size:1.8rem;filter:drop-shadow(0 0 8px rgba(255,68,68,0.4));display:inline-block}
+        .lang-btn{background:transparent;border:none;cursor:pointer;font-size:2.2rem;transition:0.3s;line-height:1}
+        .lang-btn:hover{transform:scale(1.1)}
+        .lang-es,.lang-en{display:block}.lang-en{display:none}
+        @media(max-width:768px){.navbar{padding:1rem}.navbar .brand{font-size:1.4rem}.navbar .nav-links{gap:0.8rem}.navbar .nav-links a{font-size:1rem}.navbar .nav-links a.challenge-link{font-size:1.2rem}.navbar .nav-links a.challenge-link .skull-icon{font-size:1.4rem}.lang-btn{font-size:1.8rem}}
+
+        .hero{background:radial-gradient(ellipse at 50% 0%,#1a1a4e 0%,#0a0a1e 50%,var(--bg) 100%);min-height:55vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:5rem 2rem 1.5rem;position:relative;overflow:hidden}
+        .particles{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+        .particle{position:absolute;width:2px;height:2px;background:var(--cyan);border-radius:50%;animation:float 8s infinite ease-in-out;opacity:0.4}
+        @keyframes float{0%,100%{transform:translateY(0)translateX(0);opacity:.2}25%{transform:translateY(-80px)translateX(30px);opacity:.6}50%{transform:translateY(-160px)translateX(-20px);opacity:.3}75%{transform:translateY(-80px)translateX(-40px);opacity:.7}}
+        .hero-content{position:relative;z-index:1;max-width:900px}
+        .hero h1{font-size:clamp(2.5rem,7vw,4rem);background:linear-gradient(135deg,var(--gold),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.2rem}
+        .hero .motto{font-size:clamp(1.2rem,2.5vw,2rem);color:var(--gold);font-style:italic;margin-bottom:0.1rem;font-weight:700}
+        .container{max-width:1100px;margin:auto;padding:1rem 2rem}
+        .section-title{font-size:2.6rem;text-align:center;color:var(--cyan);margin-bottom:0.75rem;font-family:'Times New Roman',Times,serif;font-weight:700}
+        .img-container{width:100%;max-width:100%;margin:0.8rem auto 1.5rem;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+        .img-container img{width:100%;height:auto;display:block}
+        .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;margin:2rem 0}
+        .pricing-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;text-align:center;transition:0.3s;position:relative}
+        .pricing-card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,0.5)}
+        .pricing-card.featured{border:2px solid var(--gold);box-shadow:0 0 30px rgba(226,160,63,0.2)}
+        .pricing-card .plan-badge{position:absolute;top:-12px;right:20px;background:var(--gold);color:#000;padding:4px 12px;border-radius:15px;font-size:0.8rem;font-weight:bold}
+        .pricing-card h3{font-size:1.5rem;margin-bottom:0.5rem;color:var(--text)}
+        .pricing-card .price{font-size:1.8rem;font-weight:900;color:var(--gold);font-family:'Orbitron',sans-serif;margin:1rem 0;word-break:break-word}
+        .pricing-card .price small{font-size:0.75rem;color:var(--dim);display:block}
+        .pricing-card ul{list-style:none;text-align:left;margin:1.5rem 0;color:var(--dim);font-size:0.9rem}
+        .pricing-card ul li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+        .pricing-card ul li::before{content:"✅ "}
+        .contact-box{max-width:650px;margin:1.5rem auto;background:var(--card);border:1px solid var(--gold);border-radius:20px;padding:2.5rem;text-align:center}
+        .contact-box h3{color:var(--gold);font-size:1.5rem;margin-bottom:0.5rem}
+        .contact-box p{color:var(--dim);margin-bottom:1.5rem}
+        .contact-box input,.contact-box textarea,.contact-box select{width:100%;padding:14px;margin-bottom:1rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:1rem;font-family:'Times New Roman',Times,serif}
+        .contact-box input:focus,.contact-box textarea:focus,.contact-box select:focus{border-color:var(--gold);outline:none}
+        .contact-box select{appearance:none;cursor:pointer}
+        .contact-box select option{background:var(--card);color:var(--text)}
+        .btn{background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px}
+        .btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(226,160,63,0.4)}
+
+        .chatbot-btn{position:fixed;bottom:30px;right:30px;z-index:9999;width:65px;height:65px;background:linear-gradient(135deg,#9b59b6,#6c3483);border:2px solid #9b59b6;box-shadow:0 0 25px rgba(155,89,182,0.6);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-size:2rem;color:#fff}
+        .chatbot-btn:hover{transform:scale(1.1);box-shadow:0 0 45px rgba(155,89,182,0.9)}
+        .chatbot-btn.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 25px rgba(255,68,68,0.6)}
+        .chatbot-container{position:fixed;bottom:110px;right:30px;z-index:9998;width:380px;max-width:90vw;height:550px;max-height:70vh;background:var(--card);border:1px solid #9b59b6;border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(155,89,182,0.3)}
+        .chatbot-container.open{display:flex;animation:slideUp 0.3s ease}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .chatbot-header{background:linear-gradient(135deg,#6c3483,#9b59b6);padding:1.2rem;text-align:center;color:#fff;font-weight:900;font-family:'Orbitron',sans-serif;font-size:1.1rem;letter-spacing:2px}
+        .chatbot-header .status-dot{display:inline-block;width:10px;height:10px;background:var(--green);border-radius:50%;margin-right:8px;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        .chatbot-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.8rem}
+        .chatbot-messages::-webkit-scrollbar{width:6px}.chatbot-messages::-webkit-scrollbar-track{background:transparent}.chatbot-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+        .msg{max-width:85%;padding:12px 16px;border-radius:16px;font-size:0.9rem;line-height:1.5;animation:fadeIn 0.3s ease}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .msg.bot{background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.4);align-self:flex-start;border-bottom-left-radius:4px;color:var(--text)}
+        .msg.user{background:linear-gradient(135deg,#6c3483,#9b59b6);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;font-weight:600}
+        .badge-ia{display:inline-block;background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.6rem;font-weight:900;margin-left:6px;vertical-align:middle}
+        .chatbot-input-area{padding:1rem;border-top:1px solid rgba(155,89,182,0.3);display:flex;gap:10px}
+        .chatbot-input-area input{flex:1;padding:12px 16px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:25px;font-size:0.9rem;outline:none;font-family:'Times New Roman',Times,serif}
+        .chatbot-input-area input:focus{border-color:#9b59b6}
+        .chatbot-input-area button{width:45px;height:45px;background:linear-gradient(135deg,#9b59b6,#6c3483);border:none;border-radius:50%;cursor:pointer;font-size:1.2rem;transition:0.3s;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
+        .chatbot-input-area button:hover{background:#6c3483;box-shadow:0 0 20px rgba(155,89,182,0.5)}
+        .quick-replies{display:flex;flex-wrap:wrap;gap:8px;padding:0 1rem 0.5rem}
+        .quick-reply{background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.4);color:#9b59b6;padding:6px 14px;border-radius:20px;font-size:0.8rem;cursor:pointer;transition:0.3s;white-space:nowrap}
+        .quick-reply:hover{background:rgba(155,89,182,0.3);border-color:#9b59b6;color:#fff}
+
+        footer{text-align:center;padding:2rem;background:var(--bg);border-top:1px solid var(--border);color:var(--dim);font-size:0.95rem;font-family:'Times New Roman',Times,serif}
+        footer .brand{font-weight:700;color:var(--gold)}
+        @media(max-width:768px){.hero{padding:5rem 1rem 1.5rem;min-height:40vh}.section-title{font-size:2rem}.pricing-card{padding:2rem 1.5rem}.chatbot-container{width:95vw;right:2.5vw;bottom:100px}.chatbot-btn{bottom:20px;right:20px;width:55px;height:55px}}
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="brand">ITZTLI FRACTAL</a>
+        <div class="nav-links">
+            <a href="inicio.html" class="lang-es">Inicio</a>
+            <a href="inicio.html" class="lang-en" style="display:none;">Home</a>
+            <a href="autos.html" class="lang-es">Autos</a>
+            <a href="autos.html" class="lang-en" style="display:none;">Cars</a>
+            <a href="empresas.html" class="active lang-es">Empresas</a>
+            <a href="empresas.html" class="active lang-en" style="display:none;">Enterprise</a>
+            <a href="desarrolladores.html" class="lang-es">Desarrolladores</a>
+            <a href="desarrolladores.html" class="lang-en" style="display:none;">Developers</a>
+            <a href="desafio.html" class="challenge-link lang-es"><span class="skull-icon">🏴‍☠️</span> Desafío</a>
+            <a href="desafio.html" class="challenge-link lang-en" style="display:none;"><span class="skull-icon">🏴‍☠️</span> Challenge</a>
+            <a href="inicio.html#contacto" class="lang-es">Contacto</a>
+            <a href="inicio.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
+        </div>
+    </nav>
+
+    <!-- ESPAÑOL -->
+    <div class="lang-es">
+        <section class="hero"><div class="particles" id="particles-es"></div><div class="hero-content"><h1>ITZTLI PARA EMPRESAS</h1><p class="motto">"No vendemos llaves. Vendemos la capacidad de generar cerraduras idénticas sin transmitir datos."</p></div></section>
+        <div class="container"><div class="img-container"><img src="imagenes/empresa1.png" alt="ITZTLI Empresas"></div></div>
+        <div class="container"><h2 class="section-title">¿Por Qué las Empresas Nos Eligen?</h2><div class="img-container"><img src="imagenes/empresa2.png" alt="Estadísticas"></div></div>
+        <div class="container"><h2 class="section-title">Industrias que Protegemos</h2><div class="img-container"><img src="imagenes/empresa3.png" alt="Industrias"></div></div>
+        <div class="container"><div class="img-container"><img src="imagenes/empresa4.png" alt="Integración"></div></div>
+        <div class="container"><h2 class="section-title">Planes Empresariales</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card"><h3>🚀 STARTER</h3><div class="price">$29.99<small>/dispositivo/año</small></div><ul><li>Hasta 10,000 dispositivos/año</li><li>Soporte por email</li><li>1 línea de producción</li><li>Actualizaciones incluidas</li></ul></div>
+                <div class="pricing-card featured"><div class="plan-badge">MÁS POPULAR</div><h3>🏭 PRODUCCIÓN</h3><div class="price">$19.99<small>/dispositivo/año</small></div><ul><li>Hasta 500,000 dispositivos/año</li><li>Soporte 24/7 prioritario</li><li>Hasta 5 líneas de producción</li><li>Dashboard de monitoreo</li></ul></div>
+                <div class="pricing-card"><h3>🌎 ENTERPRISE</h3><div class="price">Personalizado</div><ul><li>Dispositivos ilimitados</li><li>Servidor dedicado</li><li>Líneas de producción ilimitadas</li><li>Soporte en sitio</li><li>Semillas Maestras privadas</li><li>Contrato de por vida</li></ul></div>
+            </div>
+        </div>
+        <div class="container" id="contacto"><div class="contact-box"><h3>📡 Solicitar Información Empresarial</h3><p>Complete el formulario y nuestro equipo le contactará en menos de 24 horas.</p>
+            <form action="https://formspree.io/f/contacto@itztlifractal.com" method="POST">
+                <input type="text" name="empresa" placeholder="Nombre de la Empresa" required>
+                <input type="text" name="nombre" placeholder="Su Nombre y Cargo" required>
+                <input type="email" name="correo" placeholder="Correo Corporativo" required>
+                <select name="industria" required><option value="">Seleccione su Industria</option><option value="automotriz">🚗 Automotriz</option><option value="telecom">📱 Telecomunicaciones</option><option value="computo">💻 Cómputo</option><option value="iot">🏠 IoT / Smart Home</option><option value="industrial">🏭 Industrial</option><option value="defensa">🛰️ Aeroespacial / Defensa</option><option value="otro">Otro</option></select>
+                <input type="number" name="volumen" placeholder="Volumen Estimado (dispositivos/año)">
+                <select name="plan"><option value="">Plan de Interés</option><option value="starter">🚀 Starter ($29.99/dispositivo/año)</option><option value="produccion">🏭 Producción ($19.99/dispositivo/año)</option><option value="enterprise">🌎 Enterprise (Personalizado)</option></select>
+                <textarea name="mensaje" rows="4" placeholder="Describa su proyecto de integración"></textarea>
+                <button class="btn" type="submit" style="width:100%;">Enviar Solicitud</button>
+            </form>
+        </div></div>
+        <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — El Sistema Nervioso de la Tecnología</footer>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="lang-en">
+        <section class="hero"><div class="particles" id="particles-en"></div><div class="hero-content"><h1>ITZTLI FOR ENTERPRISE</h1><p class="motto">"We don't sell keys. We sell the ability to generate identical locks without transmitting data."</p></div></section>
+        <div class="container"><div class="img-container"><img src="imagenes/ingles/empresa1-ingles.png" alt="ITZTLI Enterprise"></div></div>
+        <div class="container"><h2 class="section-title">Why Companies Choose Us</h2><div class="img-container"><img src="imagenes/ingles/empresa2-ingles.png" alt="Stats"></div></div>
+        <div class="container"><h2 class="section-title">Industries We Protect</h2><div class="img-container"><img src="imagenes/ingles/empresa3-ingles.png" alt="Industries"></div></div>
+        <div class="container"><div class="img-container"><img src="imagenes/ingles/empresa4-ingles.png" alt="Integration"></div></div>
+        <div class="container"><h2 class="section-title">Enterprise Plans</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card"><h3>🚀 STARTER</h3><div class="price">$29.99<small>/device/year</small></div><ul><li>Up to 10,000 devices/year</li><li>Email support</li><li>1 production line</li><li>Updates included</li></ul></div>
+                <div class="pricing-card featured"><div class="plan-badge">MOST POPULAR</div><h3>🏭 PRODUCTION</h3><div class="price">$19.99<small>/device/year</small></div><ul><li>Up to 500,000 devices/year</li><li>Priority 24/7 support</li><li>Up to 5 production lines</li><li>SDK in C/C++/Python</li><li>Monitoring dashboard</li></ul></div>
+                <div class="pricing-card"><h3>🌎 ENTERPRISE</h3><div class="price">Custom</div><ul><li>Unlimited devices</li><li>Dedicated server</li><li>Unlimited production lines</li><li>On-site support</li><li>Private Master Seeds</li><li>Lifetime contract</li></ul></div>
+            </div>
+        </div>
+        <div class="container" id="contacto-en"><div class="contact-box"><h3>📡 Request Enterprise Information</h3><p>Fill out the form and our team will contact you within 24 hours.</p>
+            <form action="https://formspree.io/f/contacto@itztlifractal.com" method="POST">
+                <input type="text" name="empresa" placeholder="Company Name" required>
+                <input type="text" name="nombre" placeholder="Your Name and Title" required>
+                <input type="email" name="correo" placeholder="Corporate Email" required>
+                <select name="industria" required><option value="">Select Industry</option><option value="automotriz">🚗 Automotive</option><option value="telecom">📱 Telecommunications</option><option value="computo">💻 Computing</option><option value="iot">🏠 IoT / Smart Home</option><option value="industrial">🏭 Industrial</option><option value="defensa">🛰️ Aerospace / Defense</option><option value="otro">Other</option></select>
+                <input type="number" name="volumen" placeholder="Estimated Volume (devices/year)">
+                <select name="plan"><option value="">Plan of Interest</option><option value="starter">🚀 Starter ($29.99/device/year)</option><option value="produccion">🏭 Production ($19.99/device/year)</option><option value="enterprise">🌎 Enterprise (Custom)</option></select>
+                <textarea name="mensaje" rows="4" placeholder="Describe your integration project"></textarea>
+                <button class="btn" type="submit" style="width:100%;">Send Request</button>
+            </form>
+        </div></div>
+        <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — The Nervous System of Technology</footer>
+    </div>
+
+    <button class="chatbot-btn" id="chatbotBtn" onclick="toggleChatbot()" title="Soporte ITZTLI">💬</button>
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header"><span class="status-dot"></span>ITZTLI SOPORTE 24/7</div>
+        <div class="chatbot-messages" id="chatbotMessages"></div>
+        <div class="quick-replies" id="quickReplies"></div>
+        <div class="chatbot-input-area"><input type="text" id="chatbotInput" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')sendMessage()"><button onclick="sendMessage()">➤</button></div>
+    </div>
+
+    <script>
+        const OPENAI_API_KEY = 'TU_OPENAI_API_KEY_AQUI';
+        function createParticles(id){const pc=document.getElementById(id);if(pc){for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}}}
+        createParticles('particles-es');createParticles('particles-en');
+        let isSpanish=true;
+        function toggleLang(){isSpanish=!isSpanish;const b=document.getElementById('langBtn'),es=document.querySelectorAll('.lang-es'),en=document.querySelectorAll('.lang-en');if(isSpanish){b.innerHTML='🇲🇽';document.documentElement.lang='es';es.forEach(e=>e.style.display='block');en.forEach(e=>e.style.display='none');}else{b.innerHTML='🇺🇸';document.documentElement.lang='en';es.forEach(e=>e.style.display='none');en.forEach(e=>e.style.display='block');}updateChatbotLang();}
+        const FAQ={es:{greeting:'¡Hola! Soy el asistente ITZTLI. ¿En qué puedo ayudarte?',compatibility:'Para verificar compatibilidad, ingresa el VIN en nuestro escáner.',plans:'📦 Planes:\n🆓 DEMO - $0/mes\n🥈 PREMIUM - $29.99/mes\n🥇 PLATINUM - $49.99/mes',installation:'🔧 4 opciones de instalación disponibles.',security:'🛡️ ITZTLI es INHACKEABLE. 1M claves, 0 hackeos.',hotswap:'🔄 Hot-Swap: 0.3s.',payment:'💳 Pagos con Stripe.',contact:'📧 contacto@itztlifractal.com',thanks:'¡Gracias! 🚀',unknown:'Prueba: Compatibilidad, Planes, Instalación, Seguridad, Pagos'},en:{greeting:"Hello! I'm the ITZTLI assistant.",compatibility:'Enter your VIN or tell me brand, model, year.',plans:'📦 Plans:\n🆓 DEMO - $0/mo\n🥈 PREMIUM - $29.99/mo\n🥇 PLATINUM - $49.99/mo',installation:'🔧 4 installation options.',security:'🛡️ ITZTLI is UNHACKABLE.',hotswap:'🔄 Hot-Swap: 0.3s failover.',payment:'💳 Stripe payments.',contact:'📧 contacto@itztlifractal.com',thanks:'Thanks! 🚀',unknown:'Try: Compatibility, Plans, Installation, Security, Payments'}};
+        let chatbotOpen=false,conversationHistory=[];
+        function toggleChatbot(){chatbotOpen=!chatbotOpen;const c=document.getElementById('chatbotContainer'),b=document.getElementById('chatbotBtn');if(chatbotOpen){c.classList.add('open');b.classList.add('active');b.innerHTML='✕';if(document.getElementById('chatbotMessages').children.length===0)showGreeting();}else{c.classList.remove('open');b.classList.remove('active');b.innerHTML='💬';}}
+        function showGreeting(){const lang=isSpanish?'es':'en';addBotMessage(FAQ[lang].greeting);updateQuickReplies();}
+        function addBotMessage(text,isIA=false){const m=document.getElementById('chatbotMessages'),msg=document.createElement('div');msg.className='msg bot';msg.innerHTML=text.replace(/\n/g,'<br>');if(isIA){const badge=document.createElement('span');badge.className='badge-ia';badge.textContent='IA';msg.appendChild(badge);}m.appendChild(msg);m.scrollTop=m.scrollHeight;}
+        function addUserMessage(text){const m=document.getElementById('chatbotMessages'),msg=document.createElement('div');msg.className='msg user';msg.textContent=text;m.appendChild(msg);m.scrollTop=m.scrollHeight;}
+        async function sendMessage(){const input=document.getElementById('chatbotInput'),text=input.value.trim();if(!text)return;addUserMessage(text);input.value='';input.disabled=true;const lang=isSpanish?'es':'en';const hasAPI=OPENAI_API_KEY&&OPENAI_API_KEY!=='TU_OPENAI_API_KEY_AQUI';if(hasAPI){await sendToOpenAI(text,lang);}else{sendPredefined(text,lang);}input.disabled=false;input.focus();updateQuickReplies();}
+        function sendPredefined(text,lang){const lower=text.toLowerCase();let r='';if(/hola|hello|hi|buen/.test(lower))r=FAQ[lang].greeting;else if(/compat|vin|modelo|marca|año|year|brand/.test(lower))r=FAQ[lang].compatibility;else if(/plan|precio|costo|price|demo|premium|platinum/.test(lower))r=FAQ[lang].plans;else if(/instal|conect|obd|esp32/.test(lower))r=FAQ[lang].installation;else if(/segur|hack|proteg|security/.test(lower))r=FAQ[lang].security;else if(/hot|swap|respaldo|fallo/.test(lower))r=FAQ[lang].hotswap;else if(/pago|tarjeta|stripe|payment|card/.test(lower))r=FAQ[lang].payment;else if(/contact|soport|ayuda|email/.test(lower))r=FAQ[lang].contact;else if(/gracias|thank/.test(lower))r=FAQ[lang].thanks;else r=FAQ[lang].unknown;setTimeout(()=>addBotMessage(r),500);}
+        async function sendToOpenAI(text,lang){const systemPrompt=lang==='es'?'Eres ITZTLI-BOT, asistente ITZTLI. Responde en español.':"You are ITZTLI-BOT, ITZTLI assistant. Answer in English.";if(conversationHistory.length===0)conversationHistory.push({role:'system',content:systemPrompt});conversationHistory.push({role:'user',content:text});if(conversationHistory.length>12)conversationHistory=[conversationHistory[0],...conversationHistory.slice(-10)];try{const resp=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_API_KEY},body:JSON.stringify({model:'gpt-4o-mini',messages:conversationHistory,temperature:0.3,max_tokens:400})});if(!resp.ok)throw new Error('API Error');const data=await resp.json();const answer=data.choices[0].message.content;conversationHistory.push({role:'assistant',content:answer});addBotMessage(answer,true);}catch(e){sendPredefined(text,lang);}}
+        function sendQuickReply(text){document.getElementById('chatbotInput').value=text;sendMessage();}
+        function updateQuickReplies(){const lang=isSpanish?'es':'en',r=document.getElementById('quickReplies'),btns=isSpanish?['🔍 Compatibilidad','💰 Planes','🔧 Instalación','🛡️ Seguridad','💳 Pagos']:['🔍 Compatibility','💰 Plans','🔧 Installation','🛡️ Security','💳 Payments'];r.innerHTML=btns.map(b=>`<span class="quick-reply" onclick="sendQuickReply('${b}')">${b}</span>`).join('');}
+        function updateChatbotLang(){updateQuickReplies();const m=document.getElementById('chatbotMessages');if(m.children.length>0){conversationHistory=[];m.innerHTML='';showGreeting();}}
+    </script>
+</body>
+</html>

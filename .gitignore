@@ -19,3 +19,9 @@ desktop.ini
 # Respaldos
 *.bak
 *_backup.txt
+
+node_modules/
+.env
+.DS_Store
+*.log
+npm-debug.log*
