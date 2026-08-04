@@ -226,23 +226,20 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- Cargamos el cliente compartido de Supabase y la autenticación -->
+    <script src="auth.js"></script>
     <script>
-        // ═════════ CONFIGURACIÓN SUPABASE ═════════
-        const SUPABASE_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Usamos el cliente Supabase definido en auth.js
+        const supabase = supabaseAuth;
 
         let datos = { usuarios: [], dispositivos: [], chips: [] };
 
-        // ═════════ AUTENTICACIÓN ═════════
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'login.html';
-                return null;
-            }
+        // ═════════ AUTENTICACIÓN Y VERIFICACIÓN DE ADMIN ═════════
+        async function checkAdminSession() {
+            const user = await requireAuth(true); // requireAuth(true) redirige si no es admin
+            if (!user) return false;
             document.getElementById('logoutBtn').style.display = 'inline-block';
-            return session.user;
+            return true;
         }
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
@@ -263,8 +260,8 @@
 
         // ═════════ CARGAR DATOS REALES ═════════
         async function cargarDatos() {
-            const user = await checkSession();
-            if (!user) return;
+            const isAdmin = await checkAdminSession();
+            if (!isAdmin) return;
 
             try {
                 const { data: usuarios, error: errU } = await supabase.from('usuarios').select('*');
@@ -288,11 +285,9 @@
             await cargarDatos();
 
             const d = datos;
-            // Helper para estadísticas
-            const usuariosPremium = d.usuarios.filter(u => u.plan !== 'free').length;
+            const chipsOnline = d.chips.filter(c => c.estado === 'online').length;
             const revenue = d.usuarios.filter(u => u.plan === 'premium').length * 29.99 +
                            d.usuarios.filter(u => u.plan === 'platinum').length * 49.99;
-            const chipsOnline = d.chips.filter(c => c.estado === 'online').length;
 
             if (vista === 'overview') {
                 main.innerHTML = `
@@ -336,7 +331,6 @@
                     </div>
                 `;
             } else if (vista === 'chips') {
-                // Generar tabla con búsqueda y filtros
                 main.innerHTML = `
                     <h2 style="color:var(--orange); margin-bottom:1rem;">🧩 Gestión de Chips (${d.chips.length})</h2>
                     <div class="search-box">
@@ -356,7 +350,6 @@
             }
         }
 
-        // Filtrar chips en la tabla
         function filtrarChips() {
             const query = document.getElementById('searchChip').value.toLowerCase();
             const filtrados = datos.chips.filter(c => c.serial.toLowerCase().includes(query) || (c.fabricante||'').toLowerCase().includes(query));
@@ -381,7 +374,6 @@
             </tr>`).join('');
         }
 
-        // Funciones CRUD de Chips
         async function openChipModal(chip = null) {
             document.getElementById('chipModal').classList.add('active');
             if (chip) {
@@ -419,7 +411,7 @@
                 tipo: document.getElementById('chipTipo').value,
                 fabricante: document.getElementById('chipFabricante').value,
                 propietario_id: document.getElementById('chipPropietario').value || null,
-                estado: 'offline' // se actualizará cuando el chip conecte
+                estado: 'offline'
             };
             const id = document.getElementById('chipId').value;
 
@@ -455,7 +447,6 @@
             cargarVista('chips');
         }
 
-        // Usuarios CRUD con Supabase Auth
         async function openUserModal(userId = null) {
             document.getElementById('userModal').classList.add('active');
             if (userId) {
@@ -487,17 +478,14 @@
             if (password.length < 8) return showToast('Contraseña mínimo 8 caracteres', 'error');
 
             try {
-                // Crear usuario en Auth
                 const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre: name, plan } } });
                 if (error) throw error;
-                // Insertar en tabla pública usuarios
-                const { error: insertError } = await supabase.from('usuarios').insert({
+                await supabase.from('usuarios').insert({
                     id: data.user.id,
                     email,
                     plan,
                     nombre: name
                 });
-                if (insertError) throw insertError;
                 showToast('Usuario creado exitosamente');
                 closeModal();
                 await cargarDatos();
@@ -509,20 +497,14 @@
 
         async function deleteUser(id) {
             if (!confirm('¿Eliminar usuario?')) return;
-            // Solo se puede eliminar de auth con service_role, aquí ocultamos de la tabla pública.
-            const { error } = await supabase.from('usuarios').delete().eq('id', id);
-            if (error) showToast('Error: ' + error.message, 'error');
-            else {
-                // También deberías llamar a una Edge Function para borrar de auth, por ahora solo ocultamos.
-                showToast('Usuario removido del sistema');
-            }
+            await supabase.from('usuarios').delete().eq('id', id);
+            showToast('Usuario removido del sistema');
             await cargarDatos();
             cargarVista('usuarios');
         }
 
         function editUser(id) { openUserModal(id); }
 
-        // Dispositivos
         async function deleteDevice(id) {
             if (!confirm('¿Eliminar dispositivo?')) return;
             await supabase.from('dispositivos').delete().eq('id', id);
@@ -531,11 +513,9 @@
             cargarVista('dispositivos');
         }
 
-        // Reloj
         function updateClock() { document.getElementById('currentTime').textContent = new Date().toLocaleString('es-MX', { hour12: false }); }
         setInterval(updateClock, 1000); updateClock();
 
-        // Navegación
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', function(e) {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -545,8 +525,10 @@
             });
         });
 
-        // Inicio
+        // Inicialización protegida: solo admin
         document.addEventListener('DOMContentLoaded', async () => {
+            const isAdmin = await checkAdminSession();
+            if (!isAdmin) return;
             await cargarDatos();
             cargarVista('overview');
         });

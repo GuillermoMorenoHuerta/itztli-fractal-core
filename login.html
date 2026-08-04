@@ -7,36 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --bg: #0a0a0f; --card: #12121f; --border: #1e1e3a;
-            --gold: #e2a03f; --cyan: #00b4d8; --text: #e0e0e0;
-        }
-        body {
-            margin: 0; background: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', sans-serif; display: flex;
-            justify-content: center; align-items: center; min-height: 100vh;
-            background-image: radial-gradient(ellipse at center, rgba(0,180,216,0.1) 0%, transparent 70%);
-        }
-        .login-box {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 20px; padding: 2.5rem; width: 360px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .login-box h1 {
-            font-family: 'Orbitron', sans-serif; color: var(--gold);
-            text-align: center; margin-bottom: 2rem; font-size: 1.8rem;
-        }
+        :root { --bg: #0a0a0f; --card: #12121f; --border: #1e1e3a; --gold: #e2a03f; --cyan: #00b4d8; --text: #e0e0e0; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(ellipse at center, rgba(0,180,216,0.1) 0%, transparent 70%); }
+        .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .login-box h1 { font-family: 'Orbitron', sans-serif; color: var(--gold); text-align: center; margin-bottom: 2rem; font-size: 1.8rem; }
         .input-group { margin-bottom: 1.2rem; }
         .input-group label { display: block; color: var(--cyan); margin-bottom: 4px; font-size: 0.85rem; }
-        .input-group input {
-            width: 100%; padding: 12px; background: #0a0a0f; border: 1px solid var(--border);
-            border-radius: 8px; color: white; font-size: 1rem; outline: none;
-        }
-        .btn {
-            width: 100%; padding: 12px; background: var(--gold); color: var(--bg);
-            border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
-            font-size: 1rem; transition: 0.3s; margin-top: 1rem;
-        }
+        .input-group input { width: 100%; padding: 12px; background: #0a0a0f; border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 1rem; outline: none; }
+        .btn { width: 100%; padding: 12px; background: var(--gold); color: var(--bg); border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: 0.3s; margin-top: 1rem; }
         .btn:hover { box-shadow: 0 0 20px rgba(226,160,63,0.5); }
         .alt-link { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; }
         .alt-link a { color: var(--cyan); cursor: pointer; text-decoration: none; }
@@ -68,6 +46,7 @@
             'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5'
         );
 
+        // Alternar formularios
         document.getElementById('showRegister').addEventListener('click', () => {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
@@ -77,16 +56,43 @@
             document.getElementById('loginForm').style.display = 'block';
         });
 
+        // Redirigir según plan/rol
+        async function redirectAfterLogin(userId) {
+            const { data: userData, error } = await supabase
+                .from('usuarios')
+                .select('plan, role')
+                .eq('id', userId)
+                .single();
+
+            if (error || !userData) {
+                // Si no hay registro en usuarios, redirigir al plan gratis por defecto
+                window.location.href = 'demo-registro.html';
+                return;
+            }
+
+            if (userData.role === 'admin') {
+                window.location.href = 'icc.html';
+                return;
+            }
+
+            const redirectMap = {
+                free: 'demo-registro.html',
+                premium: 'itzli-premium.html',
+                platinum: 'itzli-platinum.html'
+            };
+            window.location.href = redirectMap[userData.plan] || 'demo-registro.html';
+        }
+
         // Login
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
                 document.getElementById('loginError').textContent = error.message;
                 document.getElementById('loginError').style.display = 'block';
             } else {
-                window.location.href = 'icc.html';
+                await redirectAfterLogin(data.user.id);
             }
         });
 
@@ -99,14 +105,31 @@
                 document.getElementById('registerError').style.display = 'block';
                 return;
             }
-            const { error } = await supabase.auth.signUp({ email, password });
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
             if (error) {
                 document.getElementById('registerError').textContent = error.message;
                 document.getElementById('registerError').style.display = 'block';
+                return;
+            }
+
+            // Insertar en tabla usuarios (plan free por defecto)
+            const { error: insertError } = await supabase
+                .from('usuarios')
+                .upsert({
+                    id: data.user.id,
+                    email: email,
+                    plan: 'free',
+                    role: 'user',
+                    created_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+
+            if (insertError) {
+                console.error('Error al crear perfil:', insertError);
+                alert('Registro exitoso, pero hubo un problema al crear tu perfil. Contacta a soporte.');
             } else {
-                alert('Registro exitoso. Revisa tu email para confirmar si es necesario, o consulta la consola.');
-                // Si la confirmación está desactivada, redirige
-                window.location.href = 'icc.html';
+                alert('Registro exitoso. Bienvenido al plan GRATIS.');
+                await redirectAfterLogin(data.user.id);
             }
         });
     </script>

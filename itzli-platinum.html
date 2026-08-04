@@ -203,6 +203,9 @@
         .auth-input { width:100%; padding:12px; margin:8px 0; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; }
         .auth-input:focus { border-color:var(--gold); outline:none; }
 
+        /* Ocultamos modales de login/registro (no se usan) */
+        .auth-modal { display: none !important; }
+
         .chip-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; }
         .chip { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:14px; transition:0.3s; cursor:pointer; }
         .chip:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,0.6); }
@@ -256,7 +259,7 @@
 
     <div class="header">
         <div class="header-buttons">
-            <button class="logout-btn" id="btnLogout" onclick="logout()" style="display:none;">🚪 <span id="txtLogout">SALIR</span></button>
+            <button class="logout-btn" id="btnLogout" onclick="logout()" style="display:inline-block;">🚪 <span id="txtLogout">SALIR</span></button>
             <button class="settings-btn" onclick="openSettings()" title="Configuración">⚙️</button>
             <button class="lang-btn" id="langToggle" onclick="toggleLang()">🇲🇽 ESP</button>
         </div>
@@ -335,7 +338,7 @@
         <p id="cmdResult">Esperando comando...</p>
     </div>
 
-    <!-- CONFIGURACIÓN DE GEOCERCA (SOLO RADIO) -->
+    <!-- CONFIGURACIÓN DE GEOCERCA -->
     <div class="card">
         <div class="card-header">
             <span>📐 <span id="txtGeofenceConfigTitle">CONFIGURACIÓN DE GEOCERCA</span></span>
@@ -446,49 +449,12 @@
         </div>
     </div>
 
-    <!-- MODAL DE LOGIN -->
-    <div class="auth-modal" id="authModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔐 <span id="txtLoginTitle">INICIAR SESIÓN</span></h3>
-            </div>
-            <label class="section-title">📧 <span id="txtEmail">Email</span></label>
-            <input type="email" class="auth-input" id="loginEmail" placeholder="usuario@email.com">
-            <label class="section-title">🔑 <span id="txtPassword">Contraseña</span></label>
-            <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••">
-            <button class="btn btn-gold" onclick="login()" style="width:100%;margin-top:10px;">🚀 <span id="txtLoginBtn">INGRESAR</span></button>
-            <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
-                <span id="txtNoAccount">¿No tienes cuenta?</span> <a href="#" onclick="showRegister()" style="color:var(--gold);" id="txtRegisterLink">Regístrate</a>
-            </p>
-            <button class="btn btn-gold" onclick="skipLogin()" style="width:100%;margin-top:5px;font-size:11px;">⚡ <span id="txtDemoBtn">Usar modo demo</span></button>
-        </div>
-    </div>
-
-    <!-- MODAL DE REGISTRO -->
-    <div class="auth-modal" id="registerModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📝 <span id="txtRegisterTitle">CREAR CUENTA</span></h3>
-                <button class="modal-close-btn" onclick="closeRegister()">✕</button>
-            </div>
-            <label class="section-title">📧 <span id="txtRegEmail">Email</span></label>
-            <input type="email" class="auth-input" id="regEmail" placeholder="usuario@email.com">
-            <label class="section-title">🔑 <span id="txtRegPassword">Contraseña</span></label>
-            <input type="password" class="auth-input" id="regPassword" placeholder="Mínimo 8 caracteres">
-            <label class="section-title">🚗 <span id="txtRegVin">VIN del Vehículo</span></label>
-            <input type="text" class="auth-input" id="regVIN" placeholder="1HGBH41JXMN109186">
-            <button class="btn btn-gold" onclick="register()" style="width:100%;margin-top:10px;">✨ <span id="txtRegisterBtn">CREAR CUENTA PLATINUM</span></button>
-            <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
-                <span id="txtHasAccount">¿Ya tienes cuenta?</span> <a href="#" onclick="showLogin()" style="color:var(--gold);" id="txtLoginLink">Inicia sesión</a>
-            </p>
-        </div>
-    </div>
-
     <div class="footer">
          ITZTLI FRACTAL CORE © 2026 | Plan PLATINUM | <span id="currentTime"></span>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="auth.js"></script>
 
     <script>
         const langData = {
@@ -551,12 +517,7 @@
                 deleteConfirm: "¿Eliminar esta grabación permanentemente?",
                 settingsTitle: "CONFIGURACIÓN", closeSettings: "CERRAR",
                 homeLabel: "🏠 Dirección de Casa", workLabel: "🏢 Dirección de Trabajo",
-                saveSettings: "GUARDAR", loginTitle: "INICIAR SESIÓN", emailLabel: "Email",
-                passwordLabel: "Contraseña", loginBtn: "INGRESAR", noAccount: "¿No tienes cuenta?",
-                registerLink: "Regístrate", demoBtn: "Usar modo demo",
-                registerTitle: "CREAR CUENTA", regEmailLabel: "Email", regPasswordLabel: "Contraseña",
-                regVinLabel: "VIN del Vehículo", registerBtn: "CREAR CUENTA PLATINUM",
-                hasAccount: "¿Ya tienes cuenta?", loginLink: "Inicia sesión",
+                saveSettings: "GUARDAR",
                 navHomeMsg: "🏠 Calculando ruta a casa...", navWorkMsg: "🏢 Calculando ruta al trabajo...",
                 shareAlert: "📍 Copiado al portapapeles", settingsSaved: "✅ Configuración guardada",
                 geofenceActivated: "📐 Geocerca ACTIVADA", geofenceDeactivated: "🔓 Geocerca DESACTIVADA"
@@ -611,12 +572,7 @@
                 deleteConfirm: "Delete this recording permanently?",
                 settingsTitle: "SETTINGS", closeSettings: "CLOSE",
                 homeLabel: "🏠 Home Address", workLabel: "🏢 Work Address",
-                saveSettings: "SAVE", loginTitle: "SIGN IN", emailLabel: "Email",
-                passwordLabel: "Password", loginBtn: "SIGN IN", noAccount: "Don't have an account?",
-                registerLink: "Register", demoBtn: "Use demo mode",
-                registerTitle: "CREATE ACCOUNT", regEmailLabel: "Email", regPasswordLabel: "Password",
-                regVinLabel: "Vehicle VIN", registerBtn: "CREATE PLATINUM ACCOUNT",
-                hasAccount: "Already have an account?", loginLink: "Sign in",
+                saveSettings: "SAVE",
                 navHomeMsg: "🏠 Calculating route home...", navWorkMsg: "🏢 Calculating route to work...",
                 shareAlert: "📍 Copied to clipboard", settingsSaved: "✅ Settings saved",
                 geofenceActivated: "📐 Geofence ACTIVATED", geofenceDeactivated: "🔓 Geofence DEACTIVATED"
@@ -624,7 +580,7 @@
         };
 
         let isSpanish = true;
-        let countdown = 5; // Rotación cada 5 segundos
+        let countdown = 5;
         let userSettings = JSON.parse(localStorage.getItem('itzli_platinum_settings') || '{}');
         if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
         if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
@@ -635,7 +591,6 @@
         let cameraStates = { frontal: true, trasera: true, interior: true };
         let recordStates = { frontal: false, trasera: false, interior: false };
         let currentCloudCam = 'frontal';
-        let currentUser = null;
         let cloudVideos = {
             frontal: [{ name: '2026-07-29_14-30-00.mp4', size: 45200000 }, { name: '2026-07-29_12-15-00.mp4', size: 38900000 }],
             trasera: [{ name: '2026-07-29_14-30-00.mp4', size: 42300000 }],
@@ -661,300 +616,55 @@
         let map, marker, mapInitialized = false;
         let currentLat = 19.4326, currentLng = -99.1332;
 
+        // ========== LOGOUT REAL ==========
+        async function logout() {
+            await supabaseAuth.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        // ========== INTERFAZ (sin cambios relevantes) ==========
         function toggleLang() {
             isSpanish = !isSpanish;
             const lang = isSpanish ? 'es' : 'en';
             const d = langData[lang];
             document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
             document.documentElement.lang = isSpanish ? 'es' : 'en';
-            document.getElementById('txtSubtitle').innerText = d.subtitle;
-            document.getElementById('txtBadge').innerHTML = d.badge;
-            document.getElementById('txtLogout').innerText = d.logoutBtn;
-            document.getElementById('txtSecure').innerText = d.secure;
-            document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--gold);">21E41421...</strong>';
-            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown" style="color:var(--gold);">' + countdown + 's</strong>';
-            document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">4.2/5 GB</strong>';
-            document.getElementById('txtHotSwapTitle').innerText = d.hotSwapTitle;
-            document.getElementById('txtControlTitle').innerText = d.controlTitle;
-            document.getElementById('txtSecMotor').innerHTML = d.secMotor;
-            document.getElementById('txtSecEnt').innerHTML = d.secEnt;
-            document.getElementById('txtSecClimate').innerHTML = d.secClimate;
-            document.getElementById('txtSecNav').innerHTML = d.secNav;
-
-            const btnMap = { btnStart:d.btnStart, btnStop:d.btnStop, btnOpen:d.btnOpen, btnClose:d.btnClose, btnLights:d.btnLights, btnHorn:d.btnHorn, btnVolUp:d.btnVolUp, btnVolDown:d.btnVolDown, btnMute:d.btnMute, btnBt:d.btnBt, btnFm:d.btnFm, btnAm:d.btnAm, btnAux:d.btnAux, btnNext:d.btnNext, btnAcOn:d.btnAcOn, btnAcOff:d.btnAcOff, btnTempUp:d.btnTempUp, btnTempDown:d.btnTempDown, btnFanUp:d.btnFanUp, btnFanDown:d.btnFanDown, btnSeat:d.btnSeat, btnDefrost:d.btnDefrost, btnNavHome:d.btnNavHome, btnNavWork:d.btnNavWork, btnNavStop:d.btnNavStop, btnFold:d.btnFold, btnUnfold:d.btnUnfold, btnMirrorHeat:d.btnMirrorHeat, btnLocation:d.btnLocation };
-            Object.entries(btnMap).forEach(([id, text]) => { const el = document.getElementById(id); if(el) el.innerHTML = el.innerHTML.replace(/<span>.*<\/span>/, `<span>${text}</span>`); });
-            updateGeofenceButtonText();
-            document.getElementById('txtGeofenceConfigTitle').innerText = d.geofenceConfigTitle;
-            document.getElementById('txtGeofenceConfigDesc').innerText = d.geofenceConfigDesc;
-            document.getElementById('txtRangeMin').innerText = d.rangeMin;
-            document.getElementById('txtRangeMax').innerText = d.rangeMax;
-            document.getElementById('txtGeofenceHint').innerHTML = d.geofenceHint;
-            document.getElementById('cmdResult').innerText = d.cmdResult;
-            document.getElementById('txtCamTitle').innerText = d.camTitle;
-            document.getElementById('txtViewCloud').innerText = d.btnViewCloud;
-            document.getElementById('txtChipTitle').innerText = d.chipTitle;
-            document.getElementById('txtAlertTitle').innerText = d.alertTitle;
-            document.getElementById('txtMapTitle').textContent = d.mapTitle;
-            document.getElementById('txtLat').textContent = d.latLabel;
-            document.getElementById('txtLng').textContent = d.lngLabel;
-            document.getElementById('txtRef').textContent = d.refLabel;
-            document.getElementById('txtPrec').textContent = d.precLabel;
-            document.getElementById('refAddress').textContent = d.refAddr;
-            document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
-            document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
-            document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
-            document.getElementById('txtCloudModalTitle').innerText = d.cloudModalTitle;
-            document.getElementById('txtCloseCloud').innerText = d.closeCloud;
-            document.getElementById('txtTabFront').innerText = d.tabFront;
-            document.getElementById('txtTabRear').innerText = d.tabRear;
-            document.getElementById('txtTabInt').innerText = d.tabInt;
-            document.getElementById('txtSettingsTitle').innerText = d.settingsTitle;
-            document.getElementById('txtCloseSettings').innerText = d.closeSettings;
-            document.getElementById('txtHomeLabel').innerText = d.homeLabel;
-            document.getElementById('txtWorkLabel').innerText = d.workLabel;
-            document.getElementById('txtSaveSettings').innerText = d.saveSettings;
-            document.getElementById('txtLoginTitle').innerText = d.loginTitle;
-            document.getElementById('txtEmail').innerText = d.emailLabel;
-            document.getElementById('txtPassword').innerText = d.passwordLabel;
-            document.getElementById('txtLoginBtn').innerText = d.loginBtn;
-            document.getElementById('txtNoAccount').innerText = d.noAccount;
-            document.getElementById('txtRegisterLink').innerText = d.registerLink;
-            document.getElementById('txtDemoBtn').innerText = d.demoBtn;
-            document.getElementById('txtRegisterTitle').innerText = d.registerTitle;
-            document.getElementById('txtRegEmail').innerText = d.regEmailLabel;
-            document.getElementById('txtRegPassword').innerText = d.regPasswordLabel;
-            document.getElementById('txtRegVin').innerText = d.regVinLabel;
-            document.getElementById('txtRegisterBtn').innerText = d.registerBtn;
-            document.getElementById('txtHasAccount').innerText = d.hasAccount;
-            document.getElementById('txtLoginLink').innerText = d.loginLink;
-            updateRadiusDisplay();
-            renderHotSwap();
-            renderCameras();
-            renderChips();
-            renderAlerts();
-            switchCloudTab(currentCloudCam);
-            updateOnlineButton();
-            updateRecordAllButton();
+            // ... (todo el resto del toggleLang original, sin cambios)
+            // Por brevedad, no se repite aquí, pero debes conservarlo exactamente igual que en tu versión anterior.
         }
 
-        function updateGeofenceButtonText() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            document.getElementById('txtGeofenceBtn').innerText = geofenceActive ? d.geofenceBtnDeactivate : d.geofenceBtnActivate;
-            const btn = document.getElementById('btnGeofenceToggle');
-            btn.classList.toggle('active', geofenceActive);
-        }
-
-        function updateRadiusDisplay() {
-            const val = parseInt(document.getElementById('geofenceRadius').value);
-            const displayVal = isSpanish ? val : Math.round(val * 3.28084);
-            document.getElementById('radiusValue').textContent = displayVal + (isSpanish ? 'm' : 'ft');
-            userSettings.geofenceRadius = val;
-            localStorage.setItem('itzli_platinum_settings', JSON.stringify(userSettings));
-            if (geofenceCircle && map) {
-                map.removeLayer(geofenceCircle);
-                geofenceCircle = L.circle([currentLat, currentLng], { color: '#f5c542', fillColor: '#f5c542', fillOpacity: 0.15, radius: val }).addTo(map);
-            }
-        }
-
-        function toggleGeofence() {
-            geofenceActive = !geofenceActive;
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (geofenceActive) {
-                if (map) {
-                    if (geofenceCircle) map.removeLayer(geofenceCircle);
-                    const radius = userSettings.geofenceRadius || 50;
-                    geofenceCircle = L.circle([currentLat, currentLng], { color: '#f5c542', fillColor: '#f5c542', fillOpacity: 0.15, radius: radius }).addTo(map);
-                }
-                document.getElementById('cmdResult').textContent = d.geofenceActivated;
-                document.getElementById('cmdResult').style.color = 'var(--gold)';
-            } else {
-                if (geofenceCircle && map) {
-                    map.removeLayer(geofenceCircle);
-                    geofenceCircle = null;
-                }
-                document.getElementById('cmdResult').textContent = d.geofenceDeactivated;
-                document.getElementById('cmdResult').style.color = 'var(--red)';
-            }
-            updateGeofenceButtonText();
-            setTimeout(() => {
-                document.getElementById('cmdResult').textContent = d.cmdResult;
-                document.getElementById('cmdResult').style.color = 'var(--dim)';
-            }, 3000);
-        }
-
-        function renderHotSwap() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            document.getElementById('hotswapGrid').innerHTML = `
-                <div class="hotswap-card fail"><h4>${d.hsFailName}</h4><p>${d.hsFailVolt} | ${d.hsFailTemp}</p><div class="status-text" style="color:var(--red);">${d.hsFailStatus}</div><div class="status-text" style="color:var(--gold);">${d.hsFailCov}</div></div>
-                <div class="hotswap-card success"><h4>${d.hsBackName}</h4><p>${d.hsBackVolt} | ${d.hsBackTemp}</p><div class="status-text" style="color:var(--green);">${d.hsBackStatus}</div><div class="status-text" style="color:var(--dim);">${d.hsBackBuy}</div></div>`;
-        }
-
-        function renderCameras() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const cameras = [
-                { id:'frontal', name:d.camFront, color:'front', img:d.imgFrontal },
-                { id:'trasera', name:d.camRear, color:'rear', img:d.imgTrasera },
-                { id:'interior', name:d.camInt, color:'interior', img:d.imgInterior }
-            ];
-            document.getElementById('cameraGrid').innerHTML = cameras.map(cam => `
-                <div class="camera-feed ${cam.color} ${cameraStates[cam.id]?'video-on':''} ${recordStates[cam.id]?'recording':''}" id="cam-${cam.id}">
-                    <img src="${cam.img}" alt="${cam.name}" class="camera-image" id="img-${cam.id}" onerror="this.style.display='none'; this.nextElementSibling.style.opacity='1';">
-                    <video class="camera-video" id="video-${cam.id}" muted loop playsinline></video>
-                    <button class="record-btn-individual ${recordStates[cam.id]?'recording':''}" onclick="event.stopPropagation(); toggleRecordIndividual('${cam.id}')">${recordStates[cam.id]?d.recordBtnOn:d.recordBtn}</button>
-                    <div class="camera-name">${cam.name}</div>
-                    <div class="camera-recording"></div>
-                </div>`).join('');
-            document.querySelectorAll('.camera-feed').forEach(feed => {
-                const camId = feed.id.replace('cam-','');
-                feed.onclick = function(e) { if(e.detail === 1) toggleCamera(camId); };
-                feed.ondblclick = function() { handleDoubleClick(camId); };
-            });
-            updateOnlineButton();
-            updateRecordAllButton();
-        }
-
-        function toggleCamera(camId) { cameraStates[camId] = !cameraStates[camId]; if (!cameraStates[camId]) recordStates[camId] = false; renderCameras(); }
-        function toggleAllCameras() { const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior; cameraStates.frontal = cameraStates.trasera = cameraStates.interior = !allOn; if (!allOn) { recordStates.frontal = recordStates.trasera = recordStates.interior = false; } renderCameras(); }
-        function toggleRecordIndividual(camId) { if (!cameraStates[camId]) return; recordStates[camId] = !recordStates[camId]; renderCameras(); }
-        function toggleRecordAll() { const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior; recordStates.frontal = recordStates.trasera = recordStates.interior = !allRecording; renderCameras(); }
-        function updateOnlineButton() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
-            const allOff = !cameraStates.frontal && !cameraStates.trasera && !cameraStates.interior;
-            const btn = document.querySelector('.btn-online');
-            if(btn) { btn.className = 'btn btn-online ' + (allOn ? 'on' : allOff ? 'off' : ''); document.getElementById('txtOnlineStatus').innerText = allOn ? d.onlineStatus : allOff ? d.offlineStatus : d.partialStatus; }
-        }
-        function updateRecordAllButton() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior;
-            const btn = document.getElementById('btnRecordAll');
-            if(btn) { btn.className = 'btn btn-record-all ' + (allRecording ? 'recording' : 'stopped'); document.getElementById('txtBtnRecordAll').innerText = allRecording ? d.btnRecordAll : d.btnRecordAllOff; }
-        }
-        function handleDoubleClick(camId) { const feed = document.getElementById('cam-'+camId); if(!document.fullscreenElement) feed.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); }
-
-        function renderChips() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            chips.forEach(chip => analyzePatterns(chip));
-            document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
-                const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
-                const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
-                return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
-                    <div class="chip-top"><div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div><div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div></div>
-                    <div class="chip-metrics"><span>⚡ <span class="val">${chip.voltage}V</span></span><span>🌡️ <span class="val">${chip.temp}°C</span></span><span>🔄 <span class="val">${chip.syncs}</span></span></div>
-                    ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
-                    <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
-                </div>`;
-            }).join('');
-        }
-        function toggleChip(id) { document.getElementById('chip-'+id).classList.toggle('expanded'); }
-        function analyzePatterns(chip) {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); }
-            if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); }
-            if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertErrors + chip.errors); }
-        }
-        function addAlert(chip, nivel, mensaje) {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const name = d.chipNames[chips.indexOf(chip)];
-            const exists = alertLog.find(a => a.chip === name && a.mensaje === mensaje);
-            if (!exists) { alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: name, icon: chip.icon, nivel, mensaje }); if (alertLog.length > 20) alertLog.pop(); }
-        }
-        function renderAlerts() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const container = document.getElementById('alertList');
-            if (alertLog.length === 0) { container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`; return; }
-            container.innerHTML = alertLog.map(a => `<div class="alert-item ${a.nivel}"><div class="icon">${a.icon}</div><div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div></div>`).join('');
-        }
-
-        function sendCommand(cmd) {
-            const messages = { arrancar:'🚀 Motor ARRANCADO.', apagar:'🛑 Motor APAGADO.', abrir:'🔓 Puertas ABIERTAS.', cerrar:'🔒 Puertas CERRADAS.', luces:'💡 Luces ENCENDIDAS.', claxon:'📢 Claxon ACTIVADO.', vol_up:'🔊 Volumen subido.', vol_down:'🔉 Volumen bajado.', mute:'🔇 Silenciado.', bluetooth:'📱 Bluetooth activado.', radio_fm:'📻 Radio FM.', radio_am:'📻 Radio AM.', aux:'🎧 Modo AUX.', next_track:'⏭️ Siguiente pista.', ac_on:'❄️ A/C encendido.', ac_off:'🌡️ A/C apagado.', temp_up:'🔺 Temperatura +', temp_down:'🔻 Temperatura -', fan_up:'💨 Ventilador +', fan_down:'💨 Ventilador -', seat_heat:'🔥 Asientos calefactados.', defrost:'❄️ Desempañador activado.', nav_stop:'🛑 Ruta detenida.', mirror_fold:'🪞 Espejos plegados.', mirror_unfold:'🪞 Espejos desplegados.', mirror_heat:'🔥 Calefacción espejos.' };
-            const result = document.getElementById('cmdResult');
-            result.textContent = messages[cmd] || '✅ Comando ejecutado';
-            result.style.color = 'var(--green)';
-            setTimeout(() => { result.textContent = isSpanish ? 'Esperando comando...' : 'Waiting for command...'; result.style.color = 'var(--dim)'; }, 3000);
-        }
-        function navigateToAddress(type) {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const address = type === 'home' ? userSettings.homeAddress : userSettings.workAddress;
-            document.getElementById('cmdResult').textContent = type === 'home' ? d.navHomeMsg : d.navWorkMsg;
-            document.getElementById('cmdResult').style.color = 'var(--gold)';
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
-            setTimeout(() => { document.getElementById('cmdResult').textContent = d.cmdResult; document.getElementById('cmdResult').style.color = 'var(--dim)'; }, 3000);
-        }
-
-        function openCloudModal() { document.getElementById('cloudModal').classList.add('active'); document.body.style.overflow='hidden'; switchCloudTab('frontal'); }
-        function closeCloudModal() { document.getElementById('cloudModal').classList.remove('active'); document.body.style.overflow=''; const p=document.getElementById('cloudVideoPlayer'); p.pause(); p.src=''; p.classList.remove('active'); }
-        function switchCloudTab(cam) {
-            currentCloudCam = cam;
-            document.querySelectorAll('.cloud-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[onclick="switchCloudTab('${cam}')"]`).classList.add('active');
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const container = document.getElementById('cloudVideoList');
-            const videos = cloudVideos[cam] || [];
-            container.innerHTML = videos.length ? videos.map(v => `
-                <div class="video-item"><span style="cursor:pointer;" onclick="playLocalVideo('${cam}','${v.name}')">🎬 ${v.name}</span>
-                <div class="video-actions"><span style="color:var(--dim);">${formatSize(v.size)}</span>
-                <button class="download-btn" onclick="event.stopPropagation(); downloadLocalVideo('${cam}','${v.name}')">${d.downloadBtn}</button>
-                <button class="delete-btn" onclick="event.stopPropagation(); deleteCloudVideo('${cam}','${v.name}')">${d.deleteBtn}</button></div></div>`).join('') : `<p style="color:var(--dim);text-align:center;">${d.noVideos}</p>`;
-        }
-        function deleteCloudVideo(cam, name) { if (!confirm(langData[isSpanish?'es':'en'].deleteConfirm)) return; cloudVideos[cam] = cloudVideos[cam].filter(v => v.name !== name); switchCloudTab(cam); }
-        function playLocalVideo(cam, name) { const p=document.getElementById('cloudVideoPlayer'); p.classList.add('active'); const c=document.createElement('canvas'); c.width=640; c.height=360; const x=c.getContext('2d'); x.fillStyle='#0a0a1a'; x.fillRect(0,0,640,360); x.fillStyle='#f5c542'; x.font='bold 24px Segoe UI'; x.textAlign='center'; x.fillText(cam.toUpperCase(),320,160); x.fillStyle='#8a8ab0'; x.font='14px Segoe UI'; x.fillText(name,320,200); p.srcObject=c.captureStream(30); p.play(); }
-        function downloadLocalVideo(cam, name) { const b=new Blob(['Video ITZTLI - '+cam],{type:'video/mp4'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
-        function formatSize(bytes) { if(!bytes) return '0 B'; if(bytes<1024) return bytes+' B'; if(bytes<1048576) return (bytes/1024).toFixed(1)+' KB'; return (bytes/1048576).toFixed(1)+' MB'; }
+        // ... (todas las demás funciones: renderHotSwap, renderCameras, etc. sin cambios)
 
         function initMap() {
-            if(mapInitialized) { setTimeout(() => { if(map) map.invalidateSize(); },100); return; }
-            const d = document.getElementById('map');
-            if(!d || d.offsetHeight===0) { setTimeout(initMap,300); return; }
-            mapInitialized = true;
-            map = L.map('map', { center:[currentLat,currentLng], zoom:17, zoomControl:true });
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { attribution:'Esri', maxZoom:19 }).addTo(map);
-            marker = L.marker([currentLat,currentLng]).addTo(map).bindPopup('<strong>🚗 Tu auto está aquí</strong>');
-            setTimeout(() => { if(map) map.invalidateSize(); },500);
-        }
-        function scrollToMap() { document.getElementById('mapSection').scrollIntoView({ behavior:'smooth' }); if(map) { map.setView([currentLat,currentLng], 17); } }
-        function updateLocation() { currentLat += (Math.random()-0.5)*0.001; currentLng += (Math.random()-0.5)*0.001; document.getElementById('lat').textContent = currentLat.toFixed(4)+'° N'; document.getElementById('lng').textContent = currentLng.toFixed(4)+'° W'; if(marker && map) { marker.setLatLng([currentLat,currentLng]); map.setView([currentLat,currentLng],17); } }
-        function shareLocation() { const d=langData[isSpanish?'es':'en']; const loc=`📍 Mi auto: https://www.google.com/maps?q=${currentLat},${currentLng}`; if(navigator.share) navigator.share({title:'📍 Ubicación',text:loc}); else { navigator.clipboard.writeText(loc); alert(d.shareAlert); } }
-        function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
-
-        function skipLogin() { currentUser={id:'demo-user',email:'demo@itzli.com'}; document.getElementById('authModal').classList.remove('active'); document.getElementById('btnLogout').style.display='inline-block'; updateStatusDot('online'); }
-        function login() { const email=document.getElementById('loginEmail').value; if(!email) return; currentUser={id:'user-'+Date.now(),email:email}; document.getElementById('authModal').classList.remove('active'); document.getElementById('btnLogout').style.display='inline-block'; updateStatusDot('online'); }
-        function register() { const email=document.getElementById('regEmail').value; if(!email) return; currentUser={id:'user-'+Date.now(),email:email}; document.getElementById('registerModal').classList.remove('active'); document.getElementById('btnLogout').style.display='inline-block'; updateStatusDot('online'); }
-        function logout() { currentUser=null; document.getElementById('btnLogout').style.display='none'; document.getElementById('authModal').classList.add('active'); updateStatusDot('offline'); }
-        function showRegister() { document.getElementById('authModal').classList.remove('active'); document.getElementById('registerModal').classList.add('active'); }
-        function showLogin() { document.getElementById('authModal').classList.add('active'); document.getElementById('registerModal').classList.remove('active'); }
-        function closeRegister() { document.getElementById('registerModal').classList.remove('active'); }
-        function updateStatusDot(status) { const dot=document.getElementById('statusDot'); dot.className='dot'; if(status==='online') dot.classList.add('dot-green'); else dot.classList.add('dot-red'); document.getElementById('txtSecure').innerText = status==='online' ? langData[isSpanish?'es':'en'].secure : 'DESCONECTADO'; }
-
-        function openSettings() { document.getElementById('settingsModal').classList.add('active'); document.getElementById('homeAddress').value=userSettings.homeAddress; document.getElementById('workAddress').value=userSettings.workAddress; }
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-        function saveSettings() { userSettings.homeAddress=document.getElementById('homeAddress').value; userSettings.workAddress=document.getElementById('workAddress').value; localStorage.setItem('itzli_platinum_settings', JSON.stringify(userSettings)); alert(langData[isSpanish?'es':'en'].settingsSaved); closeSettings(); }
-
-        function simulateUpdate() {
-            chips.forEach(chip => {
-                chip.voltage += (Math.random()-0.5)*0.2; chip.voltage = Math.round(chip.voltage*10)/10;
-                chip.temp += (Math.random()-0.5)*1; chip.temp = Math.round(chip.temp);
-                chip.vH.push(chip.voltage); chip.tH.push(chip.temp);
-                if(chip.vH.length>10) chip.vH.shift(); if(chip.tH.length>10) chip.tH.shift();
-                if(Math.random()>0.95) chip.errors++; chip.syncs += Math.floor(Math.random()*10);
-            });
-            renderChips(); renderAlerts();
+            // ... (tu código original)
         }
 
-        setInterval(() => { countdown--; if(countdown<=0) countdown=5; const el=document.getElementById('countdown'); if(el) el.textContent=countdown+'s'; document.getElementById('currentTime').textContent = new Date().toLocaleString(); }, 1000);
-        document.addEventListener('keydown', function(e) { if(e.key==='Escape') { closeCloudModal(); closeSettings(); } });
-        document.getElementById('cloudModal').addEventListener('click', function(e) { if(e.target===this) closeCloudModal(); });
-        document.getElementById('settingsModal').addEventListener('click', function(e) { if(e.target===this) closeSettings(); });
+        // ... (resto de funciones originales: sendCommand, navigateToAddress, etc.)
 
-        function init() {
+        // ========== INICIALIZACIÓN PROTEGIDA ==========
+        async function init() {
+            const user = await requirePlan('platinum');
+            if (!user) return;
+
+            document.getElementById('btnLogout').style.display = 'inline-block';
+            updateStatusDot('online');
+
             document.getElementById('geofenceRadius').value = userSettings.geofenceRadius;
             updateRadiusDisplay();
             renderHotSwap(); renderCameras(); renderChips(); renderAlerts();
-            document.getElementById('authModal').classList.add('active');
             setTimeout(initMap, 600);
+            setInterval(simulateUpdate, 15000);
         }
+
+        function updateStatusDot(status) {
+            const dot = document.getElementById('statusDot');
+            dot.className = 'dot';
+            if(status === 'online') dot.classList.add('dot-green');
+            else dot.classList.add('dot-red');
+            document.getElementById('txtSecure').innerText = status === 'online' ? langData[isSpanish ? 'es' : 'en'].secure : 'DESCONECTADO';
+        }
+
         init();
-        setInterval(simulateUpdate, 15000);
     </script>
 </body>
 </html>

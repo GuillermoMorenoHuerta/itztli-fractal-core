@@ -14,6 +14,7 @@
     <meta name="description" content="ITZTLI FRACTAL CORE - Seguridad Real para tu vehículo. Monitoreo de chips, alertas y geolocalización.">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -152,12 +153,15 @@
         .btn-blue { border-color: #4a8bf5; color: #4a8bf5; }
         .btn-blue:hover { background: #4a8bf5; color: #000; }
         
-        .settings-modal, .auth-modal {
+        /* Ocultamos modales de login/registro (ya no se usan) */
+        .auth-modal { display: none !important; }
+        
+        .settings-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 1000;
             justify-content: center; align-items: center; flex-direction: column;
         }
-        .settings-modal.active, .auth-modal.active { display: flex; }
+        .settings-modal.active { display: flex; }
         .modal-content {
             background: var(--card); border: 2px solid var(--green);
             border-radius: 20px; padding: 25px; max-width: 600px; width: 90%;
@@ -209,7 +213,7 @@
 
     <div class="header">
         <div class="header-buttons">
-            <button class="logout-btn" id="btnLogout" onclick="logout()" style="display:none;">🚪 <span id="txtLogout">SALIR</span></button>
+            <button class="logout-btn" id="btnLogout" onclick="logout()" style="display:inline-block;">🚪 <span id="txtLogout">SALIR</span></button>
             <button class="settings-btn" onclick="openSettings()" title="Configuración">⚙️</button>
             <button class="lang-btn" id="langToggle" onclick="toggleLang()">🇲🇽 ESP</button>
         </div>
@@ -250,7 +254,7 @@
         <div class="chip-grid" id="chipGrid"></div>
     </div>
 
-    <!-- ALERTAS (ILIMITADAS CON SCROLL) -->
+    <!-- ALERTAS -->
     <div class="card">
         <div class="card-header" style="color:var(--red);">
             <span>🔔 <span id="txtAlertTitle">ALERTAS DE SEGURIDAD</span></span>
@@ -281,47 +285,7 @@
         </div>
     </div>
 
-    <!-- REGISTRO -->
-    <div class="auth-modal" id="authModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📝 <span id="txtRegisterTitle">REGISTRO GRATUITO</span></h3>
-            </div>
-            <p style="color:var(--dim);font-size:12px;margin-bottom:15px;text-align:center;" id="txtRegisterDesc">
-                Regístrate gratis para activar la seguridad real: monitoreo de chips, alertas, geolocalización y rotación de claves cada 5 segundos.
-            </p>
-            <label style="color:var(--dim);font-size:12px;">📧 <span id="txtRegEmail">Email</span></label>
-            <input type="email" class="auth-input" id="regEmail" placeholder="usuario@email.com">
-            <label style="color:var(--dim);font-size:12px;margin-top:10px;">🔑 <span id="txtRegPassword">Contraseña</span></label>
-            <input type="password" class="auth-input" id="regPassword" placeholder="Mínimo 8 caracteres">
-            <label style="color:var(--dim);font-size:12px;margin-top:10px;">🚗 <span id="txtRegVin">VIN del Vehículo (opcional)</span></label>
-            <input type="text" class="auth-input" id="regVIN" placeholder="1HGBH41JXMN109186">
-            <button class="btn btn-green" onclick="register()" style="width:100%;margin-top:15px;padding:14px;">✨ <span id="txtRegisterBtn">ACTIVAR SEGURIDAD GRATUITA</span></button>
-            <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
-                <span id="txtHasAccount">¿Ya tienes cuenta?</span> <a href="#" onclick="showLogin()" style="color:var(--green);" id="txtLoginLink">Inicia sesión</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- LOGIN -->
-    <div class="auth-modal" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔐 <span id="txtLoginTitle">INICIAR SESIÓN</span></h3>
-                <button class="modal-close-btn" onclick="closeLogin()">✕</button>
-            </div>
-            <label style="color:var(--dim);font-size:12px;">📧 <span id="txtEmail">Email</span></label>
-            <input type="email" class="auth-input" id="loginEmail" placeholder="usuario@email.com">
-            <label style="color:var(--dim);font-size:12px;margin-top:10px;">🔑 <span id="txtPassword">Contraseña</span></label>
-            <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••">
-            <button class="btn btn-green" onclick="login()" style="width:100%;margin-top:15px;padding:14px;"> <span id="txtLoginBtn">INGRESAR</span></button>
-            <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
-                <span id="txtNoAccount">¿No tienes cuenta?</span> <a href="#" onclick="showRegister()" style="color:var(--green);" id="txtRegisterLink">Regístrate gratis</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- PROMO PREMIUM + PLATINUM (USD EXPLÍCITO) -->
+    <!-- PROMO PREMIUM + PLATINUM -->
     <div class="promo-section">
         <h3 id="txtPromoTitle"> ¿QUIERES MÁS CONTROL?</h3>
         <p id="txtPromoDesc">Elige el plan que mejor se adapte a tus necesidades:</p>
@@ -335,7 +299,23 @@
          <strong>ITZTLI FRACTAL CORE ®</strong> — <span id="txtFooter">Todos los Derechos Reservados</span> | <span id="currentTime"></span>
     </div>
 
+    <!-- MODAL DE CONFIGURACIÓN (único modal, sin login) -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ <span id="txtSettingsTitle">CONFIGURACIÓN</span></h3>
+                <button class="modal-close-btn" onclick="closeSettings()">✕</button>
+            </div>
+            <label style="color:var(--green);font-size:13px;font-weight:600;">🏠 Dirección de Casa</label>
+            <input type="text" class="auth-input" id="settingsHomeAddress" placeholder="Av. Reforma 222, CDMX">
+            <label style="color:var(--green);font-size:13px;font-weight:600;">🏢 Dirección de Trabajo</label>
+            <input type="text" class="auth-input" id="settingsWorkAddress" placeholder="Paseo de la Reforma 500, CDMX">
+            <button class="btn btn-green" onclick="saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="auth.js"></script>
     
     <script>
         // ═══════════════ REGISTRAR SERVICE WORKER (PWA) ═══════════════
@@ -382,22 +362,11 @@
                 rangeUnit: "m",
                 rangeMin: "10m",
                 rangeMax: "100m",
-                registerTitle: "REGISTRO GRATUITO",
-                registerDesc: "Regístrate gratis para activar la seguridad real: monitoreo de chips, alertas, geolocalización y rotación de claves cada 5 segundos.",
-                regEmailLabel: "Email",
-                regPasswordLabel: "Contraseña",
-                regVinLabel: "VIN del Vehículo (opcional)",
-                registerBtn: "ACTIVAR SEGURIDAD GRATUITA",
-                hasAccount: "¿Ya tienes cuenta?",
-                loginLink: "Inicia sesión",
-                loginTitle: "INICIAR SESIÓN",
-                emailLabel: "Email",
-                passwordLabel: "Contraseña",
-                loginBtn: "INGRESAR",
-                noAccount: "¿No tienes cuenta?",
-                registerLink: "Regístrate gratis",
+                settingsTitle: "CONFIGURACIÓN",
+                closeSettings: "CERRAR",
+                saveSettings: "GUARDAR",
                 shareAlert: "📍 Copiado al portapapeles",
-                configSaved: "✅ Configuración guardada",
+                settingsSaved: "✅ Configuración guardada",
                 promoTitle: " ¿QUIERES MÁS CONTROL?",
                 promoDesc: "Elige el plan que mejor se adapte a tus necesidades:",
                 promoPremium: "🥈 PREMIUM $29.99 USD/mes",
@@ -439,22 +408,11 @@
                 rangeUnit: "ft",
                 rangeMin: "33ft",
                 rangeMax: "330ft",
-                registerTitle: "FREE REGISTRATION",
-                registerDesc: "Register for free to activate real security: chip monitoring, alerts, geolocation, and key rotation every 5 seconds.",
-                regEmailLabel: "Email",
-                regPasswordLabel: "Password",
-                regVinLabel: "Vehicle VIN (optional)",
-                registerBtn: "ACTIVATE FREE SECURITY",
-                hasAccount: "Already have an account?",
-                loginLink: "Sign in",
-                loginTitle: "SIGN IN",
-                emailLabel: "Email",
-                passwordLabel: "Password",
-                loginBtn: "SIGN IN",
-                noAccount: "Don't have an account?",
-                registerLink: "Register for free",
+                settingsTitle: "SETTINGS",
+                closeSettings: "CLOSE",
+                saveSettings: "SAVE",
                 shareAlert: "📍 Copied to clipboard",
-                configSaved: "✅ Settings saved",
+                settingsSaved: "✅ Settings saved",
                 promoTitle: " WANT MORE CONTROL?",
                 promoDesc: "Choose the plan that best suits your needs:",
                 promoPremium: "🥈 PREMIUM $29.99 USD/mo",
@@ -466,8 +424,8 @@
         let isSpanish = true;
         let userSettings = JSON.parse(localStorage.getItem('itzli_free_settings') || '{}');
         if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
+        if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
         if (!userSettings.geofenceRadius) userSettings.geofenceRadius = 50;
-        let currentUser = null;
         let countdown = 5;
 
         function toggleLang() {
@@ -500,20 +458,8 @@
             document.getElementById('spanUpdateLoc').textContent = d.btnUpdateLoc;
             document.getElementById('spanShareLoc').textContent = d.btnShareLoc;
             document.getElementById('spanNavigate').textContent = d.btnNavigate;
-            document.getElementById('txtRegisterTitle').textContent = d.registerTitle;
-            document.getElementById('txtRegisterDesc').textContent = d.registerDesc;
-            document.getElementById('txtRegEmail').textContent = d.regEmailLabel;
-            document.getElementById('txtRegPassword').textContent = d.regPasswordLabel;
-            document.getElementById('txtRegVin').textContent = d.regVinLabel;
-            document.getElementById('txtRegisterBtn').textContent = d.registerBtn;
-            document.getElementById('txtHasAccount').textContent = d.hasAccount;
-            document.getElementById('txtLoginLink').textContent = d.loginLink;
-            document.getElementById('txtLoginTitle').textContent = d.loginTitle;
-            document.getElementById('txtEmail').textContent = d.emailLabel;
-            document.getElementById('txtPassword').textContent = d.passwordLabel;
-            document.getElementById('txtLoginBtn').textContent = d.loginBtn;
-            document.getElementById('txtNoAccount').textContent = d.noAccount;
-            document.getElementById('txtRegisterLink').textContent = d.registerLink;
+            document.getElementById('txtSettingsTitle').textContent = d.settingsTitle;
+            document.getElementById('txtSaveSettings').textContent = d.saveSettings;
             document.getElementById('txtPromoTitle').textContent = d.promoTitle;
             document.getElementById('txtPromoDesc').textContent = d.promoDesc;
             document.getElementById('txtPromoPremium').textContent = d.promoPremium;
@@ -632,34 +578,27 @@
 
         // ═══════════════ CONFIGURACIÓN ═══════════════
         function openSettings() {
-            document.getElementById('homeAddress').value = userSettings.homeAddress;
-            document.getElementById('geofenceRange').value = userSettings.geofenceRadius;
-            updateRangeDisplay();
-            document.getElementById('configSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('settingsHomeAddress').value = userSettings.homeAddress;
+            document.getElementById('settingsWorkAddress').value = userSettings.workAddress;
         }
 
-        // ═══════════════ AUTENTICACIÓN ═══════════════
-        function register() {
-            const email = document.getElementById('regEmail').value, password = document.getElementById('regPassword').value;
-            if (!email || !password) { alert(isSpanish ? 'Completa todos los campos' : 'Fill all fields'); return; }
-            currentUser = { id: 'user-' + Date.now(), email: email };
-            document.getElementById('authModal').classList.remove('active');
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            updateStatusDot('online');
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+
+        function saveSettings() {
+            userSettings.homeAddress = document.getElementById('settingsHomeAddress').value;
+            userSettings.workAddress = document.getElementById('settingsWorkAddress').value;
+            localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
+            document.getElementById('refAddress').textContent = userSettings.homeAddress;
+            alert(langData[isSpanish ? 'es' : 'en'].settingsSaved);
+            closeSettings();
         }
-        function login() {
-            const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value;
-            if (!email || !password) { alert(isSpanish ? 'Completa todos los campos' : 'Fill all fields'); return; }
-            currentUser = { id: 'user-' + Date.now(), email: email };
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            updateStatusDot('online');
+
+        // ═══════════════ LOGOUT REAL ═══════════════
+        async function logout() {
+            await supabaseAuth.auth.signOut();
+            window.location.href = 'login.html';
         }
-        function logout() { currentUser = null; document.getElementById('btnLogout').style.display = 'none'; document.getElementById('authModal').classList.add('active'); updateStatusDot('offline'); }
-        function showRegister() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('authModal').classList.add('active'); }
-        function showLogin() { document.getElementById('authModal').classList.remove('active'); document.getElementById('loginModal').classList.add('active'); }
-        function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
-        function updateStatusDot(s) { const dot = document.getElementById('statusDot'); dot.className = 'dot'; if (s === 'online') dot.classList.add('dot-green'); else if (s === 'warning') dot.classList.add('dot-yellow'); else dot.classList.add('dot-red'); document.getElementById('txtSecure').textContent = s === 'online' ? langData[isSpanish ? 'es' : 'en'].secure : 'DESCONECTADO'; }
 
         // ═══════════════ SIMULACIÓN ═══════════════
         function simulateUpdate() {
@@ -673,24 +612,41 @@
             renderChips(); renderAlerts();
         }
 
-        // ═══════════════ INICIALIZACIÓN ═══════════════
+        // ═══════════════ INICIALIZACIÓN PROTEGIDA ═══════════════
         setInterval(() => { 
             countdown--; if (countdown <= 0) countdown = 5; 
             const el = document.getElementById('countdown'); if (el) el.textContent = countdown + 's'; 
             document.getElementById('currentTime').textContent = new Date().toLocaleString(); 
         }, 1000);
         
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { document.getElementById('loginModal').classList.remove('active'); } });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeSettings(); } });
+        document.getElementById('settingsModal').addEventListener('click', function(e) { if(e.target === this) closeSettings(); });
 
-        function init() {
+        async function init() {
+            // Verifica sesión y plan 'free' (o admin)
+            const user = await requirePlan('free');
+            if (!user) return;  // Ya redirigió
+
+            // Mostrar botón de logout (ya está visible desde el HTML)
+            document.getElementById('btnLogout').style.display = 'inline-block';
+            updateStatusDot('online');
+
             document.getElementById('homeAddress').value = userSettings.homeAddress;
             document.getElementById('geofenceRange').value = userSettings.geofenceRadius;
             updateRangeDisplay();
             renderChips(); renderAlerts(); setTimeout(initMap, 500);
-            document.getElementById('authModal').classList.add('active');
+            setInterval(simulateUpdate, 15000);
         }
+
+        function updateStatusDot(status) {
+            const dot = document.getElementById('statusDot');
+            dot.className = 'dot';
+            if(status === 'online') dot.classList.add('dot-green');
+            else dot.classList.add('dot-red');
+            document.getElementById('txtSecure').innerText = status === 'online' ? langData[isSpanish ? 'es' : 'en'].secure : 'DESCONECTADO';
+        }
+
         init();
-        setInterval(simulateUpdate, 15000);
     </script>
 </body>
 </html>
