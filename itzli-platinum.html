@@ -14,9 +14,11 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://js.stripe.com/v3/"></script>
+    <!-- Eliminamos Stripe para evitar advertencias -->
+    <!-- <script src="https://js.stripe.com/v3/"></script> -->
 
     <style>
+        /* ===== ESTILOS (IGUALES QUE ANTES) ===== */
         :root {
             --bg: #0a0a1a;
             --card: #14102e;
@@ -134,6 +136,7 @@
             background: #000; border: 2px solid var(--border); border-radius: 12px;
             aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+            user-select: none;
         }
         .camera-feed:hover { border-color: var(--gold); }
         .camera-name {
@@ -145,7 +148,7 @@
         .camera-feed.rear .camera-name { color: #9b59b6; }
         .camera-feed.interior .camera-name { color: #00ff88; }
         .camera-image { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:1; opacity:1; transition: opacity 0.3s; }
-        .camera-video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:1; opacity:0; transition: opacity 0.3s; background:#0a0a1a; }
+        .camera-video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:1; opacity:0; transition: opacity 0.3s; background:#0a0a1a; display:flex; align-items:center; justify-content:center; color:#666; font-size:14px; }
         .camera-feed.video-on .camera-image { opacity:0; }
         .camera-feed.video-on .camera-video { opacity:1; }
         .camera-feed.video-on { border-color: var(--green); }
@@ -257,6 +260,7 @@
 </head>
 <body>
 
+    <!-- ===== HEADER ===== -->
     <div class="header">
         <div class="header-buttons">
             <button class="logout-btn" id="btnLogout" onclick="logout()" style="display:inline-block;">🚪 <span id="txtLogout">SALIR</span></button>
@@ -268,6 +272,7 @@
         <div class="badge" id="txtBadge">🥇 PLAN PLATINUM ACTIVO</div>
     </div>
 
+    <!-- ===== STATUS BAR ===== -->
     <div class="status-bar">
         <span><span class="dot dot-gold" id="statusDot"></span> <strong id="txtSecure">SEGURO</strong></span>
         <span id="txtKey">🔑 Clave: <strong style="color:var(--gold);">21E41421...</strong></span>
@@ -275,7 +280,7 @@
         <span id="txtCloud">☁️ <strong style="color:var(--green);">4.2/5 GB</strong></span>
     </div>
 
-    <!-- HOT-SWAP DIGITAL -->
+    <!-- ===== HOT-SWAP ===== -->
     <div class="card">
         <div class="card-header" style="color:var(--green);">
             <span>🔄 <span id="txtHotSwapTitle">HOT-SWAP DIGITAL — Auto-Reparación</span></span>
@@ -283,7 +288,7 @@
         <div class="hotswap-grid" id="hotswapGrid"></div>
     </div>
 
-    <!-- VEHICLE CONTROL CENTER -->
+    <!-- ===== VEHICLE CONTROL CENTER ===== -->
     <div class="card">
         <div class="card-header">
             <span>🎮 <span id="txtControlTitle">CONTROL TOTAL DEL VEHÍCULO</span></span>
@@ -338,7 +343,7 @@
         <p id="cmdResult">Esperando comando...</p>
     </div>
 
-    <!-- CONFIGURACIÓN DE GEOCERCA -->
+    <!-- ===== GEOFENCE CONFIG ===== -->
     <div class="card">
         <div class="card-header">
             <span>📐 <span id="txtGeofenceConfigTitle">CONFIGURACIÓN DE GEOCERCA</span></span>
@@ -357,7 +362,7 @@
         </p>
     </div>
 
-    <!-- CÁMARAS -->
+    <!-- ===== CÁMARAS ===== -->
     <div class="card">
         <div class="card-header">
             <span>📹 <span id="txtCamTitle">CÁMARAS EN VIVO</span></span>
@@ -378,7 +383,7 @@
         </div>
     </div>
 
-    <!-- ECU HEALTH MONITORING -->
+    <!-- ===== CHIPS ===== -->
     <div class="card">
         <div class="card-header">
             <span>🧠 <span id="txtChipTitle">MONITOREO DE CHIPS</span></span>
@@ -386,7 +391,7 @@
         <div class="chip-grid" id="chipGrid"></div>
     </div>
 
-    <!-- ALERTAS -->
+    <!-- ===== ALERTAS ===== -->
     <div class="card">
         <div class="card-header" style="color:var(--red);">
             <span>🔔 <span id="txtAlertTitle">ALERTAS</span></span>
@@ -398,7 +403,7 @@
         </div>
     </div>
 
-    <!-- MAPA -->
+    <!-- ===== MAPA ===== -->
     <div class="card" id="mapSection">
         <div class="card-header">
             <span id="txtMapTitle">📍 UBICACIÓN</span>
@@ -417,7 +422,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE NUBE -->
+    <!-- ===== MODALES ===== -->
     <div class="cloud-modal" id="cloudModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -434,7 +439,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURACIÓN -->
     <div class="settings-modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -453,218 +457,901 @@
          ITZTLI FRACTAL CORE © 2026 | Plan PLATINUM | <span id="currentTime"></span>
     </div>
 
+    <!-- ===== SCRIPTS ===== -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="auth.js"></script>
+    <!-- Cargar auth.js de forma opcional (si no existe, no falla) -->
+    <script>
+        // Intentar cargar auth.js, pero si falla, seguir sin él
+        (function loadAuth() {
+            const script = document.createElement('script');
+            script.src = 'auth.js';
+            script.onerror = function() {
+                console.warn('⚠️ auth.js no encontrado. Modo demo sin autenticación.');
+                // Definir funciones dummy si no existen
+                if (typeof requirePlan === 'undefined') {
+                    window.requirePlan = function() { return Promise.resolve(null); };
+                }
+                if (typeof supabase === 'undefined') {
+                    window.supabase = { auth: { signOut: function() { return Promise.resolve(); } } };
+                }
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
 
     <script>
-        const langData = {
-            es: {
-                subtitle: "Sistema Nervioso Digital para Vehículos",
-                badge: "🥇 PLAN PLATINUM ACTIVO",
-                secure: "SEGURO",
-                keyLabel: "🔑 Clave:",
-                rotationLabel: "🔄 Rotación:",
-                cloudLabel: "☁️ Nube:",
-                logoutBtn: "SALIR",
-                hotSwapTitle: "HOT-SWAP DIGITAL — Auto-Reparación",
-                hsFailName: "🔴 GPS/Navegación (UX7E5)",
-                hsFailVolt: "Voltaje: 10.2V",
-                hsFailTemp: "Temp: 55°C",
-                hsFailStatus: "⚠️ Chip malfunction detectado",
-                hsFailCov: "🔄 Transmisión manejando funciones",
-                hsBackName: "🟢 Transmisión (UX7E1)",
-                hsBackVolt: "Voltaje: 12.3V",
-                hsBackTemp: "Temp: 43°C",
-                hsBackStatus: "✅ Modo redundante activo",
-                hsBackBuy: "📦 Reemplazo solicitado",
-                controlTitle: "CONTROL TOTAL DEL VEHÍCULO",
-                secMotor: "🚗 MOTOR Y ACCESO",
-                secEnt: "🎵 ENTRETENIMIENTO",
-                secClimate: "🌡️ CLIMA Y CONFORT",
-                secNav: "🗺️ NAVEGACIÓN Y ESPEJOS",
-                btnStart: "ARRANCAR", btnStop: "APAGAR", btnOpen: "ABRIR", btnClose: "CERRAR",
-                btnLights: "LUCES", btnHorn: "CLAXON", btnVolUp: "VOL +", btnVolDown: "VOL -",
-                btnMute: "SILENCIO", btnBt: "BLUETOOTH", btnFm: "FM", btnAm: "AM", btnAux: "AUX",
-                btnNext: "SIGUIENTE", btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +",
-                btnTempDown: "TEMP -", btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "ASIENTOS",
-                btnDefrost: "DESHIELO", btnNavHome: "NAV CASA", btnNavWork: "NAV TRABAJO",
-                btnNavStop: "DETENER RUTA", btnFold: "PLEGAR", btnUnfold: "DESPLEGAR",
-                btnMirrorHeat: "CALEFACCIÓN", btnLocation: "UBICACIÓN",
-                geofenceBtnActivate: "ACTIVAR GEOCERCA", geofenceBtnDeactivate: "DESACTIVAR GEOCERCA",
-                geofenceConfigTitle: "CONFIGURACIÓN DE GEOCERCA",
-                geofenceConfigDesc: "Define el radio de alerta alrededor de la posición actual del vehículo.",
-                rangeMin: "10m", rangeMax: "200m",
-                geofenceHint: "* La geocerca se activa con el botón GEOCERCA en el panel de control.",
-                cmdResult: "Esperando comando...",
-                camTitle: "CÁMARAS EN VIVO", onlineStatus: "EN LÍNEA", offlineStatus: "DESCONECTADO",
-                partialStatus: "PARCIAL", camFront: "FRONTAL", camRear: "REVERSA", camInt: "INTERIOR",
-                recordBtn: "GRABAR", recordBtnOn: "GRABANDO", btnRecordAll: "GRABAR TODO",
-                btnRecordAllOff: "DETENER TODO", btnViewCloud: "VER NUBE",
-                imgFrontal: "imagenes/frontal.png", imgTrasera: "imagenes/reversa.png",
-                imgInterior: "imagenes/interior.png",
-                chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
-                chipNormal: "Normal", chipWarning: "Precaución", chipCritical: "Crítico",
-                alertVoltage: "Voltaje crítico: ", alertTemp: "Temp elevada: ", alertErrors: "Errores: ",
-                chipTitle: "MONITOREO DE CHIPS", alertTitle: "ALERTAS", noAlerts: "✅ Sin alertas.",
-                mapTitle: "📍 UBICACIÓN", latLabel: "Latitud", lngLabel: "Longitud",
-                refLabel: "Referencia", precLabel: "Precisión", refAddr: "Av. Reforma 222, CDMX",
-                precValue: "3 m (GPS + WiFi)", btnUpdateLoc: "ACTUALIZAR", btnShareLoc: "COMPARTIR",
-                btnNavigate: "LLEGAR AL AUTO",
-                cloudModalTitle: "GRABACIONES EN LA NUBE", closeCloud: "CERRAR",
-                tabFront: "FRONTAL", tabRear: "TRASERA", tabInt: "INTERIOR",
-                loadingCloud: "Cargando videos...", noVideos: "📭 No hay grabaciones en esta cámara",
-                downloadBtn: "⬇ DESCARGAR", deleteBtn: "🗑 ELIMINAR",
-                deleteConfirm: "¿Eliminar esta grabación permanentemente?",
-                settingsTitle: "CONFIGURACIÓN", closeSettings: "CERRAR",
-                homeLabel: "🏠 Dirección de Casa", workLabel: "🏢 Dirección de Trabajo",
-                saveSettings: "GUARDAR",
-                navHomeMsg: "🏠 Calculando ruta a casa...", navWorkMsg: "🏢 Calculando ruta al trabajo...",
-                shareAlert: "📍 Copiado al portapapeles", settingsSaved: "✅ Configuración guardada",
-                geofenceActivated: "📐 Geocerca ACTIVADA", geofenceDeactivated: "🔓 Geocerca DESACTIVADA"
-            },
-            en: {
-                subtitle: "Digital Nervous System for Vehicles",
-                badge: "🥇 PLATINUM PLAN ACTIVE",
-                secure: "SECURE", keyLabel: "🔑 Key:", rotationLabel: "🔄 Rotation:",
-                cloudLabel: "☁️ Cloud:", logoutBtn: "LOGOUT",
-                hotSwapTitle: "DIGITAL HOT-SWAP — Self-Healing",
-                hsFailName: "🔴 GPS/Navigation (UX7E5)", hsFailVolt: "Voltage: 10.2V",
-                hsFailTemp: "Temp: 55°C", hsFailStatus: "⚠️ Chip malfunction detected",
-                hsFailCov: "🔄 Transmission handling functions",
-                hsBackName: "🟢 Transmission (UX7E1)", hsBackVolt: "Voltage: 12.3V",
-                hsBackTemp: "Temp: 43°C", hsBackStatus: "✅ Redundant mode active",
-                hsBackBuy: "📦 Replacement requested",
-                controlTitle: "VEHICLE CONTROL CENTER",
-                secMotor: "🚗 ENGINE & ACCESS", secEnt: "🎵 ENTERTAINMENT",
-                secClimate: "🌡️ CLIMATE & COMFORT", secNav: "🗺️ NAVIGATION & MIRRORS",
-                btnStart: "START", btnStop: "STOP", btnOpen: "UNLOCK", btnClose: "LOCK",
-                btnLights: "LIGHTS", btnHorn: "HORN", btnVolUp: "VOL +", btnVolDown: "VOL -",
-                btnMute: "MUTE", btnBt: "BLUETOOTH", btnFm: "FM", btnAm: "AM", btnAux: "AUX",
-                btnNext: "NEXT", btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +",
-                btnTempDown: "TEMP -", btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "SEATS",
-                btnDefrost: "DEFROST", btnNavHome: "HOME", btnNavWork: "WORK",
-                btnNavStop: "STOP ROUTE", btnFold: "FOLD", btnUnfold: "UNFOLD",
-                btnMirrorHeat: "HEATED", btnLocation: "LOCATION",
-                geofenceBtnActivate: "ACTIVATE GEOFENCE", geofenceBtnDeactivate: "DEACTIVATE GEOFENCE",
-                geofenceConfigTitle: "GEOFENCE SETTINGS",
-                geofenceConfigDesc: "Set the alert radius around the current vehicle position.",
-                rangeMin: "33ft", rangeMax: "660ft",
-                geofenceHint: "* Geofence is activated with the GEOFENCE button in the control panel.",
-                cmdResult: "Waiting for command...",
-                camTitle: "LIVE VIDEO STREAMS", onlineStatus: "ONLINE", offlineStatus: "OFFLINE",
-                partialStatus: "PARTIAL", camFront: "FRONT", camRear: "REAR", camInt: "INTERIOR",
-                recordBtn: "RECORD", recordBtnOn: "RECORDING", btnRecordAll: "RECORD ALL",
-                btnRecordAllOff: "STOP ALL", btnViewCloud: "VIEW CLOUD",
-                imgFrontal: "imagenes/ingles/front.png", imgTrasera: "imagenes/ingles/rear.png",
-                imgInterior: "imagenes/ingles/interior.png",
-                chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
-                chipNormal: "Normal", chipWarning: "Warning", chipCritical: "Critical",
-                alertVoltage: "Critical voltage: ", alertTemp: "High temp: ", alertErrors: "Errors: ",
-                chipTitle: "ECU HEALTH MONITORING", alertTitle: "CRITICAL EVENTS", noAlerts: "✅ No alerts.",
-                mapTitle: "📍 LOCATION", latLabel: "Latitude", lngLabel: "Longitude",
-                refLabel: "Reference", precLabel: "Accuracy", refAddr: "222 Reforma Ave, Mexico City",
-                precValue: "10 ft (GPS + WiFi)", btnUpdateLoc: "REFRESH", btnShareLoc: "SHARE",
-                btnNavigate: "NAVIGATE TO CAR",
-                cloudModalTitle: "CLOUD RECORDINGS", closeCloud: "CLOSE",
-                tabFront: "FRONT", tabRear: "REAR", tabInt: "INTERIOR",
-                loadingCloud: "Loading videos...", noVideos: "📭 No recordings on this camera",
-                downloadBtn: "⬇ DOWNLOAD", deleteBtn: "🗑 DELETE",
-                deleteConfirm: "Delete this recording permanently?",
-                settingsTitle: "SETTINGS", closeSettings: "CLOSE",
-                homeLabel: "🏠 Home Address", workLabel: "🏢 Work Address",
-                saveSettings: "SAVE",
-                navHomeMsg: "🏠 Calculating route home...", navWorkMsg: "🏢 Calculating route to work...",
-                shareAlert: "📍 Copied to clipboard", settingsSaved: "✅ Settings saved",
-                geofenceActivated: "📐 Geofence ACTIVATED", geofenceDeactivated: "🔓 Geofence DEACTIVATED"
+        (function() {
+            "use strict";
+
+            // ============================================================
+            // 1. DICCIONARIO
+            // ============================================================
+            const langData = {
+                es: {
+                    subtitle: "Sistema Nervioso Digital para Vehículos",
+                    badge: "🥇 PLAN PLATINUM ACTIVO",
+                    secure: "SEGURO",
+                    keyLabel: "🔑 Clave:",
+                    rotationLabel: "🔄 Rotación:",
+                    cloudLabel: "☁️ Nube:",
+                    logoutBtn: "SALIR",
+                    hotSwapTitle: "HOT-SWAP DIGITAL — Auto-Reparación",
+                    hsFailName: "🔴 GPS/Navegación (UX7E5)",
+                    hsFailVolt: "Voltaje: 10.2V",
+                    hsFailTemp: "Temp: 55°C",
+                    hsFailStatus: "⚠️ Chip malfunction detectado",
+                    hsFailCov: "🔄 Transmisión manejando funciones",
+                    hsBackName: "🟢 Transmisión (UX7E1)",
+                    hsBackVolt: "Voltaje: 12.3V",
+                    hsBackTemp: "Temp: 43°C",
+                    hsBackStatus: "✅ Modo redundante activo",
+                    hsBackBuy: "📦 Reemplazo solicitado",
+                    controlTitle: "CONTROL TOTAL DEL VEHÍCULO",
+                    secMotor: "🚗 MOTOR Y ACCESO",
+                    secEnt: "🎵 ENTRETENIMIENTO",
+                    secClimate: "🌡️ CLIMA Y CONFORT",
+                    secNav: "🗺️ NAVEGACIÓN Y ESPEJOS",
+                    btnStart: "ARRANCAR", btnStop: "APAGAR", btnOpen: "ABRIR", btnClose: "CERRAR",
+                    btnLights: "LUCES", btnHorn: "CLAXON", btnVolUp: "VOL +", btnVolDown: "VOL -",
+                    btnMute: "SILENCIO", btnBt: "BLUETOOTH", btnFm: "FM", btnAm: "AM", btnAux: "AUX",
+                    btnNext: "SIGUIENTE", btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +",
+                    btnTempDown: "TEMP -", btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "ASIENTOS",
+                    btnDefrost: "DESHIELO", btnNavHome: "NAV CASA", btnNavWork: "NAV TRABAJO",
+                    btnNavStop: "DETENER RUTA", btnFold: "PLEGAR", btnUnfold: "DESPLEGAR",
+                    btnMirrorHeat: "CALEFACCIÓN", btnLocation: "UBICACIÓN",
+                    geofenceBtnActivate: "ACTIVAR GEOCERCA", geofenceBtnDeactivate: "DESACTIVAR GEOCERCA",
+                    geofenceConfigTitle: "CONFIGURACIÓN DE GEOCERCA",
+                    geofenceConfigDesc: "Define el radio de alerta alrededor de la posición actual del vehículo.",
+                    rangeMin: "10m", rangeMax: "200m",
+                    geofenceHint: "* La geocerca se activa con el botón GEOCERCA en el panel de control.",
+                    cmdResult: "Esperando comando...",
+                    camTitle: "CÁMARAS EN VIVO", onlineStatus: "EN LÍNEA", offlineStatus: "DESCONECTADO",
+                    partialStatus: "PARCIAL", camFront: "FRONTAL", camRear: "REVERSA", camInt: "INTERIOR",
+                    recordBtn: "GRABAR", recordBtnOn: "GRABANDO", btnRecordAll: "GRABAR TODO",
+                    btnRecordAllOff: "DETENER TODO", btnViewCloud: "VER NUBE",
+                    imgFrontal: "imagenes/frontal.png", imgTrasera: "imagenes/reversa.png",
+                    imgInterior: "imagenes/interior.png",
+                    chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
+                    chipNormal: "Normal", chipWarning: "Precaución", chipCritical: "Crítico",
+                    alertVoltage: "Voltaje crítico: ", alertTemp: "Temp elevada: ", alertErrors: "Errores: ",
+                    chipTitle: "MONITOREO DE CHIPS", alertTitle: "ALERTAS", noAlerts: "✅ Sin alertas.",
+                    mapTitle: "📍 UBICACIÓN", latLabel: "Latitud", lngLabel: "Longitud",
+                    refLabel: "Referencia", precLabel: "Precisión", refAddr: "Av. Reforma 222, CDMX",
+                    precValue: "3 m (GPS + WiFi)", btnUpdateLoc: "ACTUALIZAR", btnShareLoc: "COMPARTIR",
+                    btnNavigate: "LLEGAR AL AUTO",
+                    cloudModalTitle: "GRABACIONES EN LA NUBE", closeCloud: "CERRAR",
+                    tabFront: "FRONTAL", tabRear: "TRASERA", tabInt: "INTERIOR",
+                    loadingCloud: "Cargando videos...", noVideos: "📭 No hay grabaciones en esta cámara",
+                    downloadBtn: "⬇ DESCARGAR", deleteBtn: "🗑 ELIMINAR",
+                    deleteConfirm: "¿Eliminar esta grabación permanentemente?",
+                    settingsTitle: "CONFIGURACIÓN", closeSettings: "CERRAR",
+                    homeLabel: "🏠 Dirección de Casa", workLabel: "🏢 Dirección de Trabajo",
+                    saveSettings: "GUARDAR",
+                    navHomeMsg: "🏠 Calculando ruta a casa...", navWorkMsg: "🏢 Calculando ruta al trabajo...",
+                    shareAlert: "📍 Copiado al portapapeles", settingsSaved: "✅ Configuración guardada",
+                    geofenceActivated: "📐 Geocerca ACTIVADA", geofenceDeactivated: "🔓 Geocerca DESACTIVADA"
+                },
+                en: {
+                    subtitle: "Digital Nervous System for Vehicles",
+                    badge: "🥇 PLATINUM PLAN ACTIVE",
+                    secure: "SECURE", keyLabel: "🔑 Key:", rotationLabel: "🔄 Rotation:",
+                    cloudLabel: "☁️ Cloud:", logoutBtn: "LOGOUT",
+                    hotSwapTitle: "DIGITAL HOT-SWAP — Self-Healing",
+                    hsFailName: "🔴 GPS/Navigation (UX7E5)", hsFailVolt: "Voltage: 10.2V",
+                    hsFailTemp: "Temp: 55°C", hsFailStatus: "⚠️ Chip malfunction detected",
+                    hsFailCov: "🔄 Transmission handling functions",
+                    hsBackName: "🟢 Transmission (UX7E1)", hsBackVolt: "Voltage: 12.3V",
+                    hsBackTemp: "Temp: 43°C", hsBackStatus: "✅ Redundant mode active",
+                    hsBackBuy: "📦 Replacement requested",
+                    controlTitle: "VEHICLE CONTROL CENTER",
+                    secMotor: "🚗 ENGINE & ACCESS", secEnt: "🎵 ENTERTAINMENT",
+                    secClimate: "🌡️ CLIMATE & COMFORT", secNav: "🗺️ NAVIGATION & MIRRORS",
+                    btnStart: "START", btnStop: "STOP", btnOpen: "UNLOCK", btnClose: "LOCK",
+                    btnLights: "LIGHTS", btnHorn: "HORN", btnVolUp: "VOL +", btnVolDown: "VOL -",
+                    btnMute: "MUTE", btnBt: "BLUETOOTH", btnFm: "FM", btnAm: "AM", btnAux: "AUX",
+                    btnNext: "NEXT", btnAcOn: "A/C ON", btnAcOff: "A/C OFF", btnTempUp: "TEMP +",
+                    btnTempDown: "TEMP -", btnFanUp: "FAN +", btnFanDown: "FAN -", btnSeat: "SEATS",
+                    btnDefrost: "DEFROST", btnNavHome: "HOME", btnNavWork: "WORK",
+                    btnNavStop: "STOP ROUTE", btnFold: "FOLD", btnUnfold: "UNFOLD",
+                    btnMirrorHeat: "HEATED", btnLocation: "LOCATION",
+                    geofenceBtnActivate: "ACTIVATE GEOFENCE", geofenceBtnDeactivate: "DEACTIVATE GEOFENCE",
+                    geofenceConfigTitle: "GEOFENCE SETTINGS",
+                    geofenceConfigDesc: "Set the alert radius around the current vehicle position.",
+                    rangeMin: "33ft", rangeMax: "660ft",
+                    geofenceHint: "* Geofence is activated with the GEOFENCE button in the control panel.",
+                    cmdResult: "Waiting for command...",
+                    camTitle: "LIVE VIDEO STREAMS", onlineStatus: "ONLINE", offlineStatus: "OFFLINE",
+                    partialStatus: "PARTIAL", camFront: "FRONT", camRear: "REAR", camInt: "INTERIOR",
+                    recordBtn: "RECORD", recordBtnOn: "RECORDING", btnRecordAll: "RECORD ALL",
+                    btnRecordAllOff: "STOP ALL", btnViewCloud: "VIEW CLOUD",
+                    imgFrontal: "imagenes/ingles/front.png", imgTrasera: "imagenes/ingles/rear.png",
+                    imgInterior: "imagenes/ingles/interior.png",
+                    chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
+                    chipNormal: "Normal", chipWarning: "Warning", chipCritical: "Critical",
+                    alertVoltage: "Critical voltage: ", alertTemp: "High temp: ", alertErrors: "Errors: ",
+                    chipTitle: "ECU HEALTH MONITORING", alertTitle: "CRITICAL EVENTS", noAlerts: "✅ No alerts.",
+                    mapTitle: "📍 LOCATION", latLabel: "Latitude", lngLabel: "Longitude",
+                    refLabel: "Reference", precLabel: "Accuracy", refAddr: "222 Reforma Ave, Mexico City",
+                    precValue: "10 ft (GPS + WiFi)", btnUpdateLoc: "REFRESH", btnShareLoc: "SHARE",
+                    btnNavigate: "NAVIGATE TO CAR",
+                    cloudModalTitle: "CLOUD RECORDINGS", closeCloud: "CLOSE",
+                    tabFront: "FRONT", tabRear: "REAR", tabInt: "INTERIOR",
+                    loadingCloud: "Loading videos...", noVideos: "📭 No recordings on this camera",
+                    downloadBtn: "⬇ DOWNLOAD", deleteBtn: "🗑 DELETE",
+                    deleteConfirm: "Delete this recording permanently?",
+                    settingsTitle: "SETTINGS", closeSettings: "CLOSE",
+                    homeLabel: "🏠 Home Address", workLabel: "🏢 Work Address",
+                    saveSettings: "SAVE",
+                    navHomeMsg: "🏠 Calculating route home...", navWorkMsg: "🏢 Calculating route to work...",
+                    shareAlert: "📍 Copied to clipboard", settingsSaved: "✅ Settings saved",
+                    geofenceActivated: "📐 Geofence ACTIVATED", geofenceDeactivated: "🔓 Geofence DEACTIVATED"
+                }
+            };
+
+            // ============================================================
+            // 2. VARIABLES GLOBALES
+            // ============================================================
+            let isSpanish = true;
+            let countdown = 5;
+            let userSettings = JSON.parse(localStorage.getItem('itzli_platinum_settings') || '{}');
+            if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
+            if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
+            userSettings.geofenceRadius = userSettings.geofenceRadius || 50;
+            let geofenceActive = false;
+            let geofenceCircle = null;
+
+            let cameraStates = { frontal: true, trasera: true, interior: true };
+            let recordStates = { frontal: false, trasera: false, interior: false };
+            let currentCloudCam = 'frontal';
+            let cloudVideos = {
+                frontal: [{ name: '2026-07-29_14-30-00.mp4', size: 45200000 }, { name: '2026-07-29_12-15-00.mp4', size: 38900000 }],
+                trasera: [{ name: '2026-07-29_14-30-00.mp4', size: 42300000 }],
+                interior: [{ name: '2026-07-29_14-30-00.mp4', size: 41000000 }, { name: '2026-07-29_09-10-00.mp4', size: 35600000 }]
+            };
+
+            const chips = [
+                { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"" },
+                { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"" },
+                { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"" },
+                { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
+            ];
+            let alertLog = [];
+
+            let map, marker, mapInitialized = false;
+            let currentLat = 19.4326, currentLng = -99.1332;
+
+            // ============================================================
+            // 3. FUNCIONES DE RENDERIZADO
+            // ============================================================
+            function renderHotSwap() {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                const container = document.getElementById('hotswapGrid');
+                if (!container) return;
+                container.innerHTML = `
+                    <div class="hotswap-card fail">
+                        <h4>${d.hsFailName}</h4>
+                        <p>${d.hsFailVolt}</p>
+                        <p>${d.hsFailTemp}</p>
+                        <div class="status-text">⚠️ ${d.hsFailStatus}</div>
+                        <div class="status-text" style="color:var(--cyan);">🔄 ${d.hsFailCov}</div>
+                    </div>
+                    <div class="hotswap-card success">
+                        <h4>${d.hsBackName}</h4>
+                        <p>${d.hsBackVolt}</p>
+                        <p>${d.hsBackTemp}</p>
+                        <div class="status-text">✅ ${d.hsBackStatus}</div>
+                        <div class="status-text" style="color:var(--gold);">📦 ${d.hsBackBuy}</div>
+                    </div>
+                `;
             }
-        };
 
-        let isSpanish = true;
-        let countdown = 5;
-        let userSettings = JSON.parse(localStorage.getItem('itzli_platinum_settings') || '{}');
-        if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
-        if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
-        userSettings.geofenceRadius = userSettings.geofenceRadius || 50;
-        let geofenceActive = false;
-        let geofenceCircle = null;
+            // ===== NUEVA LÓGICA DE CÁMARAS CON CLICK Y DOBLE CLICK =====
+            function renderCameras() {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                const cameras = [
+                    { id: 'frontal', name: d.camFront, icon: '📹', class: 'front', img: d.imgFrontal },
+                    { id: 'trasera', name: d.camRear, icon: '📹', class: 'rear', img: d.imgTrasera },
+                    { id: 'interior', name: d.camInt, icon: '📹', class: 'interior', img: d.imgInterior }
+                ];
+                const container = document.getElementById('cameraGrid');
+                if (!container) return;
+                container.innerHTML = cameras.map(c => `
+                    <div class="camera-feed ${c.class} ${cameraStates[c.id] ? 'video-on' : ''} ${recordStates[c.id] ? 'recording' : ''}" 
+                         id="cam-${c.id}"
+                         data-cam="${c.id}">
+                        <img class="camera-image" src="${c.img}" alt="${c.name}" style="object-fit:cover; width:100%; height:100%;">
+                        <div class="camera-video" style="background: linear-gradient(135deg, #0a0a2e, #1a0a3e);">
+                            <span>${cameraStates[c.id] ? '📡 En vivo' : '📴 Desconectado'}</span>
+                        </div>
+                        <span class="camera-name">${c.name}</span>
+                        <div class="camera-recording"></div>
+                        <button class="record-btn-individual ${recordStates[c.id] ? 'recording' : ''}" 
+                                onclick="event.stopPropagation(); toggleRecord('${c.id}')">
+                            ${recordStates[c.id] ? '⏹ DETENER' : '⏺ GRABAR'}
+                        </button>
+                    </div>
+                `).join('');
 
-        let cameraStates = { frontal: true, trasera: true, interior: true };
-        let recordStates = { frontal: false, trasera: false, interior: false };
-        let currentCloudCam = 'frontal';
-        let cloudVideos = {
-            frontal: [{ name: '2026-07-29_14-30-00.mp4', size: 45200000 }, { name: '2026-07-29_12-15-00.mp4', size: 38900000 }],
-            trasera: [{ name: '2026-07-29_14-30-00.mp4', size: 42300000 }],
-            interior: [{ name: '2026-07-29_14-30-00.mp4', size: 41000000 }, { name: '2026-07-29_09-10-00.mp4', size: 35600000 }]
-        };
+                // Agregar eventos a cada feed de cámara
+                document.querySelectorAll('.camera-feed').forEach(el => {
+                    const camId = el.dataset.cam;
+                    // Un click: alternar imagen/video
+                    el.addEventListener('click', function(e) {
+                        // Evitar que el doble click dispare dos veces el single click
+                        if (e.detail === 1) {
+                            // Alternar estado de la cámara
+                            cameraStates[camId] = !cameraStates[camId];
+                            renderCameras();
+                            // Actualizar el botón de estado general
+                            updateOnlineStatus();
+                        }
+                    });
+                    // Doble click: pantalla completa
+                    el.addEventListener('dblclick', function(e) {
+                        if (document.fullscreenElement) {
+                            document.exitFullscreen();
+                        } else {
+                            el.requestFullscreen().catch(err => {
+                                console.warn('No se pudo entrar en pantalla completa:', err);
+                            });
+                        }
+                    });
+                });
+            }
 
-        const chips = [
-            { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"" },
-            { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"" },
-            { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"" },
-            { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
-        ];
-        const alertLog = [];
+            function updateOnlineStatus() {
+                const allOn = Object.values(cameraStates).every(v => v === true);
+                const anyOn = Object.values(cameraStates).some(v => v === true);
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                const statusEl = document.getElementById('txtOnlineStatus');
+                const btnEl = document.querySelector('.btn-online');
+                if (allOn) {
+                    statusEl.textContent = d.onlineStatus;
+                    btnEl.className = 'btn btn-online on';
+                } else if (anyOn) {
+                    statusEl.textContent = d.partialStatus;
+                    btnEl.className = 'btn btn-online on';
+                } else {
+                    statusEl.textContent = d.offlineStatus;
+                    btnEl.className = 'btn btn-online off';
+                }
+            }
 
-        let map, marker, mapInitialized = false;
-        let currentLat = 19.4326, currentLng = -99.1332;
+            function toggleAllCameras() {
+                const allOn = Object.values(cameraStates).every(v => v === true);
+                const newState = !allOn;
+                Object.keys(cameraStates).forEach(key => { cameraStates[key] = newState; });
+                renderCameras();
+                updateOnlineStatus();
+            }
 
-        // ========== LOGOUT REAL ==========
-        async function logout() {
-            await supabaseAuth.auth.signOut();
-            window.location.href = 'login.html';
-        }
+            function toggleRecord(camId) {
+                recordStates[camId] = !recordStates[camId];
+                renderCameras();
+                const btn = document.getElementById('btnRecordAll');
+                const allRecording = Object.values(recordStates).every(v => v === true);
+                if (allRecording) {
+                    btn.className = 'btn btn-record-all recording';
+                    document.getElementById('txtBtnRecordAll').textContent = isSpanish ? 'DETENER TODO' : 'STOP ALL';
+                } else {
+                    btn.className = 'btn btn-record-all stopped';
+                    document.getElementById('txtBtnRecordAll').textContent = isSpanish ? 'GRABAR TODO' : 'RECORD ALL';
+                }
+            }
 
-        // ========== INTERFAZ (sin cambios relevantes) ==========
-        function toggleLang() {
-            isSpanish = !isSpanish;
-            const lang = isSpanish ? 'es' : 'en';
-            const d = langData[lang];
-            document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
-            document.documentElement.lang = isSpanish ? 'es' : 'en';
-            // ... (todo el resto del toggleLang original, sin cambios)
-            // Por brevedad, no se repite aquí, pero debes conservarlo exactamente igual que en tu versión anterior.
-        }
+            function toggleRecordAll() {
+                const allRecording = Object.values(recordStates).every(v => v === true);
+                const newState = !allRecording;
+                Object.keys(recordStates).forEach(key => { recordStates[key] = newState; });
+                const btn = document.getElementById('btnRecordAll');
+                if (newState) {
+                    btn.className = 'btn btn-record-all recording';
+                    document.getElementById('txtBtnRecordAll').textContent = isSpanish ? 'DETENER TODO' : 'STOP ALL';
+                } else {
+                    btn.className = 'btn btn-record-all stopped';
+                    document.getElementById('txtBtnRecordAll').textContent = isSpanish ? 'GRABAR TODO' : 'RECORD ALL';
+                }
+                renderCameras();
+            }
 
-        // ... (todas las demás funciones: renderHotSwap, renderCameras, etc. sin cambios)
+            // ============================================================
+            // 4. CHIPS Y ALERTAS (igual que antes)
+            // ============================================================
+            function renderChips() {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                chips.forEach(chip => analyzePatterns(chip));
+                const container = document.getElementById('chipGrid');
+                if (!container) return;
+                container.innerHTML = chips.map((chip, index) => {
+                    const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
+                    const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
+                    return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
+                        <div class="chip-top">
+                            <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
+                            <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
+                        </div>
+                        <div class="chip-metrics">
+                            <span>⚡ <span class="val">${chip.voltage}V</span></span>
+                            <span>🌡️ <span class="val">${chip.temp}°C</span></span>
+                            <span>🔄 <span class="val">${chip.syncs}</span></span>
+                        </div>
+                        ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
+                        <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
+                    </div>`;
+                }).join('');
+            }
 
-        function initMap() {
-            // ... (tu código original)
-        }
+            function toggleChip(id) {
+                const el = document.getElementById('chip-' + id);
+                if (el) el.classList.toggle('expanded');
+            }
 
-        // ... (resto de funciones originales: sendCommand, navigateToAddress, etc.)
+            function analyzePatterns(chip) {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                if (chip.vH.length >= 4 && chip.voltage < 10.5) { 
+                    chip.nivel = "critical"; 
+                    addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); 
+                }
+                if (chip.tH.length >= 4 && chip.temp > 50) { 
+                    chip.nivel = "critical"; 
+                    addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); 
+                }
+                if (chip.errors >= 5) { 
+                    chip.nivel = "critical"; 
+                    addAlert(chip, "critical", d.alertErrors + chip.errors); 
+                }
+            }
 
-        // ========== INICIALIZACIÓN PROTEGIDA ==========
-        async function init() {
-            const user = await requirePlan('platinum');
-            if (!user) return;
+            function addAlert(chip, nivel, mensaje) {
+                const exists = alertLog.find(a => a.chip === chip.id && a.mensaje === mensaje);
+                if (!exists) { 
+                    alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chip.id, icon: chip.icon, nivel, mensaje }); 
+                }
+            }
 
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            updateStatusDot('online');
+            function renderAlerts() {
+                const container = document.getElementById('alertList');
+                if (!container) return;
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                if (alertLog.length === 0) { 
+                    container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`; 
+                    return; 
+                }
+                container.innerHTML = alertLog.map(a => `
+                    <div class="alert-item ${a.nivel}">
+                        <div class="icon">${a.icon}</div>
+                        <div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div>
+                    </div>
+                `).join('');
+            }
 
-            document.getElementById('geofenceRadius').value = userSettings.geofenceRadius;
-            updateRadiusDisplay();
-            renderHotSwap(); renderCameras(); renderChips(); renderAlerts();
-            setTimeout(initMap, 600);
-            setInterval(simulateUpdate, 15000);
-        }
+            // ============================================================
+            // 5. COMANDOS (igual)
+            // ============================================================
+            function sendCommand(cmd) {
+                const result = document.getElementById('cmdResult');
+                const commands = {
+                    'arrancar': '🚀 Arrancando motor...',
+                    'apagar': '🛑 Apagando motor...',
+                    'abrir': '🔓 Puertas abiertas',
+                    'cerrar': '🔒 Puertas cerradas',
+                    'luces': '💡 Luces activadas',
+                    'claxon': '📢 Claxon activado',
+                    'vol_up': '🔊 Subiendo volumen',
+                    'vol_down': '🔉 Bajando volumen',
+                    'mute': '🔇 Silencio activado',
+                    'bluetooth': '📱 Bluetooth conectado',
+                    'radio_fm': '📻 FM activado',
+                    'radio_am': '📻 AM activado',
+                    'aux': '🎧 AUX activado',
+                    'next_track': '⏭️ Siguiente pista',
+                    'ac_on': '❄️ Aire acondicionado ON',
+                    'ac_off': '🌡️ Aire acondicionado OFF',
+                    'temp_up': '🔺 Subiendo temperatura',
+                    'temp_down': '🔻 Bajando temperatura',
+                    'fan_up': '💨 Ventilador +',
+                    'fan_down': '💨 Ventilador -',
+                    'seat_heat': '🔥 Asientos calefaccionados',
+                    'defrost': '❄️ Deshielo activado',
+                    'nav_stop': '🛑 Ruta detenida',
+                    'mirror_fold': '🪞 Espejos plegados',
+                    'mirror_unfold': '🪞 Espejos desplegados',
+                    'mirror_heat': '🔥 Calefacción de espejos'
+                };
+                result.textContent = commands[cmd] || '✅ Comando ejecutado: ' + cmd;
+                result.style.color = 'var(--green)';
+                setTimeout(() => { result.style.color = 'var(--dim)'; }, 1500);
+            }
 
-        function updateStatusDot(status) {
-            const dot = document.getElementById('statusDot');
-            dot.className = 'dot';
-            if(status === 'online') dot.classList.add('dot-green');
-            else dot.classList.add('dot-red');
-            document.getElementById('txtSecure').innerText = status === 'online' ? langData[isSpanish ? 'es' : 'en'].secure : 'DESCONECTADO';
-        }
+            function navigateToAddress(dest) {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                const addr = dest === 'home' ? userSettings.homeAddress : userSettings.workAddress;
+                const msg = dest === 'home' ? d.navHomeMsg : d.navWorkMsg;
+                const result = document.getElementById('cmdResult');
+                result.textContent = msg + ' 📍 ' + addr;
+                result.style.color = 'var(--gold)';
+                setTimeout(() => { result.style.color = 'var(--dim)'; }, 2000);
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`, '_blank');
+            }
 
-        init();
+            function scrollToMap() {
+                document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function toggleGeofence() {
+                geofenceActive = !geofenceActive;
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                document.getElementById('txtGeofenceBtn').textContent = geofenceActive ? d.geofenceBtnDeactivate : d.geofenceBtnActivate;
+                const result = document.getElementById('cmdResult');
+                result.textContent = geofenceActive ? d.geofenceActivated : d.geofenceDeactivated;
+                result.style.color = geofenceActive ? 'var(--green)' : 'var(--dim)';
+                
+                if (geofenceActive && map) {
+                    const radius = parseInt(document.getElementById('geofenceRadius').value);
+                    if (geofenceCircle) map.removeLayer(geofenceCircle);
+                    geofenceCircle = L.circle([currentLat, currentLng], {
+                        color: '#f5c542',
+                        fillColor: '#f5c542',
+                        fillOpacity: 0.15,
+                        radius: radius
+                    }).addTo(map);
+                } else if (geofenceCircle) {
+                    map.removeLayer(geofenceCircle);
+                    geofenceCircle = null;
+                }
+            }
+
+            // ============================================================
+            // 6. NUBE (igual)
+            // ============================================================
+            function openCloudModal() {
+                document.getElementById('cloudModal').classList.add('active');
+                switchCloudTab('frontal');
+            }
+
+            function closeCloudModal() {
+                document.getElementById('cloudModal').classList.remove('active');
+                document.getElementById('cloudVideoPlayer').classList.remove('active');
+            }
+
+            function switchCloudTab(cam) {
+                currentCloudCam = cam;
+                document.querySelectorAll('.cloud-tab').forEach(t => t.classList.remove('active'));
+                const tabMap = { 'frontal': 'tabFrontal', 'trasera': 'tabTrasera', 'interior': 'tabInterior' };
+                document.getElementById(tabMap[cam]).classList.add('active');
+                
+                const list = document.getElementById('cloudVideoList');
+                const videos = cloudVideos[cam] || [];
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                
+                if (videos.length === 0) {
+                    list.innerHTML = `<p style="color:var(--dim);text-align:center;">${d.noVideos}</p>`;
+                    return;
+                }
+                list.innerHTML = videos.map(v => `
+                    <div class="video-item" onclick="playCloudVideo('${v.name}')">
+                        <span>📹 ${v.name}</span>
+                        <div class="video-actions">
+                            <span style="color:var(--dim);font-size:9px;">${(v.size/1024/1024).toFixed(1)} MB</span>
+                            <button class="download-btn" onclick="event.stopPropagation(); downloadCloudVideo('${v.name}')">${d.downloadBtn}</button>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteCloudVideo('${v.name}')">${d.deleteBtn}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function playCloudVideo(name) {
+                const player = document.getElementById('cloudVideoPlayer');
+                player.classList.add('active');
+                player.src = `https://storage.cloud/videos/${name}`;
+                player.play();
+            }
+
+            function downloadCloudVideo(name) {
+                window.open(`https://storage.cloud/videos/${name}?download=1`, '_blank');
+            }
+
+            function deleteCloudVideo(name) {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                if (!confirm(d.deleteConfirm)) return;
+                const list = cloudVideos[currentCloudCam];
+                const idx = list.findIndex(v => v.name === name);
+                if (idx !== -1) {
+                    list.splice(idx, 1);
+                    switchCloudTab(currentCloudCam);
+                }
+            }
+
+            // ============================================================
+            // 7. MAPA (igual)
+            // ============================================================
+            function initMap() {
+                if (mapInitialized) { 
+                    setTimeout(() => { if(map) map.invalidateSize(); }, 100); 
+                    return; 
+                }
+                const mapElement = document.getElementById('map');
+                if (!mapElement || mapElement.offsetHeight === 0) { 
+                    setTimeout(initMap, 300); 
+                    return; 
+                }
+                mapInitialized = true;
+                map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { 
+                    attribution: 'Esri', maxZoom: 19 
+                }).addTo(map);
+                marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 ITZTLI PLATINUM</strong><br>📍 Tu vehículo está aquí');
+                L.circle([currentLat, currentLng], { 
+                    color: '#f5c542', 
+                    fillColor: '#f5c542', 
+                    fillOpacity: 0.15, 
+                    radius: 30 
+                }).addTo(map);
+                setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+                console.log('✅ Mapa inicializado');
+            }
+
+            function updateLocation() {
+                currentLat += (Math.random() - 0.5) * 0.001;
+                currentLng += (Math.random() - 0.5) * 0.001;
+                document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
+                document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
+                if (marker && map) { 
+                    marker.setLatLng([currentLat, currentLng]);
+                    map.setView([currentLat, currentLng], 17);
+                    if (geofenceCircle) {
+                        map.removeLayer(geofenceCircle);
+                        const radius = parseInt(document.getElementById('geofenceRadius').value);
+                        geofenceCircle = L.circle([currentLat, currentLng], {
+                            color: '#f5c542',
+                            fillColor: '#f5c542',
+                            fillOpacity: 0.15,
+                            radius: radius
+                        }).addTo(map);
+                    }
+                }
+            }
+
+            function shareLocation() {
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                const loc = `📍 ITZTLI PLATINUM: https://www.google.com/maps?q=${currentLat},${currentLng}`;
+                if (navigator.share) { 
+                    navigator.share({ title: '📍 ITZTLI PLATINUM', text: loc }); 
+                } else { 
+                    navigator.clipboard.writeText(loc); 
+                    alert(d.shareAlert); 
+                }
+            }
+
+            function navigateToCar() {
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank');
+            }
+
+            // ============================================================
+            // 8. CONFIGURACIÓN (igual)
+            // ============================================================
+            function openSettings() {
+                document.getElementById('settingsModal').classList.add('active');
+                document.getElementById('homeAddress').value = userSettings.homeAddress;
+                document.getElementById('workAddress').value = userSettings.workAddress;
+            }
+
+            function closeSettings() {
+                document.getElementById('settingsModal').classList.remove('active');
+            }
+
+            function saveSettings() {
+                userSettings.homeAddress = document.getElementById('homeAddress').value;
+                userSettings.workAddress = document.getElementById('workAddress').value;
+                localStorage.setItem('itzli_platinum_settings', JSON.stringify(userSettings));
+                document.getElementById('refAddress').textContent = userSettings.homeAddress;
+                const lang = isSpanish ? 'es' : 'en';
+                alert(langData[lang].settingsSaved);
+                closeSettings();
+            }
+
+            // ============================================================
+            // 9. LOGOUT
+            // ============================================================
+            async function logout() {
+                if (typeof supabase !== 'undefined' && supabase.auth) {
+                    await supabase.auth.signOut();
+                }
+                window.location.href = 'login.html';
+            }
+
+            // ============================================================
+            // 10. IDIOMA (toggleLang actualizado)
+            // ============================================================
+            function toggleLang() {
+                isSpanish = !isSpanish;
+                const lang = isSpanish ? 'es' : 'en';
+                const d = langData[lang];
+                
+                document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+                document.documentElement.lang = isSpanish ? 'es' : 'en';
+                
+                // Actualizar textos estáticos (lista simplificada)
+                const elements = [
+                    { id: 'txtSubtitle', key: 'subtitle' },
+                    { id: 'txtBadge', key: 'badge' },
+                    { id: 'txtLogout', key: 'logoutBtn' },
+                    { id: 'txtSecure', key: 'secure' },
+                    { id: 'txtHotSwapTitle', key: 'hotSwapTitle' },
+                    { id: 'txtControlTitle', key: 'controlTitle' },
+                    { id: 'txtSecMotor', key: 'secMotor' },
+                    { id: 'txtSecEnt', key: 'secEnt' },
+                    { id: 'txtSecClimate', key: 'secClimate' },
+                    { id: 'txtSecNav', key: 'secNav' },
+                    { id: 'txtGeofenceConfigTitle', key: 'geofenceConfigTitle' },
+                    { id: 'txtGeofenceConfigDesc', key: 'geofenceConfigDesc' },
+                    { id: 'txtRangeMin', key: 'rangeMin' },
+                    { id: 'txtRangeMax', key: 'rangeMax' },
+                    { id: 'txtGeofenceHint', key: 'geofenceHint' },
+                    { id: 'cmdResult', key: 'cmdResult' },
+                    { id: 'txtCamTitle', key: 'camTitle' },
+                    { id: 'txtBtnRecordAll', key: 'btnRecordAll' },
+                    { id: 'txtViewCloud', key: 'btnViewCloud' },
+                    { id: 'txtChipTitle', key: 'chipTitle' },
+                    { id: 'txtAlertTitle', key: 'alertTitle' },
+                    { id: 'txtNoAlerts', key: 'noAlerts' },
+                    { id: 'txtMapTitle', key: 'mapTitle' },
+                    { id: 'txtLat', key: 'latLabel' },
+                    { id: 'txtLng', key: 'lngLabel' },
+                    { id: 'txtRef', key: 'refLabel' },
+                    { id: 'txtPrec', key: 'precLabel' },
+                    { id: 'refAddress', key: 'refAddr' },
+                    { id: 'precValue', key: 'precValue' },
+                    { id: 'txtCloudModalTitle', key: 'cloudModalTitle' },
+                    { id: 'txtCloseCloud', key: 'closeCloud' },
+                    { id: 'txtTabFront', key: 'tabFront' },
+                    { id: 'txtTabRear', key: 'tabRear' },
+                    { id: 'txtTabInt', key: 'tabInt' },
+                    { id: 'txtLoadingCloud', key: 'loadingCloud' },
+                    { id: 'txtSettingsTitle', key: 'settingsTitle' },
+                    { id: 'txtCloseSettings', key: 'closeSettings' },
+                    { id: 'txtHomeLabel', key: 'homeLabel' },
+                    { id: 'txtWorkLabel', key: 'workLabel' },
+                    { id: 'txtSaveSettings', key: 'saveSettings' }
+                ];
+                elements.forEach(el => {
+                    const dom = document.getElementById(el.id);
+                    if (dom) {
+                        if (el.html) dom.innerHTML = el.html;
+                        else if (el.key) dom.textContent = d[el.key];
+                    }
+                });
+
+                // Botones de control
+                const btnMap = {
+                    'btnStart': 'btnStart', 'btnStop': 'btnStop', 'btnOpen': 'btnOpen',
+                    'btnClose': 'btnClose', 'btnLights': 'btnLights', 'btnHorn': 'btnHorn',
+                    'btnVolUp': 'btnVolUp', 'btnVolDown': 'btnVolDown', 'btnMute': 'btnMute',
+                    'btnBt': 'btnBt', 'btnFm': 'btnFm', 'btnAm': 'btnAm', 'btnAux': 'btnAux',
+                    'btnNext': 'btnNext', 'btnAcOn': 'btnAcOn', 'btnAcOff': 'btnAcOff',
+                    'btnTempUp': 'btnTempUp', 'btnTempDown': 'btnTempDown',
+                    'btnFanUp': 'btnFanUp', 'btnFanDown': 'btnFanDown', 'btnSeat': 'btnSeat',
+                    'btnDefrost': 'btnDefrost', 'btnNavHome': 'btnNavHome', 'btnNavWork': 'btnNavWork',
+                    'btnNavStop': 'btnNavStop', 'btnFold': 'btnFold', 'btnUnfold': 'btnUnfold',
+                    'btnMirrorHeat': 'btnMirrorHeat', 'btnLocation': 'btnLocation'
+                };
+                Object.keys(btnMap).forEach(id => {
+                    const dom = document.getElementById(id);
+                    if (dom) {
+                        const span = dom.querySelector('span');
+                        if (span) span.textContent = d[btnMap[id]];
+                    }
+                });
+
+                // Geocerca
+                const geofenceBtn = document.getElementById('txtGeofenceBtn');
+                if (geofenceBtn) {
+                    geofenceBtn.textContent = geofenceActive ? d.geofenceBtnDeactivate : d.geofenceBtnActivate;
+                }
+
+                // Botones de mapa
+                ['btnUpdateLoc', 'btnShareLoc', 'btnNavigate'].forEach(id => {
+                    const dom = document.getElementById(id);
+                    if (dom) {
+                        const span = dom.querySelector('span');
+                        if (span) {
+                            const key = id === 'btnUpdateLoc' ? 'btnUpdateLoc' : id === 'btnShareLoc' ? 'btnShareLoc' : 'btnNavigate';
+                            span.textContent = d[key];
+                        }
+                    }
+                });
+
+                updateRadiusDisplay();
+                renderHotSwap();
+                renderCameras();
+                renderChips();
+                renderAlerts();
+                updateOnlineStatus();
+            }
+
+            // ============================================================
+            // 11. SIMULACIÓN
+            // ============================================================
+            function simulateUpdate() {
+                chips.forEach(chip => {
+                    chip.voltage += (Math.random() - 0.5) * 0.2;
+                    chip.voltage = Math.round(chip.voltage * 10) / 10;
+                    chip.temp += (Math.random() - 0.5) * 1;
+                    chip.temp = Math.round(chip.temp);
+                    chip.vH.push(chip.voltage);
+                    chip.tH.push(chip.temp);
+                    if (chip.vH.length > 10) chip.vH.shift();
+                    if (chip.tH.length > 10) chip.tH.shift();
+                    if (Math.random() > 0.95) chip.errors++;
+                    chip.syncs += Math.floor(Math.random() * 10);
+                });
+                renderChips();
+                renderAlerts();
+            }
+
+            function updateRadiusDisplay() {
+                const lang = isSpanish ? 'es' : 'en';
+                const val = parseInt(document.getElementById('geofenceRadius').value);
+                const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+                document.getElementById('radiusValue').textContent = displayVal + (isSpanish ? 'm' : 'ft');
+            }
+
+            // ============================================================
+            // 12. INICIALIZACIÓN
+            // ============================================================
+            function init() {
+                console.log('🚀 Iniciando ITZTLI PLATINUM...');
+
+                // Cargar configuración del slider
+                const radiusSlider = document.getElementById('geofenceRadius');
+                if (radiusSlider) {
+                    radiusSlider.value = userSettings.geofenceRadius || 50;
+                    updateRadiusDisplay();
+                }
+
+                // Renderizar todas las secciones
+                renderHotSwap();
+                renderCameras();
+                renderChips();
+                renderAlerts();
+                updateOnlineStatus();
+
+                // Iniciar mapa después de un breve retraso
+                setTimeout(initMap, 600);
+
+                // Iniciar simulación
+                setInterval(simulateUpdate, 15000);
+
+                // Reloj y contador
+                setInterval(() => { 
+                    countdown--; 
+                    if (countdown <= 0) countdown = 5; 
+                    const el = document.getElementById('countdown'); 
+                    if (el) el.textContent = countdown + 's'; 
+                    const timeEl = document.getElementById('currentTime');
+                    if (timeEl) timeEl.textContent = new Date().toLocaleString(); 
+                }, 1000);
+
+                // Intentar autenticación (no bloquea la UI)
+                if (typeof requirePlan === 'function') {
+                    requirePlan('platinum').then(user => {
+                        if (user) {
+                            document.getElementById('btnLogout').style.display = 'inline-block';
+                            updateStatusDot('online');
+                            console.log('✅ Usuario autenticado:', user.email);
+                        } else {
+                            console.warn('⚠️ Usuario no autenticado o plan incorrecto. Modo demo.');
+                            updateStatusDot('offline');
+                        }
+                    }).catch(err => {
+                        console.warn('⚠️ Error en autenticación:', err.message);
+                        updateStatusDot('offline');
+                    });
+                } else {
+                    console.warn('⚠️ requirePlan no disponible. Modo demo.');
+                    updateStatusDot('offline');
+                }
+
+                // Eventos de teclado y modales
+                document.addEventListener('keydown', function(e) { 
+                    if (e.key === 'Escape') { 
+                        closeSettings(); 
+                        closeCloudModal(); 
+                    } 
+                });
+
+                document.getElementById('settingsModal').addEventListener('click', function(e) { 
+                    if(e.target === this) closeSettings(); 
+                });
+
+                document.getElementById('cloudModal').addEventListener('click', function(e) { 
+                    if(e.target === this) closeCloudModal(); 
+                });
+
+                console.log('✅ Inicialización completada');
+            }
+
+            function updateStatusDot(status) {
+                const dot = document.getElementById('statusDot');
+                dot.className = 'dot';
+                if(status === 'online') dot.classList.add('dot-gold');
+                else dot.classList.add('dot-red');
+                const lang = isSpanish ? 'es' : 'en';
+                document.getElementById('txtSecure').innerText = status === 'online' ? langData[lang].secure : 'DESCONECTADO';
+            }
+
+            // Exponer funciones globales
+            window.toggleLang = toggleLang;
+            window.logout = logout;
+            window.openSettings = openSettings;
+            window.closeSettings = closeSettings;
+            window.saveSettings = saveSettings;
+            window.sendCommand = sendCommand;
+            window.navigateToAddress = navigateToAddress;
+            window.scrollToMap = scrollToMap;
+            window.toggleGeofence = toggleGeofence;
+            window.toggleAllCameras = toggleAllCameras;
+            window.toggleRecord = toggleRecord;
+            window.toggleRecordAll = toggleRecordAll;
+            window.openCloudModal = openCloudModal;
+            window.closeCloudModal = closeCloudModal;
+            window.switchCloudTab = switchCloudTab;
+            window.playCloudVideo = playCloudVideo;
+            window.downloadCloudVideo = downloadCloudVideo;
+            window.deleteCloudVideo = deleteCloudVideo;
+            window.updateLocation = updateLocation;
+            window.shareLocation = shareLocation;
+            window.navigateToCar = navigateToCar;
+            window.toggleChip = toggleChip;
+            window.updateRadiusDisplay = updateRadiusDisplay;
+
+            // Iniciar
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
     </script>
 </body>
 </html>
