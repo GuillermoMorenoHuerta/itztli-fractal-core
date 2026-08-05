@@ -410,22 +410,32 @@
             updateLanguage(currentLang);
         });
 
-        // ============================================================
-        // 4. MODO REGISTRO / LOGIN (toggle)
-        // ============================================================
-        let isRegisterMode = true; // true = registro, false = login
-
-        function updateButtonLabels() {
-            const btn = document.getElementById('btnSubmit');
-            const toggleBtn = document.getElementById('btnToggle');
-            if (isRegisterMode) {
-                btn.textContent = i18n[currentLang].btnRegister;
-                toggleBtn.textContent = i18n[currentLang].btnLogin;
-            } else {
-                btn.textContent = i18n[currentLang].btnLogin;
-                toggleBtn.textContent = i18n[currentLang].btnRegister;
+  // Registrar usuario (sin inserción manual)
+async function registrarUsuario(email, password, nombre) {
+    const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: {
+                nombre: nombre || '',
+                plan: selectedPlan,
+                role: 'user'
             }
         }
+    });
+
+    if (error) {
+        alert('Error al registrarse: ' + error.message);
+        return;
+    }
+
+    // El perfil se crea automáticamente vía trigger
+    alert('¡Registro exitoso! Revisa tu correo para confirmar (si es necesario).');
+    // Redirigir después de unos segundos o esperar confirmación
+    setTimeout(() => {
+        window.location.href = `itzli-${selectedPlan}.html`;
+    }, 2000);
+}
 
         // Alternar modo al hacer clic en el botón secundario
         document.getElementById('btnToggle').addEventListener('click', function() {
