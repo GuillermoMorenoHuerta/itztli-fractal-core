@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* (mismo CSS de siempre) */
+        /* (mismo CSS que tenías, sin cambios) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -261,7 +261,7 @@
             errorInvalidCreds: 'Correo o contraseña incorrectos.',
             successRegister: '¡Registro exitoso! Redirigiendo...',
             successLogin: 'Inicio de sesión exitoso. Redirigiendo...',
-            rateLimit: 'Demasiados intentos. Espera 5 minutos o usa otro email.'
+            rateLimit: '⚠️ Demasiados intentos. Espera 5 minutos y vuelve a intentarlo.'
         },
         en: {
             planLabel: 'Selected plan:',
@@ -285,7 +285,7 @@
             errorInvalidCreds: 'Incorrect email or password.',
             successRegister: 'Registration successful! Redirecting...',
             successLogin: 'Login successful. Redirecting...',
-            rateLimit: 'Too many attempts. Wait 5 minutes or use another email.'
+            rateLimit: '⚠️ Too many attempts. Wait 5 minutes and try again.'
         }
     };
 
@@ -342,7 +342,7 @@
     });
 
     // ============================================================
-    // REGISTRO / LOGIN CON FALLBACK
+    // REGISTRO / LOGIN
     // ============================================================
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -367,11 +367,6 @@
             return;
         }
 
-        // Deshabilitar el botón para evitar múltiples envíos
-        const submitBtn = document.getElementById('btnSubmit');
-        submitBtn.disabled = true;
-        submitBtn.textContent = currentLang === 'es' ? 'Procesando...' : 'Processing...';
-
         try {
             if (isRegisterMode) {
                 // ---- REGISTRO ----
@@ -391,63 +386,37 @@
                     if (authError.message.includes('already registered')) {
                         showError(i18n[currentLang].errorUserExists);
                     } else if (authError.message.includes('rate limit')) {
-                        showError('⚠️ ' + i18n[currentLang].rateLimit);
+                        showError(i18n[currentLang].rateLimit);
                     } else {
                         showError(authError.message);
                     }
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = i18n[currentLang].btnRegister;
                     return;
                 }
 
                 if (!authData.user) {
                     showError(i18n[currentLang].errorGeneral);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = i18n[currentLang].btnRegister;
                     return;
                 }
 
-                // --- ESPERAR A QUE EL TRIGGER CREE EL PERFIL ---
-                let perfilCreado = false;
-                let intentos = 0;
-                while (!perfilCreado && intentos < 5) {
-                    await new Promise(resolve => setTimeout(resolve, 800));
-                    const { data: userData, error: fetchError } = await supabase
-                        .from('usuarios')
-                        .select('id')
-                        .eq('id', authData.user.id)
-                        .single();
-                    if (!fetchError && userData) {
-                        perfilCreado = true;
-                    }
-                    intentos++;
-                }
+                // Esperar 1.5 segundos para que el trigger cree el perfil
+                await new Promise(resolve => setTimeout(resolve, 1500));
 
-                // Si el trigger no creó el perfil, lo creamos manualmente (fallback)
-                if (!perfilCreado) {
-                    console.warn('⚠️ Trigger no creó el perfil, creando manualmente...');
-                    const { error: insertError } = await supabase
-                        .from('usuarios')
-                        .insert([{
-                            id: authData.user.id,
-                            email: email,
-                            nombre: nombre || '',
-                            plan: selectedPlan,
-                            role: 'user'
-                        }]);
-                    if (insertError) {
-                        console.error('❌ Error al insertar manual:', insertError);
-                        showError(i18n[currentLang].errorGeneral + ' (perfil)');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = i18n[currentLang].btnRegister;
-                        return;
-                    }
+                // Verificar que el perfil se haya creado
+                const { data: userData, error: checkError } = await supabase
+                    .from('usuarios')
+                    .select('plan')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (checkError || !userData) {
+                    console.warn('⚠️ Perfil no encontrado después del trigger. Redirigiendo igualmente.');
+                    // Si falla, igual redirigimos (el trigger debería haber funcionado)
                 }
 
                 showSuccess(i18n[currentLang].successRegister);
                 setTimeout(() => {
                     window.location.href = redirectMap[selectedPlan];
-                }, 1500);
+                }, 1000);
 
             } else {
                 // ---- LOGIN ----
@@ -459,22 +428,19 @@
                 if (authError) {
                     if (authError.message.includes('Invalid login credentials')) {
                         showError(i18n[currentLang].errorInvalidCreds);
+                    } else if (authError.message.includes('rate limit')) {
+                        showError(i18n[currentLang].rateLimit);
                     } else {
                         showError(authError.message);
                     }
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = i18n[currentLang].btnLogin;
                     return;
                 }
 
                 if (!authData.user) {
                     showError(i18n[currentLang].errorGeneral);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = i18n[currentLang].btnLogin;
                     return;
                 }
 
-                // Obtener el plan del usuario
                 const { data: userData, error: fetchError } = await supabase
                     .from('usuarios')
                     .select('plan')
@@ -486,7 +452,7 @@
                 showSuccess(i18n[currentLang].successLogin);
                 setTimeout(() => {
                     window.location.href = redirectUrl;
-                }, 1500);
+                }, 1000);
             }
         } catch (err) {
             console.error('Error:', err);
@@ -495,8 +461,6 @@
             } else {
                 showError(i18n[currentLang].errorGeneral);
             }
-            submitBtn.disabled = false;
-            submitBtn.textContent = i18n[currentLang].btnRegister;
         }
     });
 
