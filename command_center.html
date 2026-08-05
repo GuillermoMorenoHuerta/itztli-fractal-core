@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI COMMAND CENTER — Un Anillo para Gobernarlos a Todos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* (mismo CSS que tenías, lo dejamos igual) */
+        :root {
+            --bg: #0a0a0f; --card: #12121f; --border: #1e1e3a;
+            --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88;
+            --red: #ff4444; --orange: #ff9100; --text: #e0e0e0; --dim: #8899aa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(0,180,216,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(226,160,63,0.05) 0%, transparent 50%);
+        }
+        .header {
+            background: rgba(18,18,31,0.95); border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem; display: flex; justify-content: space-between;
+            align-items: center; backdrop-filter: blur(12px); flex-wrap: wrap; gap: 10px;
+        }
+        .header .logo { 
+            font-family: 'Orbitron', sans-serif; color: var(--gold); 
+            font-size: 1.3rem; font-weight: 900; letter-spacing: 2px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .header .logo .ring { font-size: 1.8rem; animation: ringGlow 2s infinite; }
+        @keyframes ringGlow {
+            0%,100% { text-shadow: 0 0 10px rgba(226,160,63,0.5); }
+            50% { text-shadow: 0 0 30px rgba(226,160,63,1), 0 0 60px rgba(255,145,0,0.5); }
+        }
+        .dashboard { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 70px); }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+        .sidebar {
+            background: rgba(12,12,25,0.8); border-right: 1px solid var(--border);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 0.3rem;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: 8px; cursor: pointer;
+            transition: 0.3s; color: var(--dim); font-size: 0.9rem;
+            border: 1px solid transparent; text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0,180,216,0.1); border-color: var(--cyan); color: var(--cyan);
+        }
+        .nav-item i { width: 18px; text-align: center; }
+        .badge {
+            margin-left: auto; background: var(--red); color: white;
+            padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 900;
+        }
+        .main { padding: 2rem; overflow-y: auto; }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1.5rem; transition: 0.3s;
+            position: relative; overflow: hidden; cursor: pointer;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .stat-card.users::before { background: var(--cyan); }
+        .stat-card.devices::before { background: var(--green); }
+        .stat-card.chips::before { background: var(--orange); }
+        .stat-card.revenue::before { background: var(--gold); }
+        .stat-card.attacks::before { background: var(--red); }
+        .stat-card .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .stat-card .stat-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; }
+        .stat-card .stat-label { color: var(--dim); font-size: 0.85rem; margin-top: 0.3rem; }
+        .table-container {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;
+        }
+        .table-header {
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            text-align: left; padding: 10px 14px; font-size: 0.75rem;
+            color: var(--dim); text-transform: uppercase; letter-spacing: 1px;
+            background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border);
+        }
+        td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+        tr:hover td { background: rgba(0,180,216,0.02); }
+        .badge-status {
+            display: inline-block; padding: 4px 10px; border-radius: 15px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .badge-status.online { background: rgba(0,255,136,0.15); color: var(--green); }
+        .badge-status.offline { background: rgba(136,153,170,0.15); color: var(--dim); }
+        .badge-status.premium { background: rgba(0,180,216,0.15); color: var(--cyan); }
+        .badge-status.platinum { background: rgba(226,160,63,0.15); color: var(--gold); }
+        .badge-status.free { background: rgba(0,255,136,0.1); color: var(--green); }
+        .btn {
+            background: var(--gold); color: var(--bg); padding: 8px 16px;
+            border: none; font-weight: 700; cursor: pointer; border-radius: 8px;
+            transition: 0.3s; font-size: 0.8rem; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .btn:hover { transform: scale(1.03); box-shadow: 0 0 20px rgba(226,160,63,0.4); }
+        .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+        .btn-cyan { background: var(--cyan); color: #000; }
+        .btn-cyan:hover { box-shadow: 0 0 20px rgba(0,180,216,0.4); }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-red:hover { box-shadow: 0 0 20px rgba(255,68,68,0.4); }
+        .btn-green { background: var(--green); color: #000; }
+        .btn-green:hover { box-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--card); border: 2px solid var(--gold);
+            border-radius: 20px; padding: 2rem; max-width: 500px; width: 90%;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h3 { color: var(--gold); font-size: 1.2rem; }
+        .modal-close {
+            background: transparent; border: 1px solid var(--red); color: var(--red);
+            border-radius: 8px; padding: 5px 15px; cursor: pointer; font-size: 1rem;
+        }
+        .modal-close:hover { background: var(--red); color: #000; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; color: var(--dim); font-size: 0.8rem; margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: var(--text); font-size: 0.9rem; outline: none;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+            padding: 12px 20px; border-radius: 10px; font-size: 0.85rem;
+            font-weight: 600; animation: slideIn 0.3s ease;
+            display: none; max-width: 400px;
+        }
+        .toast.show { display: block; }
+        .toast.success { background: rgba(0,255,136,0.2); border: 1px solid var(--green); color: var(--green); }
+        .toast.error { background: rgba(255,68,68,0.2); border: 1px solid var(--red); color: var(--red); }
+        @keyframes slideIn { from { opacity:0; transform:translateX(100px); } to { opacity:1; transform:translateX(0); } }
+        .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+        .search-box { margin-bottom: 1rem; display: flex; gap: 0.5rem; }
+        .search-box input { flex: 1; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo"><span class="ring">💍</span> ITZTLI COMMAND CENTER</div>
+        <div style="display:flex; gap:20px; align-items:center;">
+            <span id="currentTime" style="font-family:'Orbitron',sans-serif; color:var(--cyan); font-size:0.9rem;"></span>
+            <button id="logoutBtn" class="btn btn-sm btn-red" style="display:none;">🚪 Salir</button>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="nav-item active" data-vista="overview"><i class="fas fa-th-large"></i> Vista General</div>
+            <div class="nav-item" data-vista="usuarios"><i class="fas fa-users"></i> Usuarios <span class="badge" id="userCount">0</span></div>
+            <div class="nav-item" data-vista="dispositivos"><i class="fas fa-microchip"></i> Dispositivos <span class="badge" id="deviceCount">0</span></div>
+            <div class="nav-item" data-vista="chips"><i class="fas fa-memory"></i> Chips <span class="badge" id="chipCount">0</span></div>
+            <div class="nav-item" data-vista="licencias"><i class="fas fa-key"></i> Licencias</div>
+            <div class="nav-item" data-vista="transacciones"><i class="fas fa-credit-card"></i> Transacciones</div>
+            <hr style="border-color:var(--border); margin:1rem 0;">
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i> Inicio Web</a>
+        </aside>
+
+        <main class="main" id="mainContent">
+            <div style="text-align:center; padding:4rem;">
+                <p style="font-size:4rem;">💍</p>
+                <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold);">UN ANILLO PARA GOBERNARLOS A TODOS</h2>
+                <p style="color:var(--dim); margin-top:1rem;">Cargando datos desde la nube cuántica...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Usuario -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Crear Usuario</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <input type="hidden" id="userId">
+            <div class="form-group"><label>📧 Email</label><input type="email" id="userEmail"></div>
+            <div class="form-group"><label>👤 Nombre</label><input type="text" id="userName"></div>
+            <div class="form-group"><label>🔑 Contraseña (mín. 8 caracteres)</label><input type="password" id="userPassword"></div>
+            <div class="form-group"><label>🥇 Plan</label><select id="userPlan"><option value="free">GRATIS</option><option value="premium">PREMIUM ($29.99)</option><option value="platinum">PLATINUM ($49.99)</option></select></div>
+            <button class="btn btn-green" onclick="saveUser()" style="width:100%; margin-top:10px;">💾 Guardar</button>
+        </div>
+    </div>
+
+    <!-- Modal Chip -->
+    <div class="modal" id="chipModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="chipModalTitle">Registrar Chip</h3>
+                <button class="modal-close" onclick="closeChipModal()">✕</button>
+            </div>
+            <input type="hidden" id="chipId">
+            <div class="form-group"><label>🔢 Número de Serie (auto-generado si se deja vacío)</label><input type="text" id="chipSerial" placeholder="ITZ-LIA-0001"></div>
+            <div class="form-group"><label>🧬 Tipo</label><select id="chipTipo"><option value="LIA">LIA (Maestro)</option><option value="BOB">BOB (Sensor)</option></select></div>
+            <div class="form-group"><label>🏭 Fabricante</label><input type="text" id="chipFabricante"></div>
+            <div class="form-group"><label>👤 Propietario (UUID)</label><input type="text" id="chipPropietario" placeholder="UUID del usuario"></div>
+            <button class="btn btn-green" onclick="saveChip()" style="width:100%; margin-top:10px;">💾 Guardar Chip</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================
+        // CONFIGURACIÓN SUPABASE
+        // ============================================================
+        const SUPABASE_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let datos = { usuarios: [], dispositivos: [], chips: [] };
+
+        // ============================================================
+        // AUTENTICACIÓN DE ADMIN (SIN auth.js)
+        // ============================================================
+        async function checkAdminSession() {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error || !user) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                // Verificar que el usuario tenga rol 'admin' en la tabla usuarios
+                const { data: userData, error: fetchError } = await supabase
+                    .from('usuarios')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (fetchError || !userData || userData.role !== 'admin') {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                return true;
+            } catch (err) {
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // ============================================================
+        // LOGOUT
+        // ============================================================
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ============================================================
+        // MODALES
+        // ============================================================
+        function closeModal() { document.getElementById('userModal').classList.remove('active'); }
+        function closeChipModal() { document.getElementById('chipModal').classList.remove('active'); }
+
+        // ============================================================
+        // CARGAR DATOS
+        // ============================================================
+        async function cargarDatos() {
+            const isAdmin = await checkAdminSession();
+            if (!isAdmin) return;
+
+            try {
+                const { data: usuarios, error: errU } = await supabase.from('usuarios').select('*');
+                if (!errU) datos.usuarios = usuarios;
+                const { data: dispositivos, error: errD } = await supabase.from('dispositivos').select('*');
+                if (!errD) datos.dispositivos = dispositivos;
+                const { data: chips, error: errC } = await supabase.from('chips').select('*');
+                if (!errC) datos.chips = chips;
+            } catch (e) {
+                showToast('Error conectando a Supabase', 'error');
+            }
+
+            document.getElementById('userCount').textContent = datos.usuarios.length;
+            document.getElementById('deviceCount').textContent = datos.dispositivos.length;
+            document.getElementById('chipCount').textContent = datos.chips.length;
+        }
+
+        // ============================================================
+        // VISTAS
+        // ============================================================
+        async function cargarVista(vista) {
+            const main = document.getElementById('mainContent');
+            await cargarDatos();
+
+            const d = datos;
+            const chipsOnline = d.chips.filter(c => c.estado === 'online').length;
+            const revenue = d.usuarios.filter(u => u.plan === 'premium').length * 29.99 +
+                           d.usuarios.filter(u => u.plan === 'platinum').length * 49.99;
+
+            if (vista === 'overview') {
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1.5rem;">💍 UN ANILLO PARA GOBERNARLOS A TODOS</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card users" onclick="cargarVista('usuarios')"><div class="stat-icon">👥</div><div class="stat-value">${d.usuarios.length}</div><div class="stat-label">Usuarios</div></div>
+                        <div class="stat-card chips" onclick="cargarVista('chips')"><div class="stat-icon">🧩</div><div class="stat-value">${d.chips.length}</div><div class="stat-label">Chips (${chipsOnline} online)</div></div>
+                        <div class="stat-card revenue"><div class="stat-icon">💰</div><div class="stat-value">$${revenue.toFixed(2)}</div><div class="stat-label">Ingreso mensual (USD)</div></div>
+                        <div class="stat-card attacks"><div class="stat-icon">🛡️</div><div class="stat-value">0</div><div class="stat-label">Ataques Detectados</div></div>
+                    </div>
+                `;
+            } else if (vista === 'usuarios') {
+                main.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                        <h2 style="color:var(--cyan);">👥 Usuarios (${d.usuarios.length})</h2>
+                        <button class="btn btn-green" onclick="openUserModal()">✨ Nuevo Usuario</button>
+                    </div>
+                    <div class="table-container">
+                        <table><thead><tr><th>Email</th><th>Plan</th><th>Registro</th><th>Acciones</th></tr></thead>
+                        <tbody>${d.usuarios.map(u => `<tr>
+                            <td>${u.email}</td>
+                            <td><span class="badge-status ${u.plan}">${u.plan.toUpperCase()}</span></td>
+                            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                            <td><div class="action-buttons">
+                                <button class="btn btn-sm btn-cyan" onclick="editUser('${u.id}')">✏️</button>
+                                <button class="btn btn-sm btn-red" onclick="deleteUser('${u.id}')">🗑️</button>
+                            </div></td>
+                        </tr>`).join('')}</tbody></table>
+                    </div>
+                `;
+            } else if (vista === 'dispositivos') {
+                main.innerHTML = `
+                    <h2 style="color:var(--green); margin-bottom:1rem;">💻 Dispositivos (${d.dispositivos.length})</h2>
+                    <div class="table-container">
+                        <table><thead><tr><th>Chip ID</th><th>Licencia</th><th>Estado</th><th>Acciones</th></tr></thead>
+                        <tbody>${d.dispositivos.map(d => `<tr>
+                            <td>${d.chip_id}</td><td>${d.licencia || 'N/A'}</td>
+                            <td><span class="badge-status ${d.estado}">${d.estado}</span></td>
+                            <td><button class="btn btn-sm btn-red" onclick="deleteDevice('${d.id}')">🗑️</button></td>
+                        </tr>`).join('')}</tbody></table>
+                    </div>
+                `;
+            } else if (vista === 'chips') {
+                main.innerHTML = `
+                    <h2 style="color:var(--orange); margin-bottom:1rem;">🧩 Gestión de Chips (${d.chips.length})</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchChip" placeholder="Buscar por serial o fabricante..." oninput="filtrarChips()">
+                        <button class="btn btn-cyan" onclick="openChipModal()">➕ Nuevo Chip</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="chipsTable"><thead><tr><th>Serial</th><th>Tipo</th><th>Estado</th><th>Fabricante</th><th>Propietario</th><th>Acciones</th></tr></thead>
+                        <tbody></tbody></table>
+                    </div>
+                `;
+                actualizarTablaChips(d.chips);
+            } else if (vista === 'licencias') {
+                main.innerHTML = `<h2 style="color:var(--gold);">🔑 Licencias</h2><p style="color:var(--dim);">Gestión de licencias pendiente de integrar con Stripe</p>`;
+            } else if (vista === 'transacciones') {
+                main.innerHTML = `<h2 style="color:var(--gold);">💳 Transacciones</h2><p style="color:var(--dim);">Próximamente integración con Stripe.</p>`;
+            }
+        }
+
+        function filtrarChips() {
+            const query = document.getElementById('searchChip').value.toLowerCase();
+            const filtrados = datos.chips.filter(c => c.serial.toLowerCase().includes(query) || (c.fabricante||'').toLowerCase().includes(query));
+            actualizarTablaChips(filtrados);
+        }
+
+        function actualizarTablaChips(chips) {
+            const tbody = document.querySelector('#chipsTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = chips.map(c => `<tr>
+                <td style="font-family:monospace;">${c.serial}</td>
+                <td><span class="badge-status ${c.tipo === 'LIA' ? 'platinum' : 'free'}">${c.tipo}</span></td>
+                <td><span class="badge-status ${c.estado}">${c.estado}</span></td>
+                <td>${c.fabricante || '-'}</td>
+                <td>${c.propietario_id ? c.propietario_id.substring(0,8)+'…' : 'Sin asignar'}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-cyan" onclick="toggleChip('${c.id}')">${c.suspendido ? '▶️ Activar' : '⏸️ Suspender'}</button>
+                        <button class="btn btn-sm btn-red" onclick="deleteChip('${c.id}')">🗑️ Eliminar</button>
+                    </div>
+                </td>
+            </tr>`).join('');
+        }
+
+        async function openChipModal(chip = null) {
+            document.getElementById('chipModal').classList.add('active');
+            if (chip) {
+                document.getElementById('chipId').value = chip.id;
+                document.getElementById('chipSerial').value = chip.serial;
+                document.getElementById('chipTipo').value = chip.tipo;
+                document.getElementById('chipFabricante').value = chip.fabricante || '';
+                document.getElementById('chipPropietario').value = chip.propietario_id || '';
+                document.getElementById('chipModalTitle').textContent = 'Editar Chip';
+            } else {
+                document.getElementById('chipId').value = '';
+                document.getElementById('chipSerial').value = generarSerial();
+                document.getElementById('chipTipo').value = 'LIA';
+                document.getElementById('chipFabricante').value = '';
+                document.getElementById('chipPropietario').value = '';
+                document.getElementById('chipModalTitle').textContent = 'Registrar Chip';
+            }
+        }
+
+        function generarSerial() {
+            const count = datos.chips.length + 1;
+            const tipo = document.getElementById('chipTipo').value;
+            return `ITZ-${tipo}-${String(count).padStart(4,'0')}`;
+        }
+
+        document.getElementById('chipTipo').addEventListener('change', function() {
+            if (!document.getElementById('chipSerial').value.startsWith('ITZ-')) {
+                document.getElementById('chipSerial').value = generarSerial();
+            }
+        });
+
+        async function saveChip() {
+            const chipData = {
+                serial: document.getElementById('chipSerial').value,
+                tipo: document.getElementById('chipTipo').value,
+                fabricante: document.getElementById('chipFabricante').value,
+                propietario_id: document.getElementById('chipPropietario').value || null,
+                estado: 'offline'
+            };
+            const id = document.getElementById('chipId').value;
+
+            if (id) {
+                const { error } = await supabase.from('chips').update(chipData).eq('id', id);
+                if (error) return showToast('Error al actualizar: ' + error.message, 'error');
+            } else {
+                const { error } = await supabase.from('chips').insert(chipData);
+                if (error) return showToast('Error al crear: ' + error.message, 'error');
+            }
+            showToast('Chip guardado correctamente');
+            closeChipModal();
+            await cargarDatos();
+            cargarVista('chips');
+        }
+
+        async function deleteChip(id) {
+            if (!confirm('¿Eliminar chip definitivamente?')) return;
+            const { error } = await supabase.from('chips').delete().eq('id', id);
+            if (error) showToast('Error: ' + error.message, 'error');
+            else showToast('Chip eliminado');
+            await cargarDatos();
+            cargarVista('chips');
+        }
+
+        async function toggleChip(id) {
+            const chip = datos.chips.find(c => c.id == id);
+            if (!chip) return;
+            const { error } = await supabase.from('chips').update({ suspendido: !chip.suspendido }).eq('id', id);
+            if (error) showToast('Error', 'error');
+            else showToast(chip.suspendido ? 'Chip activado' : 'Chip suspendido');
+            await cargarDatos();
+            cargarVista('chips');
+        }
+
+        // ============================================================
+        // USUARIOS (SIN INSERT MANUAL)
+        // ============================================================
+        async function openUserModal(userId = null) {
+            document.getElementById('userModal').classList.add('active');
+            if (userId) {
+                const user = datos.usuarios.find(u => u.id === userId);
+                if (user) {
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('userEmail').value = user.email;
+                    document.getElementById('userName').value = user.nombre || '';
+                    document.getElementById('userPlan').value = user.plan;
+                    document.getElementById('modalTitle').textContent = 'Editar Usuario';
+                }
+            } else {
+                document.getElementById('userId').value = '';
+                document.getElementById('userEmail').value = '';
+                document.getElementById('userName').value = '';
+                document.getElementById('userPassword').value = '';
+                document.getElementById('userPlan').value = 'free';
+                document.getElementById('modalTitle').textContent = 'Crear Usuario';
+            }
+        }
+
+        async function saveUser() {
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const plan = document.getElementById('userPlan').value;
+            const name = document.getElementById('userName').value;
+
+            if (!email || !password) return showToast('Email y contraseña obligatorios', 'error');
+            if (password.length < 8) return showToast('Contraseña mínimo 8 caracteres', 'error');
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { nombre: name, plan } }
+                });
+                if (error) throw error;
+
+                // ✅ EL TRIGGER CREA EL PERFIL AUTOMÁTICAMENTE – NO INSERTAMOS MANUAL
+                showToast('Usuario creado exitosamente (el perfil se crea automáticamente)');
+                closeModal();
+                await cargarDatos();
+                cargarVista('usuarios');
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('¿Eliminar usuario?')) return;
+            await supabase.from('usuarios').delete().eq('id', id);
+            showToast('Usuario removido del sistema');
+            await cargarDatos();
+            cargarVista('usuarios');
+        }
+
+        function editUser(id) { openUserModal(id); }
+
+        async function deleteDevice(id) {
+            if (!confirm('¿Eliminar dispositivo?')) return;
+            await supabase.from('dispositivos').delete().eq('id', id);
+            showToast('Dispositivo eliminado');
+            await cargarDatos();
+            cargarVista('dispositivos');
+        }
+
+        function updateClock() { document.getElementById('currentTime').textContent = new Date().toLocaleString('es-MX', { hour12: false }); }
+        setInterval(updateClock, 1000); updateClock();
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                const vista = this.dataset.vista;
+                cargarVista(vista);
+            });
+        });
+
+        // ============================================================
+        // INICIALIZACIÓN
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAdmin = await checkAdminSession();
+            if (!isAdmin) return;
+            await cargarDatos();
+            cargarVista('overview');
+        });
+    </script>
+</body>
+</html>
