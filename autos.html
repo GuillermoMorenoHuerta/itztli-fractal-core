@@ -53,7 +53,24 @@
         .screen-large img{width:100%;height:auto;border-radius:10px;display:block}
         .phone-mockup h4{color:var(--gold);margin-bottom:0.3rem;font-size:1.4rem;margin-top:1.5rem;text-align:center;font-family:'Times New Roman',Times,serif;font-weight:700}
         .phone-mockup p{color:var(--dim);font-size:1rem;margin-bottom:2rem;text-align:center}
-        .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin:1.5rem 0}
+        
+        /* ======================================================== */
+        /* 🔥 AJUSTE PARA QUE LOS PLANES SE VERTICALES EN CELULAR  */
+        /* ======================================================== */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: 1fr;  /* <--- Siempre 1 columna en móvil */
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        /* En pantallas grandes (tablet/desktop), se ponen en fila */
+        @media (min-width: 768px) {
+            .plans-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+        /* ======================================================== */
+
         .plan-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center;transition:0.4s;position:relative;display:flex;flex-direction:column}
         .plan-card:hover{transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,0,0,0.5)}
         .plan-card.demo{border-color:var(--green)}.plan-card.premium{border-color:var(--cyan)}.plan-card.platinum{border:2px solid var(--gold);box-shadow:0 0 30px rgba(226,160,63,0.2)}
@@ -165,24 +182,81 @@
         </div></div>
         
         <div class="container phone-section"><h2 class="section-title">Así se Ve tu Auto desde el Celular</h2><div class="phone-grid"><div class="phone-mockup"><h4>Modo PREMIUM</h4><div class="screen-large"><img id="img-premium" src="imagenes/premium-screen.png" alt="Premium"></div><p>Control remoto, ubicación GPS, alertas inteligentes.</p></div></div><div class="phone-grid" style="margin-top:0;"><div class="phone-mockup"><h4>Modo PLATINUM</h4><div class="screen-large"><img id="img-platinum" src="imagenes/platinum-screen.png" alt="Platinum"></div><p>Cámaras en vivo, hot-swap, grabación en nube.</p></div></div></div>
-        <div class="container" id="planes"><h2 class="section-title">Planes de Protección</h2><p class="section-subtitle">Elige el plan que mejor se adapte a tu auto. Todos los precios en USD.</p>
+        
+        <div class="container" id="planes">
+            <h2 class="section-title">Planes de Protección</h2>
+            <p class="section-subtitle">Elige el plan que mejor se adapte a tu auto. Todos los precios en USD.</p>
+            
+            <!-- GRID DE PLANES: GRATIS → PREMIUM → PLATINUM -->
             <div class="plans-grid">
-                <div class="plan-card demo"><h3 style="color:var(--green);">🆓 GRATIS</h3><div class="price" style="color:var(--green);">$0<small>/mes</small></div><ul>
-                    <li><span class="highlight-feature">🔄 Rotación cada 5 segundos</span></li>
-                    <li>Monitoreo de 12 chips</li>
-                    <li>Alertas de seguridad</li>
-                    <li>Geolocalización GPS</li>
-                    <li>Geocerca configurable</li>
-                    <li>Registro sin tarjeta</li>
-                    <li class="no">Control remoto</li>
-                    <li class="no">Cámaras en vivo</li></ul>
+                <div class="plan-card demo">
+                    <h3 style="color:var(--green);">🆓 GRATIS</h3>
+                    <div class="price" style="color:var(--green);">$0<small>/mes</small></div>
+                    <ul>
+                        <li><span class="highlight-feature">🔄 Rotación cada 5 segundos</span></li>
+                        <li>Monitoreo de 12 chips</li>
+                        <li>Alertas de seguridad</li>
+                        <li>Geolocalización GPS</li>
+                        <li>Geocerca configurable</li>
+                        <li>Registro sin tarjeta</li>
+                        <li class="no">Control remoto</li>
+                        <li class="no">Cámaras en vivo</li>
+                    </ul>
                     <div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> Una placa <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi. <strong>Sin tarjeta de crédito.</strong></div>
-                    <a href="itzli-demo-registro.html" class="btn-green btn-block">Activar Gratis</a></div>
-                <div class="plan-card premium"><h3 style="color:var(--cyan);">🥈 PREMIUM</h3><div class="price" style="color:var(--cyan);">$29.99<small> USD/mes</small></div><ul><li>Todo lo de GRATIS</li><li>Control remoto del auto</li><li>Arrancar / Apagar</li><li>Abrir / Cerrar puertas</li><li>Luces y Claxon</li><li>Alarma de seguridad</li><li>Ubicación GPS</li><li>Alertas inteligentes</li><li>Chatbot IA 24/7</li><li class="no">Entretenimiento</li><li class="no">Clima y Espejos</li><li class="no">Hot-Swap Digital</li><li class="no">Cámaras en vivo</li></ul><div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi.</div><a href="itzli-premium.html" class="btn btn-block">Elegir PREMIUM</a></div>
-                <div class="plan-card platinum"><div class="plan-badge">🥇 RECOMENDADO</div><h3 style="color:var(--gold);">🥇 PLATINUM</h3><div class="price" style="color:var(--gold);">$49.99<small> USD/mes</small></div><ul><li>Todo lo de PREMIUM</li><li>Volumen / Estéreo</li><li>Bluetooth</li><li>Navegación GPS</li><li>Clima (A/C)</li><li>Espejos</li><li>Cámaras en vivo</li><li>Hot-Swap Digital</li><li>Grabación en nube (5 GB)</li><li>Soporte prioritario 24/7</li></ul><div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi.</div><a href="itzli-platinum.html" class="btn btn-block">Elegir PLATINUM</a></div>
+                    <a href="login.html?plan=demo" class="btn-plan" style="display:inline-block;background:var(--green);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Probar Demo Gratis</a>
+                </div>
+
+                <div class="plan-card premium">
+                    <h3 style="color:var(--cyan);">🥈 PREMIUM</h3>
+                    <div class="price" style="color:var(--cyan);">$29.99<small> USD/mes</small></div>
+                    <ul>
+                        <li>Todo lo de GRATIS</li>
+                        <li>Control remoto del auto</li>
+                        <li>Arrancar / Apagar</li>
+                        <li>Abrir / Cerrar puertas</li>
+                        <li>Luces y Claxon</li>
+                        <li>Alarma de seguridad</li>
+                        <li>Ubicación GPS</li>
+                        <li>Alertas inteligentes</li>
+                        <li>Chatbot IA 24/7</li>
+                        <li class="no">Entretenimiento</li>
+                        <li class="no">Clima y Espejos</li>
+                        <li class="no">Hot-Swap Digital</li>
+                        <li class="no">Cámaras en vivo</li>
+                    </ul>
+                    <div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi.</div>
+                    <a href="login.html?plan=premium" class="btn" style="display:block;width:100%;background:var(--cyan);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Plan Premium</a>
+                </div>
+
+                <div class="plan-card platinum">
+                    <div class="plan-badge">🥇 RECOMENDADO</div>
+                    <h3 style="color:var(--gold);">🥇 PLATINUM</h3>
+                    <div class="price" style="color:var(--gold);">$49.99<small> USD/mes</small></div>
+                    <ul>
+                        <li>Todo lo de PREMIUM</li>
+                        <li>Volumen / Estéreo</li>
+                        <li>Bluetooth</li>
+                        <li>Navegación GPS</li>
+                        <li>Clima (A/C)</li>
+                        <li>Espejos</li>
+                        <li>Cámaras en vivo</li>
+                        <li>Hot-Swap Digital</li>
+                        <li>Grabación en nube (5 GB)</li>
+                        <li>Soporte prioritario 24/7</li>
+                    </ul>
+                    <div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi.</div>
+                    <a href="login.html?plan=platinum" class="btn" style="display:block;width:100%;background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Plan Platinum</a>
+                </div>
+            </div> <!-- Fin .plans-grid -->
+
+            <!-- BANNER DE PROMOCIONES (SIEMPRE AL FINAL, FUERA DEL GRID) -->
+            <div class="promo-banner">
+                <div class="promo-title">🎉 PROMOCIÓN ESPECIAL POR INAUGURACIÓN</div>
+                <div class="promo-sub">Oferta por tiempo limitado — Descuentos exclusivos en planes anuales</div>
+                <a href="desafio.html#promociones" class="promo-link">🔥 VER PROMOCIONES 🔥</a>
             </div>
-            <div class="promo-banner"><div class="promo-title">🎉 PROMOCIÓN ESPECIAL POR INAUGURACIÓN</div><div class="promo-sub">Oferta por tiempo limitado — Descuentos exclusivos en planes anuales</div><a href="desafio.html#promociones" class="promo-link">🔥 VER PROMOCIONES 🔥</a></div>
-        </div>
+        </div> <!-- Fin container #planes -->
+
         <div class="container"><h2 class="section-title">¿Cómo se Instala?</h2><div class="install-section"><div class="install-table-wrapper"><table class="install-table"><thead><tr><th>Característica</th><th class="center">Opción 1<br>WiFi Integrado</th><th class="center">Opción 2<br>Adaptador + Cloud</th><th class="center" style="color:var(--green);">Opción 3<br>Adaptador + ESP32</th><th class="center" style="color:var(--cyan);">Opción 4 ⭐<br>WiFi Auto + ESP32</th></tr></thead><tbody><tr><td>Hardware necesario</td><td class="center winner">Ninguno</td><td class="center">Adaptador OBD-II</td><td class="center">Adaptador + ESP32</td><td class="center">ESP32</td></tr><tr><td>Funciona sin internet</td><td class="center loser">❌</td><td class="center loser">❌</td><td class="center winner">✅</td><td class="center winner">✅</td></tr><tr><td>Capas de verificación</td><td class="center">1</td><td class="center">1</td><td class="center">2</td><td class="center best"><strong>3</strong></td></tr><tr><td>Seguridad nivel</td><td class="center">Alta</td><td class="center">Alta</td><td class="center winner">Máxima</td><td class="center best"><strong>Total</strong></td></tr></tbody></table></div><h3 style="color:var(--cyan);text-align:center;font-size:1.6rem;margin:2rem 0 1rem 0;">📡 Guía de Conexión</h3><div class="guide-grid"><div class="guide-card"><h4>Opción 1: WiFi Integrado</h4><ul class="step-list"><li><span class="num">1.</span><span>Verifica WiFi integrado (2021+).</span></li><li><span class="num">2.</span><span>Conecta el auto a tu WiFi.</span></li><li><span class="num">3.</span><span>Descarga la app ITZTLI.</span></li><li><span class="num">4.</span><span>Escanea QR del tablero.</span></li><li><span class="num">5.</span><span>¡Sincronización automática!</span></li></ul></div><div class="guide-card"><h4>Opción 2: Adaptador + Cloud</h4><ul class="step-list"><li><span class="num">1.</span><span>Consigue adaptador OBD-II.</span></li><li><span class="num">2.</span><span>Conecta al puerto OBD-II.</span></li><li><span class="num">3.</span><span>Crea cuenta ITZTLI.</span></li><li><span class="num">4.</span><span>Enlace automático.</span></li><li><span class="num">5.</span><span>Control desde cualquier lugar.</span></li></ul></div><div class="guide-card"><h4>Opción 3: Adaptador + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Consigue adaptador + ESP32.</span></li><li><span class="num">2.</span><span>Conecta al OBD-II.</span></li><li><span class="num">3.</span><span>Carga firmware ITZTLI.</span></li><li><span class="num">4.</span><span>Comunicación local.</span></li><li><span class="num">5.</span><span>100% autónomo. Sin internet.</span></li></ul></div></div><div class="guide-grid" style="margin-top:0;"><div class="guide-card option-4"><h4>Opción 4 ⭐: WiFi Auto + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Verifica WiFi integrado.</span></li><li><span class="num">2.</span><span>Consigue ESP32.</span></li><li><span class="num">3.</span><span>Carga firmware ITZTLI.</span></li><li><span class="num">4.</span><span>Conecta al WiFi del auto.</span></li><li><span class="num">5.</span><span>Doble autenticación.</span></li></ul></div></div></div></div>
         <div class="container" id="vin"><div class="vin-real-section"><h2>🔍 Escáner de Compatibilidad VIN</h2><p class="vin-subtitle">Ingresa el número de serie de 17 caracteres de tu vehículo.</p><div class="vin-input-group"><input type="text" id="vinInputReal" placeholder="EJ: 1HGBH41JXMN109186" maxlength="17" autocomplete="off" oninput="onVINInput()"><button class="btn-scan" id="btnScan" onclick="scanVIN()" disabled>🔍 Escanear Auto</button></div><div class="vin-result-real" id="vinResultReal"></div></div></div>
         <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — Todos los Derechos Reservados</footer>
@@ -200,24 +274,81 @@
         </div></div>
         
         <div class="container phone-section"><h2 class="section-title">How Your Car Looks from Your Cell Phone</h2><div class="phone-grid"><div class="phone-mockup"><h4>PREMIUM Mode</h4><div class="screen-large"><img id="img-premium-en" src="imagenes/ingles/premium-screen-ingles.png" alt="Premium Mode"></div><p>Remote control, GPS location, smart alerts.</p></div></div><div class="phone-grid" style="margin-top:0;"><div class="phone-mockup"><h4>PLATINUM Mode</h4><div class="screen-large"><img id="img-platinum-en" src="imagenes/ingles/platinum-screen-ingles.png" alt="Platinum Mode"></div><p>Live cameras, hot-swap, cloud recording.</p></div></div></div>
-        <div class="container" id="planes-en"><h2 class="section-title">Protection Plans</h2><p class="section-subtitle">All prices in USD.</p>
+        
+        <div class="container" id="planes-en">
+            <h2 class="section-title">Protection Plans</h2>
+            <p class="section-subtitle">All prices in USD.</p>
+            
+            <!-- GRID EN INGLÉS: FREE → PREMIUM → PLATINUM -->
             <div class="plans-grid">
-                <div class="plan-card demo"><h3 style="color:var(--green);">🆓 FREE</h3><div class="price" style="color:var(--green);">$0<small>/mo</small></div><ul>
-                    <li><span class="highlight-feature">🔄 Rotation every 5 seconds</span></li>
-                    <li>12 chip monitoring</li>
-                    <li>Security alerts</li>
-                    <li>GPS geolocation</li>
-                    <li>Configurable geofence</li>
-                    <li>Registration without credit card</li>
-                    <li class="no">Remote control</li>
-                    <li class="no">Live cameras</li></ul>
+                <div class="plan-card demo">
+                    <h3 style="color:var(--green);">🆓 FREE</h3>
+                    <div class="price" style="color:var(--green);">$0<small>/mo</small></div>
+                    <ul>
+                        <li><span class="highlight-feature">🔄 Rotation every 5 seconds</span></li>
+                        <li>12 chip monitoring</li>
+                        <li>Security alerts</li>
+                        <li>GPS geolocation</li>
+                        <li>Configurable geofence</li>
+                        <li>Registration without credit card</li>
+                        <li class="no">Remote control</li>
+                        <li class="no">Live cameras</li>
+                    </ul>
                     <div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> One <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter. <strong>No credit card required.</strong></div>
-                    <a href="itzli-demo-registro.html" class="btn-green btn-block">Activate Free</a></div>
-                <div class="plan-card premium"><h3 style="color:var(--cyan);">🥈 PREMIUM</h3><div class="price" style="color:var(--cyan);">$29.99<small> USD/mo</small></div><ul><li>Everything in FREE</li><li>Remote car control</li><li>Start / Stop</li><li>Open / Close doors</li><li>Lights and Horn</li><li>Security alarm</li><li>GPS location</li><li>Smart alerts</li><li>AI Chatbot 24/7</li><li class="no">Entertainment</li><li class="no">Climate and Mirrors</li><li class="no">Digital Hot-Swap</li><li class="no">Live cameras</li></ul><div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter.</div><a href="itzli-premium.html" class="btn btn-block">Choose PREMIUM</a></div>
-                <div class="plan-card platinum"><div class="plan-badge">🥇 RECOMMENDED</div><h3 style="color:var(--gold);">🥇 PLATINUM</h3><div class="price" style="color:var(--gold);">$49.99<small> USD/mo</small></div><ul><li>Everything in PREMIUM</li><li>Volume / Stereo</li><li>Bluetooth</li><li>GPS Navigation</li><li>Climate (A/C)</li><li>Mirrors</li><li>Live cameras</li><li>Digital Hot-Swap</li><li>Cloud recording (5 GB)</li><li>Priority support 24/7</li></ul><div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter.</div><a href="itzli-platinum.html" class="btn btn-block">Choose PLATINUM</a></div>
+                    <a href="itzli-demo-registro.html" class="btn-green btn-block" style="display:block;width:100%;background:var(--green);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Activate Free</a>
+                </div>
+
+                <div class="plan-card premium">
+                    <h3 style="color:var(--cyan);">🥈 PREMIUM</h3>
+                    <div class="price" style="color:var(--cyan);">$29.99<small> USD/mo</small></div>
+                    <ul>
+                        <li>Everything in FREE</li>
+                        <li>Remote car control</li>
+                        <li>Start / Stop</li>
+                        <li>Open / Close doors</li>
+                        <li>Lights and Horn</li>
+                        <li>Security alarm</li>
+                        <li>GPS location</li>
+                        <li>Smart alerts</li>
+                        <li>AI Chatbot 24/7</li>
+                        <li class="no">Entertainment</li>
+                        <li class="no">Climate and Mirrors</li>
+                        <li class="no">Digital Hot-Swap</li>
+                        <li class="no">Live cameras</li>
+                    </ul>
+                    <div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter.</div>
+                    <a href="itzli-premium.html" class="btn btn-block" style="display:block;width:100%;background:var(--cyan);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Choose PREMIUM</a>
+                </div>
+
+                <div class="plan-card platinum">
+                    <div class="plan-badge">🥇 RECOMMENDED</div>
+                    <h3 style="color:var(--gold);">🥇 PLATINUM</h3>
+                    <div class="price" style="color:var(--gold);">$49.99<small> USD/mo</small></div>
+                    <ul>
+                        <li>Everything in PREMIUM</li>
+                        <li>Volume / Stereo</li>
+                        <li>Bluetooth</li>
+                        <li>GPS Navigation</li>
+                        <li>Climate (A/C)</li>
+                        <li>Mirrors</li>
+                        <li>Live cameras</li>
+                        <li>Digital Hot-Swap</li>
+                        <li>Cloud recording (5 GB)</li>
+                        <li>Priority support 24/7</li>
+                    </ul>
+                    <div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter.</div>
+                    <a href="itzli-platinum.html" class="btn btn-block" style="display:block;width:100%;background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Choose PLATINUM</a>
+                </div>
+            </div> <!-- Fin .plans-grid inglés -->
+
+            <!-- BANNER DE PROMOCIONES EN INGLÉS -->
+            <div class="promo-banner">
+                <div class="promo-title">🎉 INAUGURATION SPECIAL PROMOTION</div>
+                <div class="promo-sub">Limited time offer — Exclusive discounts on annual plans</div>
+                <a href="desafio.html#promociones" class="promo-link">🔥 VIEW PROMOTIONS 🔥</a>
             </div>
-            <div class="promo-banner"><div class="promo-title">🎉 INAUGURATION SPECIAL PROMOTION</div><div class="promo-sub">Limited time offer — Exclusive discounts on annual plans</div><a href="desafio.html#promociones" class="promo-link">🔥 VIEW PROMOTIONS 🔥</a></div>
-        </div>
+        </div> <!-- Fin container #planes-en -->
+
         <div class="container"><h2 class="section-title">How is it Installed?</h2><div class="install-section"><div class="install-table-wrapper"><table class="install-table"><thead><tr><th>Feature</th><th class="center">Option 1<br>Built-in WiFi</th><th class="center">Option 2<br>Adapter + Cloud</th><th class="center" style="color:var(--green);">Option 3<br>Adapter + ESP32</th><th class="center" style="color:var(--cyan);">Option 4 ⭐<br>Car WiFi + ESP32</th></tr></thead><tbody><tr><td>Hardware needed</td><td class="center winner">None</td><td class="center">OBD-II Adapter</td><td class="center">Adapter + ESP32</td><td class="center">ESP32</td></tr><tr><td>Works without internet</td><td class="center loser">❌</td><td class="center loser">❌</td><td class="center winner">✅</td><td class="center winner">✅</td></tr><tr><td>Verification layers</td><td class="center">1</td><td class="center">1</td><td class="center">2</td><td class="center best"><strong>3</strong></td></tr><tr><td>Security level</td><td class="center">High</td><td class="center">High</td><td class="center winner">Maximum</td><td class="center best"><strong>Total</strong></td></tr></tbody></table></div><h3 style="color:var(--cyan);text-align:center;font-size:1.6rem;margin:2rem 0 1rem 0;">📡 Step-by-Step Connection Guide</h3><div class="guide-grid"><div class="guide-card"><h4>Option 1: Built-in WiFi</h4><ul class="step-list"><li><span class="num">1.</span><span>Verify built-in WiFi (2021+).</span></li><li><span class="num">2.</span><span>Connect to your WiFi.</span></li><li><span class="num">3.</span><span>Download ITZTLI app.</span></li><li><span class="num">4.</span><span>Scan dashboard QR.</span></li><li><span class="num">5.</span><span>Automatic sync!</span></li></ul></div><div class="guide-card"><h4>Option 2: Adapter + Cloud</h4><ul class="step-list"><li><span class="num">1.</span><span>Get OBD-II Adapter.</span></li><li><span class="num">2.</span><span>Connect to OBD-II port.</span></li><li><span class="num">3.</span><span>Create ITZTLI account.</span></li><li><span class="num">4.</span><span>Automatic link.</span></li><li><span class="num">5.</span><span>Control from anywhere.</span></li></ul></div><div class="guide-card"><h4>Option 3: Adapter + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Get Adapter + ESP32.</span></li><li><span class="num">2.</span><span>Connect to OBD-II.</span></li><li><span class="num">3.</span><span>Flash ITZTLI firmware.</span></li><li><span class="num">4.</span><span>Local communication.</span></li><li><span class="num">5.</span><span>100% offline.</span></li></ul></div></div><div class="guide-grid" style="margin-top:0;"><div class="guide-card option-4"><h4>Option 4 ⭐: Car WiFi + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Verify built-in WiFi.</span></li><li><span class="num">2.</span><span>Get ESP32 board.</span></li><li><span class="num">3.</span><span>Flash ITZTLI firmware.</span></li><li><span class="num">4.</span><span>Connect to car WiFi.</span></li><li><span class="num">5.</span><span>Double authentication.</span></li></ul></div></div></div></div>
         <div class="container" id="vin-en"><div class="vin-real-section"><h2>🔍 VIN Compatibility Scanner</h2><p class="vin-subtitle">Enter your vehicle's 17-character serial number.</p><div class="vin-input-group"><input type="text" id="vinInputRealEN" placeholder="EX: 1HGBH41JXMN109186" maxlength="17" autocomplete="off" oninput="onVINInputEN()"><button class="btn-scan" id="btnScanEN" onclick="scanVIN_EN()" disabled>🔍 Scan My Car</button></div><div class="vin-result-real" id="vinResultRealEN"></div></div></div>
         <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — All Rights Reserved</footer>
