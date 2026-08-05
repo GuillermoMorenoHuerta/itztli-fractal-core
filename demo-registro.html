@@ -17,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* (mismo CSS que tenías, lo dejo igual) */
         :root {
             --bg: #0a0a1a; --card: #14102e; --border: #2a2060;
             --cyan: #00d4ff; --gold: #f5c542; --green: #00ff88;
@@ -137,7 +138,7 @@
             border: 1px solid var(--border); 
             margin: 10px 0; 
             background: #0d1424; 
-            min-height: 200px; /* Asegura que tenga altura aunque tarde en cargar */
+            min-height: 200px;
         }
         .location-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
         .location-info .item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; }
@@ -324,470 +325,495 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Cargar auth.js de forma opcional (si no existe, no falla) -->
     <script>
-        (function loadAuth() {
-            const script = document.createElement('script');
-            script.src = 'auth.js';
-            script.onerror = function() {
-                console.warn('⚠️ auth.js no encontrado. Modo demo sin autenticación.');
-                // Definir funciones dummy si no existen
-                if (typeof requirePlan === 'undefined') {
-                    window.requirePlan = function() { return Promise.resolve(null); };
-                }
-                if (typeof supabase === 'undefined') {
-                    window.supabase = { auth: { signOut: function() { return Promise.resolve(); } } };
+        (function() {
+            "use strict";
+
+            // ═══════════════ CONFIGURACIÓN SUPABASE (INTEGRADA) ═══════════════
+            const SUPABASE_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // ═══════════════ DICCIONARIO COMPLETO ═══════════════
+            const langData = {
+                es: {
+                    subtitle: "El Sistema Nervioso de la Tecnología",
+                    badge: "🆓 PLAN GRATUITO ACTIVO",
+                    secure: "SEGURO",
+                    keyLabel: "🔑 Clave:",
+                    rotationLabel: "🔄 Rotación:",
+                    chipsLabel: " Chips:",
+                    logoutBtn: "SALIR",
+                    configTitle: "CONFIGURACIÓN DE SEGURIDAD",
+                    homeLabel: "🏠 Dirección de Casa (Base de Seguridad)",
+                    geofenceLabel: "📐 Radio de Alerta (Geocerca)",
+                    geofenceHint: "Recibirás alerta si el auto sale de este perímetro de seguridad.",
+                    chipTitle: "MONITOREO DE CHIPS",
+                    alertTitle: "ALERTAS DE SEGURIDAD",
+                    noAlerts: "✅ Sin alertas.",
+                    chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
+                    chipNormal: "Normal",
+                    chipWarning: "Precaución",
+                    chipCritical: "Crítico",
+                    alertVoltage: "Voltaje crítico: ",
+                    alertTemp: "Temp elevada: ",
+                    alertErrors: "Errores: ",
+                    mapTitle: "📍 GEOLOCALIZACIÓN",
+                    latLabel: "Latitud",
+                    lngLabel: "Longitud",
+                    refLabel: "Referencia",
+                    precLabel: "Precisión",
+                    refAddr: "Av. Reforma 222, CDMX",
+                    precValue: "3 m (GPS + WiFi)",
+                    btnUpdateLoc: "ACTUALIZAR",
+                    btnShareLoc: "COMPARTIR",
+                    btnNavigate: "LLEGAR AL AUTO",
+                    rangeUnit: "m",
+                    rangeMin: "10m",
+                    rangeMax: "100m",
+                    settingsTitle: "CONFIGURACIÓN",
+                    closeSettings: "CERRAR",
+                    saveSettings: "GUARDAR",
+                    shareAlert: "📍 Copiado al portapapeles",
+                    settingsSaved: "✅ Configuración guardada",
+                    promoTitle: " ¿QUIERES MÁS CONTROL?",
+                    promoDesc: "Elige el plan que mejor se adapte a tus necesidades:",
+                    promoPremium: "🥈 PREMIUM $29.99 USD/mes",
+                    promoPlatinum: "👑 PLATINUM $49.99 USD/mes",
+                    footer: "Todos los Derechos Reservados"
+                },
+                en: {
+                    subtitle: "The Nervous System of Technology",
+                    badge: "🆓 FREE PLAN ACTIVE",
+                    secure: "SECURE",
+                    keyLabel: "🔑 Key:",
+                    rotationLabel: "🔄 Rotation:",
+                    chipsLabel: " Chips:",
+                    logoutBtn: "LOGOUT",
+                    configTitle: "SECURITY SETTINGS",
+                    homeLabel: "🏠 Home Address (Security Base)",
+                    geofenceLabel: "📐 Alert Radius (Geofence)",
+                    geofenceHint: "You'll be alerted if the car leaves this security perimeter.",
+                    chipTitle: "CHIP MONITORING",
+                    alertTitle: "SECURITY ALERTS",
+                    noAlerts: "✅ No alerts.",
+                    chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
+                    chipNormal: "Normal",
+                    chipWarning: "Warning",
+                    chipCritical: "Critical",
+                    alertVoltage: "Critical voltage: ",
+                    alertTemp: "High temp: ",
+                    alertErrors: "Errors: ",
+                    mapTitle: "📍 GEOLOCATION",
+                    latLabel: "Latitude",
+                    lngLabel: "Longitude",
+                    refLabel: "Reference",
+                    precLabel: "Accuracy",
+                    refAddr: "222 Reforma Ave, Mexico City",
+                    precValue: "10 ft (GPS + WiFi)",
+                    btnUpdateLoc: "REFRESH",
+                    btnShareLoc: "SHARE",
+                    btnNavigate: "NAVIGATE TO CAR",
+                    rangeUnit: "ft",
+                    rangeMin: "33ft",
+                    rangeMax: "330ft",
+                    settingsTitle: "SETTINGS",
+                    closeSettings: "CLOSE",
+                    saveSettings: "SAVE",
+                    shareAlert: "📍 Copied to clipboard",
+                    settingsSaved: "✅ Settings saved",
+                    promoTitle: " WANT MORE CONTROL?",
+                    promoDesc: "Choose the plan that best suits your needs:",
+                    promoPremium: "🥈 PREMIUM $29.99 USD/mo",
+                    promoPlatinum: "👑 PLATINUM $49.99 USD/mo",
+                    footer: "All Rights Reserved"
                 }
             };
-            document.head.appendChild(script);
-        })();
-    </script>
-    
-    <script>
-        // ═══════════════ REGISTRAR SERVICE WORKER (PWA) ═══════════════
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-            });
-        }
-        
-        // ═══════════════ DICCIONARIO COMPLETO ═══════════════
-        const langData = {
-            es: {
-                subtitle: "El Sistema Nervioso de la Tecnología",
-                badge: "🆓 PLAN GRATUITO ACTIVO",
-                secure: "SEGURO",
-                keyLabel: "🔑 Clave:",
-                rotationLabel: "🔄 Rotación:",
-                chipsLabel: " Chips:",
-                logoutBtn: "SALIR",
-                configTitle: "CONFIGURACIÓN DE SEGURIDAD",
-                homeLabel: "🏠 Dirección de Casa (Base de Seguridad)",
-                geofenceLabel: "📐 Radio de Alerta (Geocerca)",
-                geofenceHint: "Recibirás alerta si el auto sale de este perímetro de seguridad.",
-                chipTitle: "MONITOREO DE CHIPS",
-                alertTitle: "ALERTAS DE SEGURIDAD",
-                noAlerts: "✅ Sin alertas.",
-                chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
-                chipNormal: "Normal",
-                chipWarning: "Precaución",
-                chipCritical: "Crítico",
-                alertVoltage: "Voltaje crítico: ",
-                alertTemp: "Temp elevada: ",
-                alertErrors: "Errores: ",
-                mapTitle: "📍 GEOLOCALIZACIÓN",
-                latLabel: "Latitud",
-                lngLabel: "Longitud",
-                refLabel: "Referencia",
-                precLabel: "Precisión",
-                refAddr: "Av. Reforma 222, CDMX",
-                precValue: "3 m (GPS + WiFi)",
-                btnUpdateLoc: "ACTUALIZAR",
-                btnShareLoc: "COMPARTIR",
-                btnNavigate: "LLEGAR AL AUTO",
-                rangeUnit: "m",
-                rangeMin: "10m",
-                rangeMax: "100m",
-                settingsTitle: "CONFIGURACIÓN",
-                closeSettings: "CERRAR",
-                saveSettings: "GUARDAR",
-                shareAlert: "📍 Copiado al portapapeles",
-                settingsSaved: "✅ Configuración guardada",
-                promoTitle: " ¿QUIERES MÁS CONTROL?",
-                promoDesc: "Elige el plan que mejor se adapte a tus necesidades:",
-                promoPremium: "🥈 PREMIUM $29.99 USD/mes",
-                promoPlatinum: "👑 PLATINUM $49.99 USD/mes",
-                footer: "Todos los Derechos Reservados"
-            },
-            en: {
-                subtitle: "The Nervous System of Technology",
-                badge: "🆓 FREE PLAN ACTIVE",
-                secure: "SECURE",
-                keyLabel: "🔑 Key:",
-                rotationLabel: "🔄 Rotation:",
-                chipsLabel: " Chips:",
-                logoutBtn: "LOGOUT",
-                configTitle: "SECURITY SETTINGS",
-                homeLabel: "🏠 Home Address (Security Base)",
-                geofenceLabel: "📐 Alert Radius (Geofence)",
-                geofenceHint: "You'll be alerted if the car leaves this security perimeter.",
-                chipTitle: "CHIP MONITORING",
-                alertTitle: "SECURITY ALERTS",
-                noAlerts: "✅ No alerts.",
-                chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
-                chipNormal: "Normal",
-                chipWarning: "Warning",
-                chipCritical: "Critical",
-                alertVoltage: "Critical voltage: ",
-                alertTemp: "High temp: ",
-                alertErrors: "Errors: ",
-                mapTitle: "📍 GEOLOCATION",
-                latLabel: "Latitude",
-                lngLabel: "Longitude",
-                refLabel: "Reference",
-                precLabel: "Accuracy",
-                refAddr: "222 Reforma Ave, Mexico City",
-                precValue: "10 ft (GPS + WiFi)",
-                btnUpdateLoc: "REFRESH",
-                btnShareLoc: "SHARE",
-                btnNavigate: "NAVIGATE TO CAR",
-                rangeUnit: "ft",
-                rangeMin: "33ft",
-                rangeMax: "330ft",
-                settingsTitle: "SETTINGS",
-                closeSettings: "CLOSE",
-                saveSettings: "SAVE",
-                shareAlert: "📍 Copied to clipboard",
-                settingsSaved: "✅ Settings saved",
-                promoTitle: " WANT MORE CONTROL?",
-                promoDesc: "Choose the plan that best suits your needs:",
-                promoPremium: "🥈 PREMIUM $29.99 USD/mo",
-                promoPlatinum: "👑 PLATINUM $49.99 USD/mo",
-                footer: "All Rights Reserved"
-            }
-        };
 
-        let isSpanish = true;
-        let userSettings = JSON.parse(localStorage.getItem('itzli_free_settings') || '{}');
-        if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
-        if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
-        if (!userSettings.geofenceRadius) userSettings.geofenceRadius = 50;
-        let countdown = 5;
+            // ═══════════════ VARIABLES ═══════════════
+            let isSpanish = true;
+            let userSettings = JSON.parse(localStorage.getItem('itzli_free_settings') || '{}');
+            if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
+            if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
+            if (!userSettings.geofenceRadius) userSettings.geofenceRadius = 50;
+            let countdown = 5;
 
-        // ============================================================
-        // FUNCIÓN PRINCIPAL PARA APLICAR IDIOMA Y RENDERIZAR TODO
-        // ============================================================
-        function applyLanguage() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            
-            document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
-            document.getElementById('txtSubtitle').textContent = d.subtitle;
-            document.getElementById('txtBadge').textContent = d.badge;
-            document.getElementById('txtLogout').textContent = d.logoutBtn;
-            document.getElementById('txtSecure').textContent = d.secure;
-            document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--green);">FREE-21E41421...</strong>';
-            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown" style="color:var(--gold);">' + countdown + 's</strong>';
-            document.getElementById('txtChips').innerHTML = d.chipsLabel + ' <strong style="color:var(--cyan);">12</strong>';
-            document.getElementById('txtConfigTitle').textContent = d.configTitle;
-            document.getElementById('txtHomeLabel').textContent = d.homeLabel;
-            document.getElementById('txtGeofenceLabel').textContent = d.geofenceLabel;
-            document.getElementById('txtGeofenceHint').textContent = d.geofenceHint;
-            document.getElementById('txtRangeMin').textContent = d.rangeMin;
-            document.getElementById('txtRangeMax').textContent = d.rangeMax;
-            document.getElementById('txtChipTitle').textContent = d.chipTitle;
-            document.getElementById('txtAlertTitle').textContent = d.alertTitle;
-            document.getElementById('txtMapTitle').textContent = d.mapTitle;
-            document.getElementById('txtLat').textContent = d.latLabel;
-            document.getElementById('txtLng').textContent = d.lngLabel;
-            document.getElementById('txtRef').textContent = d.refLabel;
-            document.getElementById('txtPrec').textContent = d.precLabel;
-            document.getElementById('refAddress').textContent = d.refAddr;
-            document.getElementById('precValue').textContent = d.precValue;
-            document.getElementById('spanUpdateLoc').textContent = d.btnUpdateLoc;
-            document.getElementById('spanShareLoc').textContent = d.btnShareLoc;
-            document.getElementById('spanNavigate').textContent = d.btnNavigate;
-            document.getElementById('txtSettingsTitle').textContent = d.settingsTitle;
-            document.getElementById('txtSaveSettings').textContent = d.saveSettings;
-            document.getElementById('txtPromoTitle').textContent = d.promoTitle;
-            document.getElementById('txtPromoDesc').textContent = d.promoDesc;
-            document.getElementById('txtPromoPremium').textContent = d.promoPremium;
-            document.getElementById('txtPromoPlatinum').textContent = d.promoPlatinum;
-            document.getElementById('txtFooter').textContent = d.footer;
-            
-            updateRangeDisplay();
-            // FORZAR RENDERIZADO DE CHIPS Y ALERTAS con el idioma actual
-            renderChips();
-            renderAlerts();
-        }
+            const chips = [
+                { id:"0x7E0", icon:"", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"⚠️ Voltaje descendente" },
+                { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"🔴 CRÍTICO" },
+                { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"⚠️ Voltaje bajo" },
+                { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
+            ];
+            let alertLog = [];
 
-        function toggleLang() {
-            isSpanish = !isSpanish;
-            applyLanguage();
-        }
+            let map = null, marker = null, mapInitialized = false;
+            let currentLat = 19.4326, currentLng = -99.1332;
 
-        function updateRangeDisplay() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const val = parseInt(document.getElementById('geofenceRange').value);
-            const displayVal = isSpanish ? val : Math.round(val * 3.28084);
-            document.getElementById('rangeValue').textContent = displayVal + d.rangeUnit;
-        }
+            // ═══════════════ FUNCIÓN DE AUTENTICACIÓN (INTEGRADA) ═══════════════
+            async function requireAuth(planRequerido) {
+                try {
+                    const { data: { user }, error } = await supabase.auth.getUser();
+                    if (error || !user) {
+                        window.location.href = 'login.html';
+                        return null;
+                    }
 
-        function updateConfig() {
-            userSettings.homeAddress = document.getElementById('homeAddress').value;
-            userSettings.geofenceRadius = parseInt(document.getElementById('geofenceRange').value);
-            localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
-            document.getElementById('refAddress').textContent = userSettings.homeAddress;
-        }
+                    const { data: userData, error: fetchError } = await supabase
+                        .from('usuarios')
+                        .select('plan, role')
+                        .eq('id', user.id)
+                        .single();
 
-        // ═══════════════ CHIPS Y ALERTAS ═══════════════
-        const chips = [
-            { id:"0x7E0", icon:"", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"⚠️ Voltaje descendente" },
-            { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"🔴 CRÍTICO" },
-            { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"⚠️ Voltaje bajo" },
-            { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
-        ];
-        
-        let alertLog = [];
+                    if (fetchError || !userData) {
+                        window.location.href = 'login.html';
+                        return null;
+                    }
 
-        function renderChips() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const grid = document.getElementById('chipGrid');
-            if (!grid) {
-                console.warn('⚠️ chipGrid no encontrado');
-                return;
-            }
-            // Asegurar que chipNames existe
-            if (!d.chipNames || d.chipNames.length === 0) {
-                console.error('❌ chipNames no definido en el idioma actual');
-                grid.innerHTML = '<p style="color:var(--red);">Error al cargar chips</p>';
-                return;
-            }
-            chips.forEach(chip => analyzePatterns(chip));
-            grid.innerHTML = chips.map((chip, index) => {
-                const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
-                const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
-                return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
-                    <div class="chip-top">
-                        <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index] || chip.id}</span></div>
-                        <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
-                    </div>
-                    <div class="chip-metrics">
-                        <span>⚡ <span class="val">${chip.voltage}V</span></span>
-                        <span>🌡️ <span class="val">${chip.temp}°C</span></span>
-                        <span>🔄 <span class="val">${chip.syncs}</span></span>
-                    </div>
-                    ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
-                    <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
-                </div>`;
-            }).join('');
-        }
+                    if (userData.role === 'admin') {
+                        return user;
+                    }
 
-        function toggleChip(id) { 
-            const el = document.getElementById('chip-' + id);
-            if (el) el.classList.toggle('expanded');
-        }
-        
-        function analyzePatterns(chip) {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); }
-            if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); }
-            if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertErrors + chip.errors); }
-        }
-        
-        function addAlert(chip, nivel, mensaje) {
-            const exists = alertLog.find(a => a.chip === chip.id && a.mensaje === mensaje);
-            if (!exists) { alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chip.id, icon: chip.icon, nivel, mensaje }); }
-        }
-        
-        function renderAlerts() {
-            const container = document.getElementById('alertList');
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (!container) return;
-            if (alertLog.length === 0) { 
-                container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`; 
-                return; 
-            }
-            container.innerHTML = alertLog.map(a => 
-                `<div class="alert-item ${a.nivel}"><div class="icon">${a.icon}</div><div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div></div>`
-            ).join('');
-        }
+                    // Si el plan requerido es 'free' y el usuario tiene otro plan, redirigir
+                    if (planRequerido === 'free' && userData.plan !== 'demo' && userData.plan !== 'free') {
+                        const redirectMap = {
+                            'demo': 'demo-registro.html',
+                            'premium': 'itzli-premium.html',
+                            'platinum': 'itzli-platinum.html'
+                        };
+                        window.location.href = redirectMap[userData.plan] || 'login.html';
+                        return null;
+                    }
 
-        // ═══════════════ MAPA ═══════════════
-        let map = null, marker = null, mapInitialized = false;
-        let currentLat = 19.4326, currentLng = -99.1332;
+                    // Si el plan requerido es específico y no coincide
+                    if (planRequerido !== 'free' && userData.plan !== planRequerido) {
+                        const redirectMap = {
+                            'demo': 'demo-registro.html',
+                            'premium': 'itzli-premium.html',
+                            'platinum': 'itzli-platinum.html'
+                        };
+                        window.location.href = redirectMap[userData.plan] || 'login.html';
+                        return null;
+                    }
 
-        function initMap() {
-            if (mapInitialized) {
-                // Si ya está inicializado, solo redimensionar
-                if (map) {
-                    setTimeout(() => map.invalidateSize(), 100);
+                    return user;
+                } catch (err) {
+                    console.error('Error en autenticación:', err);
+                    window.location.href = 'login.html';
+                    return null;
                 }
-                return;
             }
-            const mapElement = document.getElementById('map');
-            if (!mapElement) {
-                console.warn('⚠️ Elemento #map no encontrado');
-                return;
-            }
-            // Verificar que el contenedor tenga tamaño
-            if (mapElement.offsetHeight === 0 || mapElement.offsetWidth === 0) {
-                console.warn('⚠️ El contenedor #map aún no tiene tamaño, reintentando...');
-                setTimeout(initMap, 300);
-                return;
-            }
-            mapInitialized = true;
-            try {
-                map = L.map('map', { 
-                    center: [currentLat, currentLng], 
-                    zoom: 17, 
-                    zoomControl: true,
-                    attributionControl: false
-                });
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { 
-                    attribution: 'Esri', 
-                    maxZoom: 19 
-                }).addTo(map);
-                marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 Your car is here</strong>');
-                L.circle([currentLat, currentLng], { 
-                    color: '#00ff88', 
-                    fillColor: '#00ff88', 
-                    fillOpacity: 0.15, 
-                    radius: 30 
-                }).addTo(map);
-                // Forzar redimensionamiento después de un breve retraso
-                setTimeout(() => map.invalidateSize(), 200);
-                console.log('✅ Mapa inicializado correctamente');
-            } catch (err) {
-                console.error('❌ Error al inicializar el mapa:', err);
-                mapElement.innerHTML = '<p style="color:var(--red);text-align:center;padding:20px;">Error al cargar el mapa. Recarga la página.</p>';
-            }
-        }
 
-        function updateLocation() {
-            currentLat += (Math.random() - 0.5) * 0.001; 
-            currentLng += (Math.random() - 0.5) * 0.001;
-            document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
-            document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
-            if (marker && map) { 
-                marker.setLatLng([currentLat, currentLng]); 
-                map.setView([currentLat, currentLng], 17); 
-            }
-        }
-
-        function shareLocation() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const loc = `📍 My car: https://www.google.com/maps?q=${currentLat},${currentLng}`;
-            if (navigator.share) { navigator.share({ title: '📍 Location', text: loc }); }
-            else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
-        }
-
-        function navigateToCar() { 
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); 
-        }
-
-        // ═══════════════ CONFIGURACIÓN ═══════════════
-        function openSettings() {
-            document.getElementById('settingsModal').classList.add('active');
-            document.getElementById('settingsHomeAddress').value = userSettings.homeAddress;
-            document.getElementById('settingsWorkAddress').value = userSettings.workAddress;
-        }
-
-        function closeSettings() { 
-            document.getElementById('settingsModal').classList.remove('active'); 
-        }
-
-        function saveSettings() {
-            userSettings.homeAddress = document.getElementById('settingsHomeAddress').value;
-            userSettings.workAddress = document.getElementById('settingsWorkAddress').value;
-            localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
-            document.getElementById('refAddress').textContent = userSettings.homeAddress;
-            alert(langData[isSpanish ? 'es' : 'en'].settingsSaved);
-            closeSettings();
-        }
-
-        // ═══════════════ LOGOUT REAL (CORREGIDO) ═══════════════
-        async function logout() {
-            if (typeof supabase !== 'undefined' && supabase.auth) {
+            // ═══════════════ LOGOUT ═══════════════
+            async function logout() {
                 await supabase.auth.signOut();
+                window.location.href = 'login.html';
             }
-            window.location.href = 'login.html';
-        }
 
-        // ═══════════════ SIMULACIÓN ═══════════════
-        function simulateUpdate() {
-            chips.forEach(chip => {
-                chip.voltage += (Math.random() - 0.5) * 0.2; 
-                chip.voltage = Math.round(chip.voltage * 10) / 10;
-                chip.temp += (Math.random() - 0.5) * 1; 
-                chip.temp = Math.round(chip.temp);
-                chip.vH.push(chip.voltage); 
-                chip.tH.push(chip.temp);
-                if (chip.vH.length > 10) chip.vH.shift(); 
-                if (chip.tH.length > 10) chip.tH.shift();
-                if (Math.random() > 0.95) chip.errors++; 
-                chip.syncs += Math.floor(Math.random() * 10);
+            // ═══════════════ IDIOMA ═══════════════
+            function toggleLang() {
+                isSpanish = !isSpanish;
+                applyLanguage();
+            }
+
+            function applyLanguage() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+                document.getElementById('txtSubtitle').textContent = d.subtitle;
+                document.getElementById('txtBadge').textContent = d.badge;
+                document.getElementById('txtLogout').textContent = d.logoutBtn;
+                document.getElementById('txtSecure').textContent = d.secure;
+                document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--green);">FREE-21E41421...</strong>';
+                document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown" style="color:var(--gold);">' + countdown + 's</strong>';
+                document.getElementById('txtChips').innerHTML = d.chipsLabel + ' <strong style="color:var(--cyan);">12</strong>';
+                document.getElementById('txtConfigTitle').textContent = d.configTitle;
+                document.getElementById('txtHomeLabel').textContent = d.homeLabel;
+                document.getElementById('txtGeofenceLabel').textContent = d.geofenceLabel;
+                document.getElementById('txtGeofenceHint').textContent = d.geofenceHint;
+                document.getElementById('txtRangeMin').textContent = d.rangeMin;
+                document.getElementById('txtRangeMax').textContent = d.rangeMax;
+                document.getElementById('txtChipTitle').textContent = d.chipTitle;
+                document.getElementById('txtAlertTitle').textContent = d.alertTitle;
+                document.getElementById('txtMapTitle').textContent = d.mapTitle;
+                document.getElementById('txtLat').textContent = d.latLabel;
+                document.getElementById('txtLng').textContent = d.lngLabel;
+                document.getElementById('txtRef').textContent = d.refLabel;
+                document.getElementById('txtPrec').textContent = d.precLabel;
+                document.getElementById('refAddress').textContent = d.refAddr;
+                document.getElementById('precValue').textContent = d.precValue;
+                document.getElementById('spanUpdateLoc').textContent = d.btnUpdateLoc;
+                document.getElementById('spanShareLoc').textContent = d.btnShareLoc;
+                document.getElementById('spanNavigate').textContent = d.btnNavigate;
+                document.getElementById('txtSettingsTitle').textContent = d.settingsTitle;
+                document.getElementById('txtSaveSettings').textContent = d.saveSettings;
+                document.getElementById('txtPromoTitle').textContent = d.promoTitle;
+                document.getElementById('txtPromoDesc').textContent = d.promoDesc;
+                document.getElementById('txtPromoPremium').textContent = d.promoPremium;
+                document.getElementById('txtPromoPlatinum').textContent = d.promoPlatinum;
+                document.getElementById('txtFooter').textContent = d.footer;
+                updateRangeDisplay();
+                renderChips();
+                renderAlerts();
+            }
+
+            function updateRangeDisplay() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const val = parseInt(document.getElementById('geofenceRange').value);
+                const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+                document.getElementById('rangeValue').textContent = displayVal + d.rangeUnit;
+            }
+
+            function updateConfig() {
+                userSettings.homeAddress = document.getElementById('homeAddress').value;
+                userSettings.geofenceRadius = parseInt(document.getElementById('geofenceRange').value);
+                localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
+                document.getElementById('refAddress').textContent = userSettings.homeAddress;
+            }
+
+            // ═══════════════ CHIPS Y ALERTAS ═══════════════
+            function renderChips() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const grid = document.getElementById('chipGrid');
+                if (!grid) return;
+                chips.forEach(chip => analyzePatterns(chip));
+                grid.innerHTML = chips.map((chip, index) => {
+                    const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
+                    const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
+                    return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
+                        <div class="chip-top">
+                            <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
+                            <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
+                        </div>
+                        <div class="chip-metrics">
+                            <span>⚡ <span class="val">${chip.voltage}V</span></span>
+                            <span>🌡️ <span class="val">${chip.temp}°C</span></span>
+                            <span>🔄 <span class="val">${chip.syncs}</span></span>
+                        </div>
+                        ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
+                        <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            function toggleChip(id) {
+                const el = document.getElementById('chip-' + id);
+                if (el) el.classList.toggle('expanded');
+            }
+
+            function analyzePatterns(chip) {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                if (chip.vH.length >= 4 && chip.voltage < 10.5) {
+                    chip.nivel = "critical";
+                    addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V");
+                }
+                if (chip.tH.length >= 4 && chip.temp > 50) {
+                    chip.nivel = "critical";
+                    addAlert(chip, "critical", d.alertTemp + chip.temp + "°C");
+                }
+                if (chip.errors >= 5) {
+                    chip.nivel = "critical";
+                    addAlert(chip, "critical", d.alertErrors + chip.errors);
+                }
+            }
+
+            function addAlert(chip, nivel, mensaje) {
+                const exists = alertLog.find(a => a.chip === chip.id && a.mensaje === mensaje);
+                if (!exists) {
+                    alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chip.id, icon: chip.icon, nivel, mensaje });
+                }
+            }
+
+            function renderAlerts() {
+                const container = document.getElementById('alertList');
+                const d = langData[isSpanish ? 'es' : 'en'];
+                if (!container) return;
+                if (alertLog.length === 0) {
+                    container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
+                    return;
+                }
+                container.innerHTML = alertLog.map(a =>
+                    `<div class="alert-item ${a.nivel}"><div class="icon">${a.icon}</div><div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div></div>`
+                ).join('');
+            }
+
+            // ═══════════════ MAPA ═══════════════
+            function initMap() {
+                if (mapInitialized) {
+                    if (map) setTimeout(() => map.invalidateSize(), 100);
+                    return;
+                }
+                const mapElement = document.getElementById('map');
+                if (!mapElement) return;
+                if (mapElement.offsetHeight === 0 || mapElement.offsetWidth === 0) {
+                    setTimeout(initMap, 300);
+                    return;
+                }
+                mapInitialized = true;
+                try {
+                    map = L.map('map', {
+                        center: [currentLat, currentLng],
+                        zoom: 17,
+                        zoomControl: true,
+                        attributionControl: false
+                    });
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: 'Esri',
+                        maxZoom: 19
+                    }).addTo(map);
+                    marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 Your car is here</strong>');
+                    L.circle([currentLat, currentLng], {
+                        color: '#00ff88',
+                        fillColor: '#00ff88',
+                        fillOpacity: 0.15,
+                        radius: 30
+                    }).addTo(map);
+                    setTimeout(() => map.invalidateSize(), 200);
+                    console.log('✅ Mapa inicializado correctamente');
+                } catch (err) {
+                    console.error('❌ Error al inicializar el mapa:', err);
+                    mapElement.innerHTML = '<p style="color:var(--red);text-align:center;padding:20px;">Error al cargar el mapa. Recarga la página.</p>';
+                }
+            }
+
+            function updateLocation() {
+                currentLat += (Math.random() - 0.5) * 0.001;
+                currentLng += (Math.random() - 0.5) * 0.001;
+                document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
+                document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
+                if (marker && map) {
+                    marker.setLatLng([currentLat, currentLng]);
+                    map.setView([currentLat, currentLng], 17);
+                }
+            }
+
+            function shareLocation() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const loc = `📍 My car: https://www.google.com/maps?q=${currentLat},${currentLng}`;
+                if (navigator.share) navigator.share({ title: '📍 Location', text: loc });
+                else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
+            }
+
+            function navigateToCar() {
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank');
+            }
+
+            // ═══════════════ CONFIGURACIÓN ═══════════════
+            function openSettings() {
+                document.getElementById('settingsModal').classList.add('active');
+                document.getElementById('settingsHomeAddress').value = userSettings.homeAddress;
+                document.getElementById('settingsWorkAddress').value = userSettings.workAddress;
+            }
+
+            function closeSettings() {
+                document.getElementById('settingsModal').classList.remove('active');
+            }
+
+            function saveSettings() {
+                userSettings.homeAddress = document.getElementById('settingsHomeAddress').value;
+                userSettings.workAddress = document.getElementById('settingsWorkAddress').value;
+                localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
+                document.getElementById('refAddress').textContent = userSettings.homeAddress;
+                alert(langData[isSpanish ? 'es' : 'en'].settingsSaved);
+                closeSettings();
+            }
+
+            // ═══════════════ SIMULACIÓN ═══════════════
+            function simulateUpdate() {
+                chips.forEach(chip => {
+                    chip.voltage += (Math.random() - 0.5) * 0.2;
+                    chip.voltage = Math.round(chip.voltage * 10) / 10;
+                    chip.temp += (Math.random() - 0.5) * 1;
+                    chip.temp = Math.round(chip.temp);
+                    chip.vH.push(chip.voltage);
+                    chip.tH.push(chip.temp);
+                    if (chip.vH.length > 10) chip.vH.shift();
+                    if (chip.tH.length > 10) chip.tH.shift();
+                    if (Math.random() > 0.95) chip.errors++;
+                    chip.syncs += Math.floor(Math.random() * 10);
+                });
+                renderChips();
+                renderAlerts();
+            }
+
+            // ═══════════════ INICIALIZACIÓN ═══════════════
+            setInterval(() => {
+                countdown--;
+                if (countdown <= 0) countdown = 5;
+                const el = document.getElementById('countdown');
+                if (el) el.textContent = countdown + 's';
+                document.getElementById('currentTime').textContent = new Date().toLocaleString();
+            }, 1000);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeSettings();
             });
-            renderChips(); 
-            renderAlerts();
-        }
+            document.getElementById('settingsModal').addEventListener('click', function(e) {
+                if (e.target === this) closeSettings();
+            });
 
-        // ═══════════════ INICIALIZACIÓN PROTEGIDA ═══════════════
-        setInterval(() => { 
-            countdown--; 
-            if (countdown <= 0) countdown = 5; 
-            const el = document.getElementById('countdown'); 
-            if (el) el.textContent = countdown + 's'; 
-            document.getElementById('currentTime').textContent = new Date().toLocaleString(); 
-        }, 1000);
-        
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeSettings(); } });
-        document.getElementById('settingsModal').addEventListener('click', function(e) { if(e.target === this) closeSettings(); });
+            async function init() {
+                applyLanguage();
 
-        async function init() {
-            // Aplicar idioma inicial (español por defecto)
-            applyLanguage();
-            
-            // Verificar autenticación
-            try {
-                const user = await requirePlan('free');
-                if (user) {
-                    document.getElementById('btnLogout').style.display = 'inline-block';
-                    updateStatusDot('online');
-                } else {
-                    // Si no autenticado, mostrar estado offline pero igual renderizar todo
+                try {
+                    const user = await requireAuth('free');
+                    if (user) {
+                        document.getElementById('btnLogout').style.display = 'inline-block';
+                        updateStatusDot('online');
+                    } else {
+                        updateStatusDot('offline');
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Error en autenticación:', err.message);
                     updateStatusDot('offline');
                 }
-            } catch (err) {
-                console.warn('⚠️ Error en autenticación:', err.message);
-                updateStatusDot('offline');
+
+                document.getElementById('homeAddress').value = userSettings.homeAddress;
+                document.getElementById('geofenceRange').value = userSettings.geofenceRadius;
+                updateRangeDisplay();
+                renderChips();
+                renderAlerts();
+                setTimeout(initMap, 500);
+                setTimeout(() => {
+                    if (!mapInitialized) initMap();
+                }, 2000);
+                setInterval(simulateUpdate, 15000);
             }
 
-            // Cargar configuración guardada
-            document.getElementById('homeAddress').value = userSettings.homeAddress;
-            document.getElementById('geofenceRange').value = userSettings.geofenceRadius;
-            updateRangeDisplay();
-            
-            // Renderizar chips y alertas (ya se llamaron en applyLanguage, pero por si acaso)
-            renderChips();
-            renderAlerts();
-            
-            // Inicializar mapa con reintentos
-            setTimeout(initMap, 500);
-            // Reintentar si falla después de 2 segundos
-            setTimeout(() => {
-                if (!mapInitialized) {
-                    console.warn('⚠️ Reintentando inicializar mapa...');
-                    initMap();
-                }
-            }, 2000);
-            
-            // Simulación periódica
-            setInterval(simulateUpdate, 15000);
-        }
+            function updateStatusDot(status) {
+                const dot = document.getElementById('statusDot');
+                dot.className = 'dot';
+                if (status === 'online') dot.classList.add('dot-green');
+                else dot.classList.add('dot-red');
+                const d = langData[isSpanish ? 'es' : 'en'];
+                document.getElementById('txtSecure').innerText = status === 'online' ? d.secure : 'DESCONECTADO';
+            }
 
-        function updateStatusDot(status) {
-            const dot = document.getElementById('statusDot');
-            dot.className = 'dot';
-            if(status === 'online') dot.classList.add('dot-green');
-            else dot.classList.add('dot-red');
-            const d = langData[isSpanish ? 'es' : 'en'];
-            document.getElementById('txtSecure').innerText = status === 'online' ? d.secure : 'DESCONECTADO';
-        }
+            window.toggleLang = toggleLang;
+            window.logout = logout;
+            window.openSettings = openSettings;
+            window.closeSettings = closeSettings;
+            window.saveSettings = saveSettings;
+            window.updateLocation = updateLocation;
+            window.shareLocation = shareLocation;
+            window.navigateToCar = navigateToCar;
+            window.toggleChip = toggleChip;
+            window.updateRangeDisplay = updateRangeDisplay;
+            window.updateConfig = updateConfig;
 
-        // Iniciar cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
     </script>
 </body>
 </html>
