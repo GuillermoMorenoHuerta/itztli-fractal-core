@@ -130,7 +130,15 @@
         .alert-item.critical { border-left-color: var(--red); background: rgba(255,68,102,0.08); }
         .alert-item .time { color: var(--dim); font-size: 10px; margin-top: 2px; }
         
-        #map { height: 280px; width: 100%; border-radius: 12px; border: 1px solid var(--border); margin: 10px 0; background: #0d1424; }
+        #map { 
+            height: 280px; 
+            width: 100%; 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            margin: 10px 0; 
+            background: #0d1424; 
+            min-height: 200px; /* Asegura que tenga altura aunque tarde en cargar */
+        }
         .location-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
         .location-info .item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; }
         .location-info .item strong { color: var(--green); display: block; font-size: 10px; margin-bottom: 2px; }
@@ -205,7 +213,7 @@
         
         @media (max-width: 600px) {
             .chip-grid { grid-template-columns: 1fr 1fr; }
-            #map { height: 200px; }
+            #map { height: 200px; min-height: 150px; }
         }
     </style>
 </head>
@@ -315,7 +323,25 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="auth.js"></script>
+    
+    <!-- Cargar auth.js de forma opcional (si no existe, no falla) -->
+    <script>
+        (function loadAuth() {
+            const script = document.createElement('script');
+            script.src = 'auth.js';
+            script.onerror = function() {
+                console.warn('⚠️ auth.js no encontrado. Modo demo sin autenticación.');
+                // Definir funciones dummy si no existen
+                if (typeof requirePlan === 'undefined') {
+                    window.requirePlan = function() { return Promise.resolve(null); };
+                }
+                if (typeof supabase === 'undefined') {
+                    window.supabase = { auth: { signOut: function() { return Promise.resolve(); } } };
+                }
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
     
     <script>
         // ═══════════════ REGISTRAR SERVICE WORKER (PWA) ═══════════════
@@ -428,8 +454,10 @@
         if (!userSettings.geofenceRadius) userSettings.geofenceRadius = 50;
         let countdown = 5;
 
-        function toggleLang() {
-            isSpanish = !isSpanish;
+        // ============================================================
+        // FUNCIÓN PRINCIPAL PARA APLICAR IDIOMA Y RENDERIZAR TODO
+        // ============================================================
+        function applyLanguage() {
             const d = langData[isSpanish ? 'es' : 'en'];
             
             document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
@@ -467,8 +495,14 @@
             document.getElementById('txtFooter').textContent = d.footer;
             
             updateRangeDisplay();
+            // FORZAR RENDERIZADO DE CHIPS Y ALERTAS con el idioma actual
             renderChips();
             renderAlerts();
+        }
+
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            applyLanguage();
         }
 
         function updateRangeDisplay() {
@@ -505,13 +539,24 @@
 
         function renderChips() {
             const d = langData[isSpanish ? 'es' : 'en'];
+            const grid = document.getElementById('chipGrid');
+            if (!grid) {
+                console.warn('⚠️ chipGrid no encontrado');
+                return;
+            }
+            // Asegurar que chipNames existe
+            if (!d.chipNames || d.chipNames.length === 0) {
+                console.error('❌ chipNames no definido en el idioma actual');
+                grid.innerHTML = '<p style="color:var(--red);">Error al cargar chips</p>';
+                return;
+            }
             chips.forEach(chip => analyzePatterns(chip));
-            document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
+            grid.innerHTML = chips.map((chip, index) => {
                 const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
                 const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
                 return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
                     <div class="chip-top">
-                        <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
+                        <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index] || chip.id}</span></div>
                         <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
                     </div>
                     <div class="chip-metrics">
@@ -525,7 +570,10 @@
             }).join('');
         }
 
-        function toggleChip(id) { document.getElementById('chip-' + id).classList.toggle('expanded'); }
+        function toggleChip(id) { 
+            const el = document.getElementById('chip-' + id);
+            if (el) el.classList.toggle('expanded');
+        }
         
         function analyzePatterns(chip) {
             const d = langData[isSpanish ? 'es' : 'en'];
@@ -540,9 +588,16 @@
         }
         
         function renderAlerts() {
-            const container = document.getElementById('alertList'), d = langData[isSpanish ? 'es' : 'en'];
-            if (alertLog.length === 0) { container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`; return; }
-            container.innerHTML = alertLog.map(a => `<div class="alert-item ${a.nivel}"><div class="icon">${a.icon}</div><div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div></div>`).join('');
+            const container = document.getElementById('alertList');
+            const d = langData[isSpanish ? 'es' : 'en'];
+            if (!container) return;
+            if (alertLog.length === 0) { 
+                container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`; 
+                return; 
+            }
+            container.innerHTML = alertLog.map(a => 
+                `<div class="alert-item ${a.nivel}"><div class="icon">${a.icon}</div><div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div></div>`
+            ).join('');
         }
 
         // ═══════════════ MAPA ═══════════════
@@ -550,21 +605,61 @@
         let currentLat = 19.4326, currentLng = -99.1332;
 
         function initMap() {
-            if (mapInitialized) { setTimeout(() => { if(map) map.invalidateSize(); }, 100); return; }
-            const d = document.getElementById('map'); if (!d || d.offsetHeight === 0) { setTimeout(initMap, 300); return; }
+            if (mapInitialized) {
+                // Si ya está inicializado, solo redimensionar
+                if (map) {
+                    setTimeout(() => map.invalidateSize(), 100);
+                }
+                return;
+            }
+            const mapElement = document.getElementById('map');
+            if (!mapElement) {
+                console.warn('⚠️ Elemento #map no encontrado');
+                return;
+            }
+            // Verificar que el contenedor tenga tamaño
+            if (mapElement.offsetHeight === 0 || mapElement.offsetWidth === 0) {
+                console.warn('⚠️ El contenedor #map aún no tiene tamaño, reintentando...');
+                setTimeout(initMap, 300);
+                return;
+            }
             mapInitialized = true;
-            map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri', maxZoom: 19 }).addTo(map);
-            marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 Your car is here</strong>');
-            L.circle([currentLat, currentLng], { color: '#00ff88', fillColor: '#00ff88', fillOpacity: 0.15, radius: 30 }).addTo(map);
-            setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+            try {
+                map = L.map('map', { 
+                    center: [currentLat, currentLng], 
+                    zoom: 17, 
+                    zoomControl: true,
+                    attributionControl: false
+                });
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { 
+                    attribution: 'Esri', 
+                    maxZoom: 19 
+                }).addTo(map);
+                marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 Your car is here</strong>');
+                L.circle([currentLat, currentLng], { 
+                    color: '#00ff88', 
+                    fillColor: '#00ff88', 
+                    fillOpacity: 0.15, 
+                    radius: 30 
+                }).addTo(map);
+                // Forzar redimensionamiento después de un breve retraso
+                setTimeout(() => map.invalidateSize(), 200);
+                console.log('✅ Mapa inicializado correctamente');
+            } catch (err) {
+                console.error('❌ Error al inicializar el mapa:', err);
+                mapElement.innerHTML = '<p style="color:var(--red);text-align:center;padding:20px;">Error al cargar el mapa. Recarga la página.</p>';
+            }
         }
 
         function updateLocation() {
-            currentLat += (Math.random() - 0.5) * 0.001; currentLng += (Math.random() - 0.5) * 0.001;
+            currentLat += (Math.random() - 0.5) * 0.001; 
+            currentLng += (Math.random() - 0.5) * 0.001;
             document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
             document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
-            if (marker && map) { marker.setLatLng([currentLat, currentLng]); map.setView([currentLat, currentLng], 17); }
+            if (marker && map) { 
+                marker.setLatLng([currentLat, currentLng]); 
+                map.setView([currentLat, currentLng], 17); 
+            }
         }
 
         function shareLocation() {
@@ -574,7 +669,9 @@
             else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
         }
 
-        function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
+        function navigateToCar() { 
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); 
+        }
 
         // ═══════════════ CONFIGURACIÓN ═══════════════
         function openSettings() {
@@ -583,7 +680,9 @@
             document.getElementById('settingsWorkAddress').value = userSettings.workAddress;
         }
 
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+        function closeSettings() { 
+            document.getElementById('settingsModal').classList.remove('active'); 
+        }
 
         function saveSettings() {
             userSettings.homeAddress = document.getElementById('settingsHomeAddress').value;
@@ -594,28 +693,38 @@
             closeSettings();
         }
 
-        // ═══════════════ LOGOUT REAL ═══════════════
+        // ═══════════════ LOGOUT REAL (CORREGIDO) ═══════════════
         async function logout() {
-            await supabaseAuth.auth.signOut();
+            if (typeof supabase !== 'undefined' && supabase.auth) {
+                await supabase.auth.signOut();
+            }
             window.location.href = 'login.html';
         }
 
         // ═══════════════ SIMULACIÓN ═══════════════
         function simulateUpdate() {
             chips.forEach(chip => {
-                chip.voltage += (Math.random() - 0.5) * 0.2; chip.voltage = Math.round(chip.voltage * 10) / 10;
-                chip.temp += (Math.random() - 0.5) * 1; chip.temp = Math.round(chip.temp);
-                chip.vH.push(chip.voltage); chip.tH.push(chip.temp);
-                if (chip.vH.length > 10) chip.vH.shift(); if (chip.tH.length > 10) chip.tH.shift();
-                if (Math.random() > 0.95) chip.errors++; chip.syncs += Math.floor(Math.random() * 10);
+                chip.voltage += (Math.random() - 0.5) * 0.2; 
+                chip.voltage = Math.round(chip.voltage * 10) / 10;
+                chip.temp += (Math.random() - 0.5) * 1; 
+                chip.temp = Math.round(chip.temp);
+                chip.vH.push(chip.voltage); 
+                chip.tH.push(chip.temp);
+                if (chip.vH.length > 10) chip.vH.shift(); 
+                if (chip.tH.length > 10) chip.tH.shift();
+                if (Math.random() > 0.95) chip.errors++; 
+                chip.syncs += Math.floor(Math.random() * 10);
             });
-            renderChips(); renderAlerts();
+            renderChips(); 
+            renderAlerts();
         }
 
         // ═══════════════ INICIALIZACIÓN PROTEGIDA ═══════════════
         setInterval(() => { 
-            countdown--; if (countdown <= 0) countdown = 5; 
-            const el = document.getElementById('countdown'); if (el) el.textContent = countdown + 's'; 
+            countdown--; 
+            if (countdown <= 0) countdown = 5; 
+            const el = document.getElementById('countdown'); 
+            if (el) el.textContent = countdown + 's'; 
             document.getElementById('currentTime').textContent = new Date().toLocaleString(); 
         }, 1000);
         
@@ -623,18 +732,44 @@
         document.getElementById('settingsModal').addEventListener('click', function(e) { if(e.target === this) closeSettings(); });
 
         async function init() {
-            // Verifica sesión y plan 'free' (o admin)
-            const user = await requirePlan('free');
-            if (!user) return;  // Ya redirigió
+            // Aplicar idioma inicial (español por defecto)
+            applyLanguage();
+            
+            // Verificar autenticación
+            try {
+                const user = await requirePlan('free');
+                if (user) {
+                    document.getElementById('btnLogout').style.display = 'inline-block';
+                    updateStatusDot('online');
+                } else {
+                    // Si no autenticado, mostrar estado offline pero igual renderizar todo
+                    updateStatusDot('offline');
+                }
+            } catch (err) {
+                console.warn('⚠️ Error en autenticación:', err.message);
+                updateStatusDot('offline');
+            }
 
-            // Mostrar botón de logout (ya está visible desde el HTML)
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            updateStatusDot('online');
-
+            // Cargar configuración guardada
             document.getElementById('homeAddress').value = userSettings.homeAddress;
             document.getElementById('geofenceRange').value = userSettings.geofenceRadius;
             updateRangeDisplay();
-            renderChips(); renderAlerts(); setTimeout(initMap, 500);
+            
+            // Renderizar chips y alertas (ya se llamaron en applyLanguage, pero por si acaso)
+            renderChips();
+            renderAlerts();
+            
+            // Inicializar mapa con reintentos
+            setTimeout(initMap, 500);
+            // Reintentar si falla después de 2 segundos
+            setTimeout(() => {
+                if (!mapInitialized) {
+                    console.warn('⚠️ Reintentando inicializar mapa...');
+                    initMap();
+                }
+            }, 2000);
+            
+            // Simulación periódica
             setInterval(simulateUpdate, 15000);
         }
 
@@ -643,10 +778,16 @@
             dot.className = 'dot';
             if(status === 'online') dot.classList.add('dot-green');
             else dot.classList.add('dot-red');
-            document.getElementById('txtSecure').innerText = status === 'online' ? langData[isSpanish ? 'es' : 'en'].secure : 'DESCONECTADO';
+            const d = langData[isSpanish ? 'es' : 'en'];
+            document.getElementById('txtSecure').innerText = status === 'online' ? d.secure : 'DESCONECTADO';
         }
 
-        init();
+        // Iniciar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>

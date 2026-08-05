@@ -270,15 +270,27 @@
         }
         .promo-banner h3 { color: var(--purple-glow); font-size: 18px; margin-bottom: 10px; }
         .promo-banner p { color: var(--dim); font-size: 13px; margin-bottom: 15px; }
+        .promo-buttons {
+            display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;
+        }
         .btn-upgrade {
             display: inline-block;
-            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
-            color: #fff; padding: 14px 30px; border-radius: 30px;
+            padding: 14px 30px; border-radius: 30px;
             font-weight: bold; font-size: 14px; text-decoration: none;
             box-shadow: 0 0 30px rgba(139,92,246,0.5);
             transition: 0.3s;
         }
         .btn-upgrade:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(139,92,246,0.7); }
+        .btn-upgrade.premium {
+            background: linear-gradient(135deg, #00b4d8, #0099ff);
+            color: #fff;
+        }
+        .btn-upgrade.platinum {
+            background: linear-gradient(135deg, #f5c542, #ff6b35);
+            color: #000;
+        }
+        .btn-upgrade.premium:hover { box-shadow: 0 0 40px rgba(0,180,216,0.7); }
+        .btn-upgrade.platinum:hover { box-shadow: 0 0 40px rgba(245,197,66,0.7); }
         
         .footer { text-align: center; font-size: 11px; color: var(--dim); padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
         
@@ -286,6 +298,8 @@
             .chip-grid { grid-template-columns: 1fr 1fr; }
             .control-grid { grid-template-columns: 1fr 1fr; }
             #map { height: 200px; }
+            .promo-buttons { flex-direction: column; align-items: center; }
+            .btn-upgrade { width: 100%; max-width: 280px; }
         }
     </style>
 </head>
@@ -459,19 +473,22 @@
                 <button class="modal-close-btn" onclick="closeCloudModal()">✕ <span id="txtCloseCloud">CERRAR</span></button>
             </div>
             <div class="cloud-tabs">
-                <button class="cloud-tab active" onclick="switchCloudTab('frontal')">📹 <span id="txtTabFront">FRONTAL</span></button>
-                <button class="cloud-tab" onclick="switchCloudTab('trasera')">📹 <span id="txtTabRear">TRASERA</span></button>
-                <button class="cloud-tab" onclick="switchCloudTab('interior')">📹 <span id="txtTabInt">INTERIOR</span></button>
+                <button class="cloud-tab active" onclick="switchCloudTab('frontal', this)">📹 <span id="txtTabFront">FRONTAL</span></button>
+                <button class="cloud-tab" onclick="switchCloudTab('trasera', this)">📹 <span id="txtTabRear">TRASERA</span></button>
+                <button class="cloud-tab" onclick="switchCloudTab('interior', this)">📹 <span id="txtTabInt">INTERIOR</span></button>
             </div>
             <div id="cloudVideoList"><p style="color:var(--dim);text-align:center;">Cargando...</p></div>
         </div>
     </div>
 
-    <!-- PROMO -->
+    <!-- PROMO CON DOS BOTONES REALES -->
     <div class="promo-banner">
         <h3 id="txtPromoTitle">🚀 ¿QUIERES CONTROL REAL?</h3>
-        <p id="txtPromoDesc">Actualiza a <strong>PREMIUM ($29.99 USD/mes)</strong> o <strong>PLATINUM ($49.99 USD/mes)</strong> y obtén control real, GPS en vivo, cámaras reales y rotación de claves cada 5 segundos.</p>
-        <a href="itzli-login.html" class="btn-upgrade" id="txtPromoBtn">⚡ VER PLANES REALES</a>
+        <p id="txtPromoDesc">Elige el plan que mejor se adapte a tus necesidades. Ambos incluyen rotación de claves cada 5 segundos y control real desde tu celular.</p>
+        <div class="promo-buttons">
+            <a href="itzli-premium.html" class="btn-upgrade premium" id="txtBtnPremium">🥈 PREMIUM $29.99 USD/mes</a>
+            <a href="itzli-platinum.html" class="btn-upgrade platinum" id="txtBtnPlatinum">👑 PLATINUM $49.99 USD/mes</a>
+        </div>
     </div>
 
     <div class="footer">
@@ -481,7 +498,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // ═══════════════ DICCIONARIO COMPLETO (con claves para la barra de estado) ═══════════════
+        // ═══════════════ DICCIONARIO COMPLETO (con nuevos textos para los botones) ═══════════════
         const langData = {
             es: {
                 subtitle: "Exhibición Completa — Todos los Controles",
@@ -552,9 +569,11 @@
                 loadingCloud: "Cargando videos simulados...",
                 noVideos: "📭 No hay grabaciones en esta cámara",
                 downloadBtn: "⬇ DESCARGAR (SIMULADO)",
+                // Textos nuevos para el banner de promoción
                 promoTitle: "🚀 ¿QUIERES CONTROL REAL?",
-                promoDesc: "Actualiza a <strong>PREMIUM ($29.99 USD/mes)</strong> o <strong>PLATINUM ($49.99 USD/mes)</strong> y obtén control real, GPS en vivo, cámaras reales y rotación de claves cada 5 segundos.",
-                promoBtn: "⚡ VER PLANES REALES",
+                promoDesc: "Elige el plan que mejor se adapte a tus necesidades. Ambos incluyen rotación de claves cada 5 segundos y control real desde tu celular.",
+                btnPremium: "🥈 PREMIUM $29.99 USD/mes",
+                btnPlatinum: "👑 PLATINUM $49.99 USD/mes",
                 footerMode: "Exhibición Demostrativa — Sin conexión real",
                 shareAlert: "📍 Copiado al portapapeles",
                 navHomeMsg: "🏠 Calculando ruta a casa...",
@@ -631,9 +650,11 @@
                 loadingCloud: "Loading simulated videos...",
                 noVideos: "📭 No recordings on this camera",
                 downloadBtn: "⬇ DOWNLOAD (SIMULATED)",
+                // Nuevos textos en inglés
                 promoTitle: "🚀 WANT REAL CONTROL?",
-                promoDesc: "Upgrade to <strong>PREMIUM ($29.99 USD/mo)</strong> or <strong>PLATINUM ($49.99 USD/mo)</strong> and get real control, live GPS, real cameras, and key rotation every 5 seconds.",
-                promoBtn: "⚡ VIEW REAL PLANS",
+                promoDesc: "Choose the plan that best suits your needs. Both include key rotation every 5 seconds and real control from your phone.",
+                btnPremium: "🥈 PREMIUM $29.99 USD/mo",
+                btnPlatinum: "👑 PLATINUM $49.99 USD/mo",
                 footerMode: "Demo Showcase — No real connection",
                 shareAlert: "📍 Copied to clipboard",
                 navHomeMsg: "🏠 Calculating route home...",
@@ -686,7 +707,7 @@
             document.getElementById('txtSecNav').textContent = d.secNav;
             document.getElementById('txtCamTitle').textContent = d.camTitle;
             document.getElementById('txtViewCloud').textContent = d.viewCloud;
-            document.getElementById('txtChipTitle').textContent = d.chipTitle;  // <--- Título de chips
+            document.getElementById('txtChipTitle').textContent = d.chipTitle;
             document.getElementById('txtAlertTitle').textContent = d.alertTitle;
             document.getElementById('txtMapTitle').textContent = d.mapTitle;
             document.getElementById('txtLat').textContent = d.latLabel;
@@ -701,8 +722,9 @@
             document.getElementById('txtRangeMax').textContent = d.rangeMax;
             document.getElementById('txtGeofenceHint').textContent = d.geofenceHint;
             document.getElementById('txtPromoTitle').textContent = d.promoTitle;
-            document.getElementById('txtPromoDesc').innerHTML = d.promoDesc;
-            document.getElementById('txtPromoBtn').textContent = d.promoBtn;
+            document.getElementById('txtPromoDesc').textContent = d.promoDesc;
+            document.getElementById('txtBtnPremium').textContent = d.btnPremium;
+            document.getElementById('txtBtnPlatinum').textContent = d.btnPlatinum;
             document.getElementById('txtFooterMode').textContent = d.footerMode;
             document.getElementById('txtCloudModalTitle').textContent = d.cloudModalTitle;
             document.getElementById('txtCloseCloud').textContent = d.closeCloud;
@@ -711,7 +733,6 @@
             document.getElementById('txtTabInt').textContent = d.tabInt;
             document.getElementById('cmdResult').textContent = d.cmdReady;
             
-            // Actualizar barra de estado (clave y rotación)
             document.getElementById('txtKey').innerHTML = d.key + ' <strong style="color:var(--purple-glow);">DEMO-21E41421...</strong>';
             document.getElementById('txtRotation').innerHTML = d.rotation + ' <strong style="color:var(--purple-glow);" id="countdown">' + countdown + 's</strong>';
             
@@ -907,12 +928,23 @@
         }
 
         // ═══════════════ NUBE ═══════════════
-        function openCloudModal() { document.getElementById('cloudModal').classList.add('active'); switchCloudTab('frontal'); }
+        function openCloudModal() { 
+            document.getElementById('cloudModal').classList.add('active'); 
+            const firstTab = document.querySelector('.cloud-tab');
+            if (firstTab) switchCloudTab('frontal', firstTab);
+        }
         function closeCloudModal() { document.getElementById('cloudModal').classList.remove('active'); }
-        function switchCloudTab(cam) {
+        
+        function switchCloudTab(cam, btn) {
             currentCloudCam = cam;
             document.querySelectorAll('.cloud-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            if (btn) btn.classList.add('active');
+            else {
+                const tabMap = { 'frontal': 'tabFrontal', 'trasera': 'tabTrasera', 'interior': 'tabInterior' };
+                const tabEl = document.getElementById(tabMap[cam]);
+                if (tabEl) tabEl.classList.add('active');
+            }
+            
             const d = langData[isSpanish ? 'es' : 'en'];
             const container = document.getElementById('cloudVideoList');
             const videos = { frontal: 2, trasera: 1, interior: 2 };
@@ -944,7 +976,7 @@
             }).join('');
         }
 
-        // ═══════════════ ALERTAS (totalmente bilingües) ═══════════════
+        // ═══════════════ ALERTAS ═══════════════
         function addAlert(chip, nivel, alertKey) {
             const d = langData[isSpanish ? 'es' : 'en'];
             const mensaje = d.alertMessages[alertKey] || alertKey;
@@ -1002,14 +1034,14 @@
 
         function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
 
-        // Simular algunas alertas después de un tiempo
+        // Simular algunas alertas
         setTimeout(() => { addAlert(chipsData[5], 'critical', 'critical'); }, 5000);
         setInterval(() => {
             const chip = chipsData[Math.floor(Math.random()*12)];
             if (chip.alerta) addAlert(chip, chip.nivel, chip.alerta);
         }, 20000);
 
-        // Rotación de clave cada 5 segundos
+        // Rotación de clave
         setInterval(() => {
             countdown--;
             if (countdown <= 0) countdown = 5;
@@ -1019,7 +1051,7 @@
 
         // Inicialización
         function init() {
-            applyLanguage();  // Aplica español inicial y fuerza todos los textos
+            applyLanguage();
             renderHotSwap();
             renderCameras();
             renderChips();

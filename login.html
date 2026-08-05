@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ITZTLI FRACTAL · Login</title>
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ----- Estilos Golden (fijos) ----- */
+        /* (Estilos sin cambios, igual que antes) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -61,10 +59,7 @@
             align-items: center;
             gap: 6px;
         }
-        .lang-toggle:hover {
-            background: #3a2a18;
-            border-color: #d4a017;
-        }
+        .lang-toggle:hover { background: #3a2a18; border-color: #d4a017; }
         .plan-badge {
             background: rgba(184, 134, 11, 0.15);
             border-radius: 40px;
@@ -75,14 +70,8 @@
             color: #e6c87a;
             border: 1px dashed #b8860b;
         }
-        .plan-badge strong {
-            color: #f5d37c;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .plan-badge strong { color: #f5d37c; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group { margin-bottom: 18px; }
         .form-group label {
             display: block;
             font-size: 14px;
@@ -163,10 +152,7 @@
             border-top: 1px solid #2a1f12;
             padding-top: 18px;
         }
-        .extra-info a {
-            color: #d4a017;
-            text-decoration: none;
-        }
+        .extra-info a { color: #d4a017; text-decoration: none; }
         .extra-info a:hover { text-decoration: underline; }
         @media (max-width: 480px) {
             .login-card { padding: 30px 20px; }
@@ -177,7 +163,6 @@
 <body>
 
 <div class="login-card">
-    <!-- HEADER -->
     <div class="header">
         <div class="logo">✦ ITZTLI FRACTAL</div>
         <div class="lang-toggle" id="langToggle">
@@ -186,13 +171,11 @@
         </div>
     </div>
 
-    <!-- Badge del plan -->
     <div class="plan-badge">
         <span data-i18n="planLabel">Plan seleccionado:</span>
         <strong id="planName">DEMO</strong>
     </div>
 
-    <!-- Formulario -->
     <form id="loginForm" autocomplete="off">
         <div class="form-group">
             <label for="nombre" data-i18n="nombreLabel">Nombre (opcional)</label>
@@ -210,8 +193,8 @@
         <div class="error-msg" id="errorMsg"></div>
 
         <div class="actions">
-            <button type="submit" class="btn-primary" id="btnSubmit" data-i18n="btnRegister">Registrarse</button>
-            <button type="button" class="btn-secondary" id="btnToggle" data-i18n="btnLogin">Ya tengo cuenta · Iniciar sesión</button>
+            <button type="submit" class="btn-primary" id="btnSubmit">Registrarse</button>
+            <button type="button" class="btn-secondary" id="btnToggle">Ya tengo cuenta · Iniciar sesión</button>
         </div>
     </form>
 
@@ -229,15 +212,14 @@
 
 <script>
     // ============================================================
-    // 1. CONFIGURACIÓN DE SUPABASE (VALORES FIJOS)
+    // 1. CONFIGURACIÓN SUPABASE
     // ============================================================
     const SUPABASE_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
-
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. PLAN Y REDIRECCIONES (NOMBRES FIJOS)
+    // 2. PLAN Y REDIRECCIONES (CORREGIDO)
     // ============================================================
     const urlParams = new URLSearchParams(window.location.search);
     let selectedPlan = urlParams.get('plan') || 'demo';
@@ -246,15 +228,15 @@
     }
     document.getElementById('planName').textContent = selectedPlan.toUpperCase();
 
-    // Mapa de redirección - NOMBRES FIJOS
+    // REDIRECCIONES CORRECTAS según los nombres reales de los archivos
     const redirectMap = {
-        'demo': 'demo-registro.html',
+        'demo': 'demo-registro.html',      // <--- CORREGIDO
         'premium': 'itzli-premium.html',
         'platinum': 'itzli-platinum.html'
     };
 
     // ============================================================
-    // 3. BILINGÜISMO (FUNCIONES CON NOMBRES FIJOS)
+    // 3. BILINGÜISMO
     // ============================================================
     let currentLang = 'es';
     const i18n = {
@@ -306,7 +288,9 @@
         }
     };
 
-    // Función para actualizar el idioma (NOMBRE FIJO)
+    // ============================================================
+    // 4. FUNCIONES DE IDIOMA
+    // ============================================================
     function updateLanguage(lang) {
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
@@ -321,11 +305,14 @@
             }
         });
         document.getElementById('langLabel').textContent = lang.toUpperCase();
-        // Llamar a la función de actualizar botones (siempre disponible)
         updateButtonLabels();
     }
 
-    // Función para actualizar los botones según modo (NOMBRE FIJO)
+    // ============================================================
+    // 5. MODO REGISTRO / LOGIN
+    // ============================================================
+    let isRegisterMode = true;
+
     function updateButtonLabels() {
         const btn = document.getElementById('btnSubmit');
         const toggleBtn = document.getElementById('btnToggle');
@@ -338,28 +325,23 @@
         }
     }
 
-    // Alternar idioma
+    // ============================================================
+    // 6. EVENT LISTENERS
+    // ============================================================
     document.getElementById('langToggle').addEventListener('click', function() {
         currentLang = (currentLang === 'es') ? 'en' : 'es';
         updateLanguage(currentLang);
     });
 
-    // ============================================================
-    // 4. MODO REGISTRO / LOGIN (NOMBRES FIJOS)
-    // ============================================================
-    let isRegisterMode = true; // Siempre definido al inicio
-
-    // Alternar modo al hacer clic en el botón secundario
     document.getElementById('btnToggle').addEventListener('click', function() {
         isRegisterMode = !isRegisterMode;
         updateButtonLabels();
-        // Limpiar mensaje de error
         document.getElementById('errorMsg').style.display = 'none';
         document.getElementById('errorMsg').textContent = '';
     });
 
     // ============================================================
-    // 5. MANEJO DEL FORMULARIO (NOMBRES FIJOS)
+    // 7. MANEJO DEL FORMULARIO (CON INSERT MANUAL)
     // ============================================================
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -371,7 +353,6 @@
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
 
-        // Validaciones
         if (!email || !password) {
             showError(currentLang === 'es' ? 'Completa todos los campos obligatorios.' : 'Please fill all required fields.');
             return;
@@ -388,6 +369,7 @@
         try {
             if (isRegisterMode) {
                 // ---- REGISTRO ----
+                // 1) Crear usuario en auth
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -416,7 +398,7 @@
                     return;
                 }
 
-                // Insertar perfil en tabla 'usuarios' (solo si no usas trigger)
+                // 2) Insertar perfil en la tabla 'usuarios' (MANUAL)
                 const { error: insertError } = await supabase
                     .from('usuarios')
                     .insert([{
@@ -428,9 +410,9 @@
                     }]);
 
                 if (insertError) {
-                    console.error('Error al insertar perfil:', insertError);
-                    // Si falla, mostramos mensaje pero redirigimos igual (el usuario ya fue creado)
-                    showError(i18n[currentLang].errorGeneral + ' (perfil)');
+                    console.error('❌ Error al insertar perfil:', insertError);
+                    // Si falla la inserción, igual redirigimos (el usuario ya existe en auth)
+                    showError(i18n[currentLang].errorGeneral + ' (perfil no creado, contacta soporte)');
                     setTimeout(() => {
                         window.location.href = redirectMap[selectedPlan];
                     }, 2000);
@@ -464,20 +446,15 @@
                     return;
                 }
 
-                // Obtener el plan del usuario
+                // Obtener el plan del usuario desde la tabla 'usuarios'
                 const { data: userData, error: fetchError } = await supabase
                     .from('usuarios')
                     .select('plan')
                     .eq('id', authData.user.id)
                     .single();
 
-                let userPlan = 'demo';
-                if (fetchError || !userData) {
-                    console.warn('No se encontró perfil, usando plan demo');
-                } else {
-                    userPlan = userData.plan || 'demo';
-                }
-
+                // Si no encuentra el perfil, asigna 'demo' por defecto
+                const userPlan = (userData && userData.plan) || 'demo';
                 const redirectUrl = redirectMap[userPlan] || 'demo-registro.html';
                 showSuccess(i18n[currentLang].successLogin);
                 setTimeout(() => {
@@ -485,7 +462,7 @@
                 }, 1500);
             }
         } catch (err) {
-            console.error('Error inesperado:', err);
+            console.error('❌ Error inesperado:', err);
             if (err.message && err.message.includes('fetch')) {
                 showError(i18n[currentLang].errorNetwork);
             } else {
@@ -495,7 +472,7 @@
     });
 
     // ============================================================
-    // 6. FUNCIONES AUXILIARES (NOMBRES FIJOS)
+    // 8. FUNCIONES AUXILIARES
     // ============================================================
     function showError(msg) {
         const errorDiv = document.getElementById('errorMsg');
@@ -514,11 +491,12 @@
     }
 
     // ============================================================
-    // 7. INICIALIZAR (NOMBRES FIJOS)
+    // 9. INICIALIZAR
     // ============================================================
     updateLanguage('es');
     updateButtonLabels();
     console.log('🔐 ITZTLI Login · Plan:', selectedPlan);
 </script>
+
 </body>
 </html>
