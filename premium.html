@@ -216,7 +216,7 @@
     <div class="status-bar">
         <span><span class="dot dot-green" id="statusDot"></span> <strong id="txtSecure">SEGURO</strong></span>
         <span id="txtKey">🔑 Clave: <strong style="color:var(--cyan);">21E41421...</strong></span>
-        <span id="txtRotation">🔄 <strong id="countdown">5s</strong></span>
+        <span id="txtRotation">🔄 <strong id="countdown">22s</strong></span>
         <span id="txtCloud">📡 <strong style="color:var(--green);">CONECTADO</strong></span>
     </div>
 
@@ -406,8 +406,6 @@
                 closeSettings: "CERRAR",
                 homeLabel: "🏠 Dirección de Casa",
                 workLabel: "🏢 Dirección de Trabajo",
-                homeAddressPlaceholder: "Av. Reforma 222, CDMX",
-                workAddressPlaceholder: "Paseo de la Reforma 500, CDMX",
                 saveSettings: "GUARDAR",
                 loginTitle: "INICIAR SESIÓN",
                 emailLabel: "Email",
@@ -471,8 +469,6 @@
                 closeSettings: "CLOSE",
                 homeLabel: "🏠 Home Address",
                 workLabel: "🏢 Work Address",
-                homeAddressPlaceholder: "222 Reforma Ave, Mexico City",
-                workAddressPlaceholder: "500 Reforma Ave, Mexico City",
                 saveSettings: "SAVE",
                 loginTitle: "SIGN IN",
                 emailLabel: "Email",
@@ -502,7 +498,6 @@
         if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
         let currentUser = null;
         let geofenceRadius = 50;
-        let geofenceActive = false;   // ⬅️ NUEVO: estado de la geocerca
 
         // ═══════════════ IDIOMA ═══════════════
         function toggleLang() {
@@ -525,7 +520,7 @@
             // Status Bar
             document.getElementById('txtSecure').innerText = d.secure;
             document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--cyan);">21E41421...</strong>';
-            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">5s</strong>';
+            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">22s</strong>';
             document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">' + (isSpanish ? 'CONECTADO' : 'ONLINE') + '</strong>';
             
             // Controles
@@ -573,9 +568,6 @@
             document.getElementById('txtHomeLabel').innerText = d.homeLabel;
             document.getElementById('txtWorkLabel').innerText = d.workLabel;
             document.getElementById('txtSaveSettings').innerText = d.saveSettings;
-            // Placeholders bilingües
-            document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
-            document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
             
             // Login
             document.getElementById('txtLoginTitle').innerText = d.loginTitle;
@@ -597,8 +589,6 @@
         }
 
         // ═══════════════ GEOCERCA ═══════════════
-        let geofenceCircle = null; // referencia al círculo en el mapa
-
         function updateRadiusDisplay() {
             const slider = document.getElementById('radiusSlider');
             if (!slider) return;
@@ -607,23 +597,9 @@
             const unit = isSpanish ? 'm' : 'ft';
             const displayVal = isSpanish ? val : Math.round(val * 3.28084);
             document.getElementById('radiusValue').textContent = displayVal + ' ' + unit;
-
-            // Actualizar el círculo en el mapa si ya existe
-            if (map && geofenceCircle) {
-                geofenceCircle.setRadius(val);
-            }
         }
 
         function setGeofence(active) {
-            geofenceActive = active;
-            // Cambiar color del círculo
-            if (geofenceCircle) {
-                const color = active ? '#ff4466' : '#00c8ff';
-                geofenceCircle.setStyle({
-                    color: color,
-                    fillColor: color
-                });
-            }
             const msg = active ? '📐 Geocerca ACTIVADA. Radio: ' + geofenceRadius + ' m' : '📐 Geocerca DESACTIVADA.';
             document.getElementById('cmdResult').innerHTML = msg;
         }
@@ -753,14 +729,9 @@
             
             marker = L.marker([currentLat, currentLng]).addTo(map)
                 .bindPopup('<strong>🚗 Tu auto está aquí</strong>');
-
-            // Dibujar el círculo de la geocerca (color inicial según estado)
-            const initialColor = geofenceActive ? '#ff4466' : '#00c8ff';
-            geofenceCircle = L.circle([currentLat, currentLng], {
-                color: initialColor,
-                fillColor: initialColor,
-                fillOpacity: 0.15,
-                radius: geofenceRadius
+            
+            L.circle([currentLat, currentLng], { 
+                color: '#00c8ff', fillColor: '#00c8ff', fillOpacity: 0.15, radius: 30 
             }).addTo(map);
             
             setTimeout(() => { if(map) map.invalidateSize(); }, 500);
@@ -774,10 +745,6 @@
             if (marker && map) {
                 marker.setLatLng([currentLat, currentLng]);
                 map.setView([currentLat, currentLng], 17);
-                // Mover también el círculo de la geocerca
-                if (geofenceCircle) {
-                    geofenceCircle.setLatLng([currentLat, currentLng]);
-                }
             }
         }
 
@@ -905,10 +872,10 @@
         }
 
         // ═══════════════ INICIALIZACIÓN ═══════════════
-        let countdown = 5;
+        let countdown = 22;
         setInterval(() => {
             countdown--;
-            if (countdown <= 0) countdown = 5;
+            if (countdown <= 0) countdown = 22;
             const el = document.getElementById('countdown');
             if (el) el.textContent = countdown + 's';
             

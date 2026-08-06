@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* (MISMO CSS QUE EN TU VERSIÓN FUNCIONAL) */
+        /* (MISMO CSS SIN CAMBIOS) */
         :root {
             --bg: #090a18; --card: #12142e; --border: #2a2f5a;
             --cyan: #00d4ff; --gold: #f5c542; --green: #00ff88;
@@ -95,58 +95,34 @@
         .section-title { color: var(--gold); font-size: 13px; margin: 18px 0 10px 0; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         
         .address-autocomplete {
-            position: relative;
-            margin-bottom: 15px;
+            position: relative; margin-bottom: 15px;
         }
         .address-autocomplete input {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            color: var(--text);
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
+            width: 100%; padding: 14px 16px;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            border-radius: 40px; color: var(--text); font-size: 14px; outline: none;
         }
         .address-autocomplete input:focus {
-            border-color: var(--green);
-            box-shadow: 0 0 10px rgba(0,255,136,0.3);
+            border-color: var(--green); box-shadow: 0 0 10px rgba(0,255,136,0.3);
         }
         .suggestions-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 0 0 12px 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 10;
-            display: none;
-            list-style: none;
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto;
+            z-index: 10; display: none; list-style: none;
         }
         .suggestions-list.active { display: block; }
         .suggestions-list li {
-            padding: 12px 16px;
-            cursor: pointer;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            color: var(--dim);
+            padding: 12px 16px; cursor: pointer; font-size: 13px;
+            border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--dim);
             transition: 0.2s;
         }
         .suggestions-list li:hover, .suggestions-list li.selected {
-            background: rgba(0,255,136,0.1);
-            color: var(--text);
+            background: rgba(0,255,136,0.1); color: var(--text);
         }
         .selected-address {
-            margin-top: 8px;
-            font-size: 12px;
-            color: var(--green);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-top: 8px; font-size: 12px; color: var(--green);
+            display: flex; align-items: center; gap: 6px;
         }
         
         .geofence-range {
@@ -258,9 +234,9 @@
 
     <div class="header">
         <div class="header-buttons">
-            <button class="logout-btn" id="btnLogout" onclick="logout()">🚪 <span id="txtLogout">SALIR</span></button>
-            <button class="settings-btn" onclick="openSettings()" title="Configuración">⚙️</button>
-            <button class="lang-btn" id="langToggle" onclick="toggleLang()">🇲🇽 ESP</button>
+            <button class="logout-btn" id="btnLogout" onclick="window.logout()">🚪 <span id="txtLogout">SALIR</span></button>
+            <button class="settings-btn" onclick="window.openSettings()" title="Configuración">⚙️</button>
+            <button class="lang-btn" id="langToggle" onclick="window.toggleLang()">🇲🇽 ESP</button>
         </div>
         <h1>ITZTLI FRACTAL CORE</h1>
         <p class="subtitle" id="txtSubtitle">Protección gratuita para tu vehículo</p>
@@ -298,13 +274,13 @@
         </div>
         <div class="geofence-range">
             <span id="rangeMin">10m</span>
-            <input type="range" id="radiusSlider" min="10" max="100" value="50" step="5" oninput="updateRadiusDisplay()">
+            <input type="range" id="radiusSlider" min="10" max="100" value="50" step="5" oninput="window.updateRadiusDisplay()">
             <span id="rangeMax">100m</span>
             <span class="val" id="radiusValue">50 m</span>
         </div>
         <div class="control-grid" style="margin-top: 10px;">
-            <button class="btn btn-green" onclick="setGeofence(true)"><span id="btnActivateGeo">ACTIVAR GEOCERCA</span></button>
-            <button class="btn btn-red" onclick="setGeofence(false)"><span id="btnDeactivateGeo">DESACTIVAR GEOCERCA</span></button>
+            <button class="btn btn-green" onclick="window.setGeofence(true)"><span id="btnActivateGeo">ACTIVAR GEOCERCA</span></button>
+            <button class="btn btn-red" onclick="window.setGeofence(false)"><span id="btnDeactivateGeo">DESACTIVAR GEOCERCA</span></button>
         </div>
         <p style="color:var(--dim);font-size:10px;margin-top:8px;" id="geofenceHint">Recibirás alerta si el auto sale de este perímetro.</p>
         <p id="cmdResult" style="text-align:center; font-size:11px; color:var(--dim); margin-top:10px;"></p>
@@ -323,9 +299,9 @@
             <div class="item"><strong id="txtPrec">Precisión</strong><div class="val" style="color:var(--green);">3 m (GPS + WiFi)</div></div>
         </div>
         <div class="map-actions">
-            <button class="btn btn-cyan" onclick="updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
-            <button class="btn btn-gold" onclick="shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
-            <button class="btn btn-blue" onclick="navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
+            <button class="btn btn-cyan" onclick="window.updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
+            <button class="btn btn-gold" onclick="window.shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
+            <button class="btn btn-blue" onclick="window.navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
         </div>
     </div>
 
@@ -354,13 +330,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>⚙️ <span id="txtSettingsTitle">CONFIGURACIÓN</span></h3>
-                <button class="modal-close-btn" onclick="closeSettings()">✕ <span id="txtCloseSettings">CERRAR</span></button>
+                <button class="modal-close-btn" onclick="window.closeSettings()">✕ <span id="txtCloseSettings">CERRAR</span></button>
             </div>
             <label class="section-title" id="txtHomeLabel">🏠 Dirección de Casa</label>
             <input type="text" class="auth-input" id="homeAddress" placeholder="Av. Reforma 222, CDMX">
             <label class="section-title" id="txtWorkLabel">🏢 Dirección de Trabajo</label>
             <input type="text" class="auth-input" id="workAddress" placeholder="Paseo de la Reforma 500, CDMX">
-            <button class="btn btn-cyan" onclick="saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
+            <button class="btn btn-cyan" onclick="window.saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
         </div>
     </div>
 
@@ -371,517 +347,534 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // ═══════════════ SUPABASE ═══════════════
-        let supabase = null;
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(
-                    'https://rpoqukrcvkcmaqsajchk.supabase.co',
-                    'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5'
-                );
-            }
-        } catch (e) { console.error('Supabase init error:', e); }
-
-        // ═══════════════ DICCIONARIO DE IDIOMAS ═══════════════
-        const langData = {
-            es: {
-                subtitle: "Protección gratuita para tu vehículo",
-                badge: "🆓 PLAN GRATUITO ACTIVO",
-                secure: "SEGURO",
-                keyLabel: "🔑 Clave:",
-                rotationLabel: "🔄 Rotación:",
-                cloudLabel: "📡 Estado:",
-                logoutBtn: "SALIR",
-                addressTitle: "📍 UBICACIÓN DE LA GEOCERCA",
-                addressPlaceholder: "Escribe una dirección...",
-                addressHint: "Escribe la dirección donde se colocará la geocerca. El mapa se actualizará automáticamente.",
-                noAddress: "No se ha establecido ninguna dirección.",
-                geofenceTitle: "📐 RADIO DE GEOCERCA",
-                rangeUnit: "m",
-                rangeMin: "10m",
-                rangeMax: "100m",
-                geofenceHint: "Recibirás alerta si el auto sale de este perímetro.",
-                btnActivateGeo: "ACTIVAR GEOCERCA",
-                btnDeactivateGeo: "DESACTIVAR GEOCERCA",
-                geofenceActivated: "✅ Geocerca ACTIVADA. Radio: {radius} m",
-                geofenceDeactivated: "❌ Geocerca DESACTIVADA.",
-                chipTitle: "MONITOREO DE CHIPS",
-                chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
-                chipNormal: "Normal",
-                chipWarning: "Precaución",
-                chipCritical: "Crítico",
-                alertTitle: "ALERTAS",
-                noAlerts: "✅ Sin alertas.",
-                alertVoltage: "Voltaje crítico: ",
-                alertTemp: "Temp elevada: ",
-                alertErrors: "Errores: ",
-                mapTitle: "📍 UBICACIÓN EN TIEMPO REAL",
-                latLabel: "Latitud",
-                lngLabel: "Longitud",
-                refLabel: "Referencia",
-                precLabel: "Precisión",
-                refAddr: "Av. Reforma 222, CDMX",
-                btnUpdateLoc: "ACTUALIZAR",
-                btnShareLoc: "COMPARTIR",
-                btnNavigate: "LLEGAR AL AUTO",
-                settingsTitle: "CONFIGURACIÓN",
-                closeSettings: "CERRAR",
-                homeLabel: "🏠 Dirección de Casa",
-                workLabel: "🏢 Dirección de Trabajo",
-                homeAddressPlaceholder: "Av. Reforma 222, CDMX",
-                workAddressPlaceholder: "Paseo de la Reforma 500, CDMX",
-                saveSettings: "GUARDAR",
-                shareAlert: "📍 Copiado al portapapeles",
-                settingsSaved: "✅ Configuración guardada"
-            },
-            en: {
-                subtitle: "Free protection for your vehicle",
-                badge: "🆓 FREE PLAN ACTIVE",
-                secure: "SECURE",
-                keyLabel: "🔑 Key:",
-                rotationLabel: "🔄 Rotation:",
-                cloudLabel: "📡 Status:",
-                logoutBtn: "LOGOUT",
-                addressTitle: "📍 GEOFENCE LOCATION",
-                addressPlaceholder: "Type an address...",
-                addressHint: "Type the address where the geofence will be placed. The map updates automatically.",
-                noAddress: "No address has been set.",
-                geofenceTitle: "📐 GEOFENCE RADIUS",
-                rangeUnit: "ft",
-                rangeMin: "33ft",
-                rangeMax: "330ft",
-                geofenceHint: "You'll be alerted if the car leaves this perimeter.",
-                btnActivateGeo: "ACTIVATE GEOFENCE",
-                btnDeactivateGeo: "DEACTIVATE GEOFENCE",
-                geofenceActivated: "✅ Geofence ACTIVATED. Radius: {radius} ft",
-                geofenceDeactivated: "❌ Geofence DEACTIVATED.",
-                chipTitle: "ECU HEALTH MONITORING",
-                chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
-                chipNormal: "Normal",
-                chipWarning: "Warning",
-                chipCritical: "Critical",
-                alertTitle: "CRITICAL EVENTS",
-                noAlerts: "✅ No alerts.",
-                alertVoltage: "Critical voltage: ",
-                alertTemp: "High temp: ",
-                alertErrors: "Errors: ",
-                mapTitle: "📍 REAL-TIME LOCATION",
-                latLabel: "Latitude",
-                lngLabel: "Longitude",
-                refLabel: "Reference",
-                precLabel: "Accuracy",
-                refAddr: "222 Reforma Ave, Mexico City",
-                btnUpdateLoc: "REFRESH",
-                btnShareLoc: "SHARE",
-                btnNavigate: "NAVIGATE TO CAR",
-                settingsTitle: "SETTINGS",
-                closeSettings: "CLOSE",
-                homeLabel: "🏠 Home Address",
-                workLabel: "🏢 Work Address",
-                homeAddressPlaceholder: "222 Reforma Ave, Mexico City",
-                workAddressPlaceholder: "500 Reforma Ave, Mexico City",
-                saveSettings: "SAVE",
-                shareAlert: "📍 Copied to clipboard",
-                settingsSaved: "✅ Settings saved"
-            }
-        };
-
-        // ═══════════════ ESTADO GLOBAL ═══════════════
-        let isSpanish = true;
-        let userSettings = JSON.parse(localStorage.getItem('itzli_free_settings') || '{}');
-        if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
-        if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
-        let geofenceRadius = 50;
-        let currentLat = 19.4326, currentLng = -99.1332;
-        let selectedAddress = null;
-        let geofenceActive = false;
-
-        // ═══════════════ AUTENTICACIÓN REAL ═══════════════
-        async function checkAuth() {
-            if (!supabase) {
-                console.warn('Supabase no disponible. Redirigiendo a login...');
-                window.location.href = 'login.html?plan=demo';
-                return false;
-            }
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (error || !user) {
-                window.location.href = 'login.html?plan=demo';
-                return false;
-            }
-            // Verificar plan (opcional)
-            const { data: profile } = await supabase
-                .from('usuarios')
-                .select('plan')
-                .eq('id', user.id)
-                .single();
-            if (profile && profile.plan !== 'demo' && profile.plan !== 'premium' && profile.plan !== 'platinum') {
-                window.location.href = 'login.html?plan=demo';
-                return false;
-            }
-            return true;
-        }
-
-        async function logout() {
-            if (supabase) await supabase.auth.signOut();
-            window.location.href = 'login.html?plan=demo';
-        }
-
-        // ═══════════════ IDIOMA ═══════════════
-        function toggleLang() {
-            isSpanish = !isSpanish;
-            applyLanguage();
-            renderChips();
-            renderAlerts();
-        }
-
-        function applyLanguage() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
-            document.documentElement.lang = isSpanish ? 'es' : 'en';
-            document.getElementById('txtSubtitle').innerText = d.subtitle;
-            document.getElementById('txtBadge').innerHTML = d.badge;
-            document.getElementById('txtLogout').innerText = d.logoutBtn;
-            document.getElementById('txtSecure').innerText = d.secure;
-            document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--green);">GRATIS-21E41421...</strong>';
-            document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">5s</strong>';
-            document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">' + (isSpanish ? 'ACTIVO' : 'ACTIVE') + '</strong>';
-            document.getElementById('txtAddressTitle').innerText = d.addressTitle;
-            document.getElementById('addressInput').placeholder = d.addressPlaceholder;
-            document.getElementById('txtAddressHint').innerText = d.addressHint;
-            updateSelectedAddressDisplay();
-            document.getElementById('txtGeofenceTitle').innerText = d.geofenceTitle;
-            document.getElementById('rangeMin').innerText = d.rangeMin;
-            document.getElementById('rangeMax').innerText = d.rangeMax;
-            document.getElementById('geofenceHint').innerText = d.geofenceHint;
-            document.getElementById('btnActivateGeo').innerHTML = '🟢 ' + d.btnActivateGeo;
-            document.getElementById('btnDeactivateGeo').innerHTML = '🔴 ' + d.btnDeactivateGeo;
-            updateRadiusDisplay();
-            updateGeofenceStatusMessage();
-            document.getElementById('txtMapTitle').textContent = d.mapTitle;
-            document.getElementById('txtLat').textContent = d.latLabel;
-            document.getElementById('txtLng').textContent = d.lngLabel;
-            document.getElementById('txtRef').textContent = d.refLabel;
-            document.getElementById('txtPrec').textContent = d.precLabel;
-            document.getElementById('refAddress').textContent = selectedAddress ? selectedAddress.display_name : d.refAddr;
-            document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
-            document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
-            document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
-            document.getElementById('txtChipTitle').innerText = d.chipTitle;
-            document.getElementById('txtAlertTitle').innerText = d.alertTitle;
-            document.getElementById('txtNoAlerts').innerText = d.noAlerts;
-            document.getElementById('txtSettingsTitle').innerText = d.settingsTitle;
-            document.getElementById('txtCloseSettings').innerText = d.closeSettings;
-            document.getElementById('txtHomeLabel').innerText = d.homeLabel;
-            document.getElementById('txtWorkLabel').innerText = d.workLabel;
-            document.getElementById('txtSaveSettings').innerText = d.saveSettings;
-            document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
-            document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
-        }
-
-        function updateSelectedAddressDisplay() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (selectedAddress) {
-                document.getElementById('selectedAddressText').textContent = selectedAddress.display_name;
-            } else {
-                document.getElementById('selectedAddressText').textContent = d.noAddress;
-            }
-        }
-
-        function updateGeofenceStatusMessage() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const radiusDisplay = isSpanish ? geofenceRadius + ' m' : Math.round(geofenceRadius * 3.28084) + ' ft';
-            const msg = geofenceActive ? d.geofenceActivated.replace('{radius}', radiusDisplay) : d.geofenceDeactivated;
-            document.getElementById('cmdResult').innerHTML = msg;
-        }
-
-        // ═══════════════ GEOCERCA ═══════════════
-        function updateRadiusDisplay() {
-            const slider = document.getElementById('radiusSlider');
-            if (!slider) return;
-            const val = parseInt(slider.value);
-            geofenceRadius = val;
-            const unit = isSpanish ? 'm' : 'ft';
-            const displayVal = isSpanish ? val : Math.round(val * 3.28084);
-            document.getElementById('radiusValue').textContent = displayVal + ' ' + unit;
-            updateGeofenceStatusMessage();
-            if (window.geofenceCircle && map) {
-                window.geofenceCircle.setRadius(geofenceRadius);
-            }
-        }
-
-        function setGeofence(active) {
-            geofenceActive = active;
-            if (window.geofenceCircle) {
-                const color = active ? '#ff4466' : '#00ff88';
-                window.geofenceCircle.setStyle({ color: color, fillColor: color });
-            }
-            updateGeofenceStatusMessage();
-        }
-
-        // ═══════════════ AUTOCOMPLETADO DE DIRECCIONES ═══════════════
-        const addressInput = document.getElementById('addressInput');
-        const suggestionsList = document.getElementById('suggestionsList');
-        let debounceTimer;
-
-        addressInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            const query = this.value.trim();
-            if (query.length < 3) {
-                suggestionsList.innerHTML = '';
-                suggestionsList.classList.remove('active');
-                return;
-            }
-            debounceTimer = setTimeout(() => fetchSuggestions(query), 400);
-        });
-
-        addressInput.addEventListener('keydown', function(e) {
-            const items = suggestionsList.querySelectorAll('li');
-            let current = suggestionsList.querySelector('.selected');
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (!current) { if (items.length) items[0].classList.add('selected'); }
-                else { current.classList.remove('selected'); const next = current.nextElementSibling; if (next) next.classList.add('selected'); else items[0].classList.add('selected'); }
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (!current) { if (items.length) items[items.length-1].classList.add('selected'); }
-                else { current.classList.remove('selected'); const prev = current.previousElementSibling; if (prev) prev.classList.add('selected'); else items[items.length-1].classList.add('selected'); }
-            } else if (e.key === 'Enter') {
-                if (current) current.click();
-            }
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!addressInput.contains(e.target) && !suggestionsList.contains(e.target)) {
-                suggestionsList.classList.remove('active');
-            }
-        });
-
-        async function fetchSuggestions(query) {
-            const lang = isSpanish ? 'es' : 'en';
-            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&accept-language=${lang}`;
+        // ═══════════════ FUNCIÓN AUTOEJECUTABLE (TODO DENTRO, SIN VARIABLES GLOBALES) ═══════════════
+        (function() {
+            // ══ INICIALIZAR SUPABASE (usando window.supabase sin redeclarar) ══
+            let supabase = null;
             try {
-                const response = await fetch(url);
-                const data = await response.json();
-                renderSuggestions(data);
-            } catch (error) { console.error('Error fetching suggestions:', error); }
-        }
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(
+                        'https://rpoqukrcvkcmaqsajchk.supabase.co',
+                        'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5'
+                    );
+                } else {
+                    console.warn('Supabase no se ha cargado. El mapa y las funciones básicas seguirán funcionando.');
+                }
+            } catch (e) {
+                console.error('Error al inicializar Supabase:', e);
+            }
 
-        function renderSuggestions(results) {
-            suggestionsList.innerHTML = '';
-            if (results.length === 0) { suggestionsList.classList.remove('active'); return; }
-            results.forEach(result => {
-                const li = document.createElement('li');
-                li.textContent = result.display_name;
-                li.addEventListener('click', () => selectAddress(result));
-                suggestionsList.appendChild(li);
+            // ══ DICCIONARIO DE IDIOMAS ══
+            const langData = {
+                es: {
+                    subtitle: "Protección gratuita para tu vehículo",
+                    badge: "🆓 PLAN GRATUITO ACTIVO",
+                    secure: "SEGURO",
+                    keyLabel: "🔑 Clave:",
+                    rotationLabel: "🔄 Rotación:",
+                    cloudLabel: "📡 Estado:",
+                    logoutBtn: "SALIR",
+                    addressTitle: "📍 UBICACIÓN DE LA GEOCERCA",
+                    addressPlaceholder: "Escribe una dirección...",
+                    addressHint: "Escribe la dirección donde se colocará la geocerca. El mapa se actualizará automáticamente.",
+                    noAddress: "No se ha establecido ninguna dirección.",
+                    geofenceTitle: "📐 RADIO DE GEOCERCA",
+                    rangeUnit: "m",
+                    rangeMin: "10m",
+                    rangeMax: "100m",
+                    geofenceHint: "Recibirás alerta si el auto sale de este perímetro.",
+                    btnActivateGeo: "ACTIVAR GEOCERCA",
+                    btnDeactivateGeo: "DESACTIVAR GEOCERCA",
+                    geofenceActivated: "✅ Geocerca ACTIVADA. Radio: {radius} m",
+                    geofenceDeactivated: "❌ Geocerca DESACTIVADA.",
+                    chipTitle: "MONITOREO DE CHIPS",
+                    chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
+                    chipNormal: "Normal",
+                    chipWarning: "Precaución",
+                    chipCritical: "Crítico",
+                    alertTitle: "ALERTAS",
+                    noAlerts: "✅ Sin alertas.",
+                    alertVoltage: "Voltaje crítico: ",
+                    alertTemp: "Temp elevada: ",
+                    alertErrors: "Errores: ",
+                    mapTitle: "📍 UBICACIÓN EN TIEMPO REAL",
+                    latLabel: "Latitud",
+                    lngLabel: "Longitud",
+                    refLabel: "Referencia",
+                    precLabel: "Precisión",
+                    refAddr: "Av. Reforma 222, CDMX",
+                    btnUpdateLoc: "ACTUALIZAR",
+                    btnShareLoc: "COMPARTIR",
+                    btnNavigate: "LLEGAR AL AUTO",
+                    settingsTitle: "CONFIGURACIÓN",
+                    closeSettings: "CERRAR",
+                    homeLabel: "🏠 Dirección de Casa",
+                    workLabel: "🏢 Dirección de Trabajo",
+                    homeAddressPlaceholder: "Av. Reforma 222, CDMX",
+                    workAddressPlaceholder: "Paseo de la Reforma 500, CDMX",
+                    saveSettings: "GUARDAR",
+                    shareAlert: "📍 Copiado al portapapeles",
+                    settingsSaved: "✅ Configuración guardada"
+                },
+                en: {
+                    subtitle: "Free protection for your vehicle",
+                    badge: "🆓 FREE PLAN ACTIVE",
+                    secure: "SECURE",
+                    keyLabel: "🔑 Key:",
+                    rotationLabel: "🔄 Rotation:",
+                    cloudLabel: "📡 Status:",
+                    logoutBtn: "LOGOUT",
+                    addressTitle: "📍 GEOFENCE LOCATION",
+                    addressPlaceholder: "Type an address...",
+                    addressHint: "Type the address where the geofence will be placed. The map updates automatically.",
+                    noAddress: "No address has been set.",
+                    geofenceTitle: "📐 GEOFENCE RADIUS",
+                    rangeUnit: "ft",
+                    rangeMin: "33ft",
+                    rangeMax: "330ft",
+                    geofenceHint: "You'll be alerted if the car leaves this perimeter.",
+                    btnActivateGeo: "ACTIVATE GEOFENCE",
+                    btnDeactivateGeo: "DEACTIVATE GEOFENCE",
+                    geofenceActivated: "✅ Geofence ACTIVATED. Radius: {radius} ft",
+                    geofenceDeactivated: "❌ Geofence DEACTIVATED.",
+                    chipTitle: "ECU HEALTH MONITORING",
+                    chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
+                    chipNormal: "Normal",
+                    chipWarning: "Warning",
+                    chipCritical: "Critical",
+                    alertTitle: "CRITICAL EVENTS",
+                    noAlerts: "✅ No alerts.",
+                    alertVoltage: "Critical voltage: ",
+                    alertTemp: "High temp: ",
+                    alertErrors: "Errors: ",
+                    mapTitle: "📍 REAL-TIME LOCATION",
+                    latLabel: "Latitude",
+                    lngLabel: "Longitude",
+                    refLabel: "Reference",
+                    precLabel: "Accuracy",
+                    refAddr: "222 Reforma Ave, Mexico City",
+                    btnUpdateLoc: "REFRESH",
+                    btnShareLoc: "SHARE",
+                    btnNavigate: "NAVIGATE TO CAR",
+                    settingsTitle: "SETTINGS",
+                    closeSettings: "CLOSE",
+                    homeLabel: "🏠 Home Address",
+                    workLabel: "🏢 Work Address",
+                    homeAddressPlaceholder: "222 Reforma Ave, Mexico City",
+                    workAddressPlaceholder: "500 Reforma Ave, Mexico City",
+                    saveSettings: "SAVE",
+                    shareAlert: "📍 Copied to clipboard",
+                    settingsSaved: "✅ Settings saved"
+                }
+            };
+
+            // ══ ESTADO GLOBAL (dentro de la IIFE) ══
+            let isSpanish = true;
+            let userSettings = JSON.parse(localStorage.getItem('itzli_free_settings') || '{}');
+            if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
+            if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
+            let geofenceRadius = 50;
+            let currentLat = 19.4326, currentLng = -99.1332;
+            let selectedAddress = null;
+            let geofenceActive = false;
+            let map = null, marker = null;
+            window.geofenceCircle = null;  // necesita ser global para el slider
+
+            // ══ AUTENTICACIÓN REAL ══
+            async function checkAuth() {
+                if (!supabase) {
+                    console.warn('Supabase no disponible. Redirigiendo a login...');
+                    window.location.href = 'login.html?plan=demo';
+                    return false;
+                }
+                try {
+                    const { data: { user }, error } = await supabase.auth.getUser();
+                    if (error || !user) {
+                        window.location.href = 'login.html?plan=demo';
+                        return false;
+                    }
+                    // Verificar plan (opcional)
+                    const { data: profile } = await supabase
+                        .from('usuarios')
+                        .select('plan')
+                        .eq('id', user.id)
+                        .single();
+                    if (profile && profile.plan !== 'demo' && profile.plan !== 'premium' && profile.plan !== 'platinum') {
+                        window.location.href = 'login.html?plan=demo';
+                        return false;
+                    }
+                    return true;
+                } catch (err) {
+                    console.error('Error en checkAuth:', err);
+                    window.location.href = 'login.html?plan=demo';
+                    return false;
+                }
+            }
+
+            async function logout() {
+                if (supabase) await supabase.auth.signOut();
+                window.location.href = 'login.html?plan=demo';
+            }
+
+            // ══ IDIOMA ══
+            function toggleLang() {
+                isSpanish = !isSpanish;
+                applyLanguage();
+                renderChips();
+                renderAlerts();
+            }
+
+            function applyLanguage() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+                document.documentElement.lang = isSpanish ? 'es' : 'en';
+                document.getElementById('txtSubtitle').innerText = d.subtitle;
+                document.getElementById('txtBadge').innerHTML = d.badge;
+                document.getElementById('txtLogout').innerText = d.logoutBtn;
+                document.getElementById('txtSecure').innerText = d.secure;
+                document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--green);">GRATIS-21E41421...</strong>';
+                document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">5s</strong>';
+                document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">' + (isSpanish ? 'ACTIVO' : 'ACTIVE') + '</strong>';
+                document.getElementById('txtAddressTitle').innerText = d.addressTitle;
+                document.getElementById('addressInput').placeholder = d.addressPlaceholder;
+                document.getElementById('txtAddressHint').innerText = d.addressHint;
+                updateSelectedAddressDisplay();
+                document.getElementById('txtGeofenceTitle').innerText = d.geofenceTitle;
+                document.getElementById('rangeMin').innerText = d.rangeMin;
+                document.getElementById('rangeMax').innerText = d.rangeMax;
+                document.getElementById('geofenceHint').innerText = d.geofenceHint;
+                document.getElementById('btnActivateGeo').innerHTML = '🟢 ' + d.btnActivateGeo;
+                document.getElementById('btnDeactivateGeo').innerHTML = '🔴 ' + d.btnDeactivateGeo;
+                updateRadiusDisplay();
+                updateGeofenceStatusMessage();
+                document.getElementById('txtMapTitle').textContent = d.mapTitle;
+                document.getElementById('txtLat').textContent = d.latLabel;
+                document.getElementById('txtLng').textContent = d.lngLabel;
+                document.getElementById('txtRef').textContent = d.refLabel;
+                document.getElementById('txtPrec').textContent = d.precLabel;
+                document.getElementById('refAddress').textContent = selectedAddress ? selectedAddress.display_name : d.refAddr;
+                document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
+                document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
+                document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
+                document.getElementById('txtChipTitle').innerText = d.chipTitle;
+                document.getElementById('txtAlertTitle').innerText = d.alertTitle;
+                document.getElementById('txtNoAlerts').innerText = d.noAlerts;
+                document.getElementById('txtSettingsTitle').innerText = d.settingsTitle;
+                document.getElementById('txtCloseSettings').innerText = d.closeSettings;
+                document.getElementById('txtHomeLabel').innerText = d.homeLabel;
+                document.getElementById('txtWorkLabel').innerText = d.workLabel;
+                document.getElementById('txtSaveSettings').innerText = d.saveSettings;
+                document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
+                document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
+            }
+
+            function updateSelectedAddressDisplay() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                if (selectedAddress) {
+                    document.getElementById('selectedAddressText').textContent = selectedAddress.display_name;
+                } else {
+                    document.getElementById('selectedAddressText').textContent = d.noAddress;
+                }
+            }
+
+            function updateGeofenceStatusMessage() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const radiusDisplay = isSpanish ? geofenceRadius + ' m' : Math.round(geofenceRadius * 3.28084) + ' ft';
+                const msg = geofenceActive ? d.geofenceActivated.replace('{radius}', radiusDisplay) : d.geofenceDeactivated;
+                document.getElementById('cmdResult').innerHTML = msg;
+            }
+
+            // ══ GEOCERCA ══
+            function updateRadiusDisplay() {
+                const slider = document.getElementById('radiusSlider');
+                if (!slider) return;
+                const val = parseInt(slider.value);
+                geofenceRadius = val;
+                const unit = isSpanish ? 'm' : 'ft';
+                const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+                document.getElementById('radiusValue').textContent = displayVal + ' ' + unit;
+                updateGeofenceStatusMessage();
+                if (window.geofenceCircle && map) {
+                    window.geofenceCircle.setRadius(geofenceRadius);
+                }
+            }
+
+            function setGeofence(active) {
+                geofenceActive = active;
+                if (window.geofenceCircle) {
+                    const color = active ? '#ff4466' : '#00ff88';
+                    window.geofenceCircle.setStyle({ color: color, fillColor: color });
+                }
+                updateGeofenceStatusMessage();
+            }
+
+            // ══ AUTOCOMPLETADO DE DIRECCIONES ══
+            const addressInput = document.getElementById('addressInput');
+            const suggestionsList = document.getElementById('suggestionsList');
+            let debounceTimer;
+
+            addressInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+                if (query.length < 3) {
+                    suggestionsList.innerHTML = '';
+                    suggestionsList.classList.remove('active');
+                    return;
+                }
+                debounceTimer = setTimeout(() => fetchSuggestions(query), 400);
             });
-            suggestionsList.classList.add('active');
-        }
 
-        function selectAddress(result) {
-            addressInput.value = result.display_name;
-            suggestionsList.classList.remove('active');
-            selectedAddress = result;
-            updateSelectedAddressDisplay();
-            currentLat = parseFloat(result.lat);
-            currentLng = parseFloat(result.lon);
-            document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
-            document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
-            document.getElementById('refAddress').textContent = result.display_name;
-            if (marker && map) {
-                marker.setLatLng([currentLat, currentLng]);
-                map.setView([currentLat, currentLng], 17);
-                if (window.geofenceCircle) window.geofenceCircle.setLatLng([currentLat, currentLng]);
-            }
-        }
-
-        // ═══════════════ CHIPS BILINGÜES ═══════════════
-        const chips = [
-            { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"" },
-            { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"" },
-            { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"" },
-            { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-            { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
-        ];
-        const alertLog = [];
-
-        function renderChips() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            chips.forEach(chip => analyzePatterns(chip));
-            document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
-                const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
-                const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
-                return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
-                    <div class="chip-top">
-                        <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
-                        <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
-                    </div>
-                    <div class="chip-metrics">
-                        <span>⚡ <span class="val">${chip.voltage}V</span></span>
-                        <span>🌡️ <span class="val">${chip.temp}°C</span></span>
-                        <span>🔄 <span class="val">${chip.syncs}</span></span>
-                    </div>
-                    ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
-                    <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
-                </div>`;
-            }).join('');
-        }
-
-        function toggleChip(id) { document.getElementById('chip-' + id).classList.toggle('expanded'); }
-
-        function analyzePatterns(chip) {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); }
-            if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); }
-            if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertErrors + chip.errors); }
-        }
-
-        function addAlert(chip, nivel, mensaje) {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const chipIndex = chips.indexOf(chip);
-            const chipName = d.chipNames[chipIndex] || 'Unknown';
-            const exists = alertLog.find(a => a.chip === chipName && a.mensaje === mensaje);
-            if (!exists) {
-                alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chipName, icon: chip.icon, nivel, mensaje });
-                if (alertLog.length > 20) alertLog.pop();
-            }
-        }
-
-        function renderAlerts() {
-            const container = document.getElementById('alertList');
-            const d = langData[isSpanish ? 'es' : 'en'];
-            if (alertLog.length === 0) {
-                container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
-                return;
-            }
-            container.innerHTML = alertLog.map(a => `
-                <div class="alert-item ${a.nivel}">
-                    <div class="icon">${a.icon}</div>
-                    <div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div>
-                </div>
-            `).join('');
-        }
-
-        // ═══════════════ MAPA ═══════════════
-        let map = null, marker = null;
-        window.geofenceCircle = null;
-
-        function initMap() {
-            if (map) return;
-            const d = document.getElementById('map');
-            if (!d || d.offsetHeight === 0) { setTimeout(initMap, 300); return; }
-            map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Esri', maxZoom: 19
-            }).addTo(map);
-            marker = L.marker([currentLat, currentLng]).addTo(map)
-                .bindPopup('<strong>🚗 Tu auto está aquí</strong>');
-            const initialColor = geofenceActive ? '#ff4466' : '#00ff88';
-            window.geofenceCircle = L.circle([currentLat, currentLng], {
-                color: initialColor, fillColor: initialColor, fillOpacity: 0.15, radius: geofenceRadius
-            }).addTo(map);
-            setTimeout(() => { if(map) map.invalidateSize(); }, 500);
-        }
-
-        function updateLocation() {
-            currentLat += (Math.random() - 0.5) * 0.0005;
-            currentLng += (Math.random() - 0.5) * 0.0005;
-            document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
-            document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
-            if (marker && map) {
-                marker.setLatLng([currentLat, currentLng]);
-                map.setView([currentLat, currentLng], 17);
-                if (window.geofenceCircle) window.geofenceCircle.setLatLng([currentLat, currentLng]);
-            }
-        }
-
-        function shareLocation() {
-            const d = langData[isSpanish ? 'es' : 'en'];
-            const loc = `📍 Mi auto: https://www.google.com/maps?q=${currentLat},${currentLng}`;
-            if (navigator.share) navigator.share({ title: '📍 Ubicación', text: loc });
-            else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
-        }
-
-        function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
-
-        // ═══════════════ CONFIGURACIÓN ═══════════════
-        function openSettings() {
-            document.getElementById('settingsModal').classList.add('active');
-            document.getElementById('homeAddress').value = userSettings.homeAddress;
-            document.getElementById('workAddress').value = userSettings.workAddress;
-            const d = langData[isSpanish ? 'es' : 'en'];
-            document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
-            document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
-        }
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-        function saveSettings() {
-            userSettings.homeAddress = document.getElementById('homeAddress').value;
-            userSettings.workAddress = document.getElementById('workAddress').value;
-            localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
-            alert(langData[isSpanish?'es':'en'].settingsSaved);
-            closeSettings();
-        }
-
-        // ═══════════════ SIMULACIÓN ═══════════════
-        function simulateUpdate() {
-            chips.forEach(chip => {
-                chip.voltage += (Math.random() - 0.5) * 0.2;
-                chip.voltage = Math.round(chip.voltage * 10) / 10;
-                chip.temp += (Math.random() - 0.5) * 1;
-                chip.temp = Math.round(chip.temp);
-                chip.vH.push(chip.voltage); chip.tH.push(chip.temp);
-                if (chip.vH.length > 10) chip.vH.shift();
-                if (chip.tH.length > 10) chip.tH.shift();
-                if (Math.random() > 0.95) chip.errors++;
-                chip.syncs += Math.floor(Math.random() * 10);
+            addressInput.addEventListener('keydown', function(e) {
+                const items = suggestionsList.querySelectorAll('li');
+                let current = suggestionsList.querySelector('.selected');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (!current) { if (items.length) items[0].classList.add('selected'); }
+                    else { current.classList.remove('selected'); const next = current.nextElementSibling; if (next) next.classList.add('selected'); else items[0].classList.add('selected'); }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (!current) { if (items.length) items[items.length-1].classList.add('selected'); }
+                    else { current.classList.remove('selected'); const prev = current.previousElementSibling; if (prev) prev.classList.add('selected'); else items[items.length-1].classList.add('selected'); }
+                } else if (e.key === 'Enter') {
+                    if (current) current.click();
+                }
             });
-            renderChips();
-            renderAlerts();
-        }
 
-        // ═══════════════ INICIALIZACIÓN ═══════════════
-        let countdown = 5;
-        setInterval(() => {
-            countdown--;
-            if (countdown <= 0) countdown = 5;
-            const el = document.getElementById('countdown');
-            if (el) el.textContent = countdown + 's';
-            document.getElementById('currentTime').textContent = new Date().toLocaleString();
-        }, 1000);
+            document.addEventListener('click', function(e) {
+                if (!addressInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+                    suggestionsList.classList.remove('active');
+                }
+            });
 
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSettings(); });
-        document.getElementById('settingsModal').addEventListener('click', e => { if (e.target === this) closeSettings(); });
+            async function fetchSuggestions(query) {
+                const lang = isSpanish ? 'es' : 'en';
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&accept-language=${lang}`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    renderSuggestions(data);
+                } catch (error) { console.error('Error fetching suggestions:', error); }
+            }
 
-        // Exponer funciones globales
-        window.toggleLang = toggleLang;
-        window.updateRadiusDisplay = updateRadiusDisplay;
-        window.setGeofence = setGeofence;
-        window.updateLocation = updateLocation;
-        window.shareLocation = shareLocation;
-        window.navigateToCar = navigateToCar;
-        window.openSettings = openSettings;
-        window.closeSettings = closeSettings;
-        window.saveSettings = saveSettings;
-        window.logout = logout;
-        window.toggleChip = toggleChip;
+            function renderSuggestions(results) {
+                suggestionsList.innerHTML = '';
+                if (results.length === 0) { suggestionsList.classList.remove('active'); return; }
+                results.forEach(result => {
+                    const li = document.createElement('li');
+                    li.textContent = result.display_name;
+                    li.addEventListener('click', () => selectAddress(result));
+                    suggestionsList.appendChild(li);
+                });
+                suggestionsList.classList.add('active');
+            }
 
-        async function init() {
-            applyLanguage();
-            renderChips();
-            renderAlerts();
-            initMap();
-            await checkAuth();
-            setInterval(simulateUpdate, 15000);
-        }
+            function selectAddress(result) {
+                addressInput.value = result.display_name;
+                suggestionsList.classList.remove('active');
+                selectedAddress = result;
+                updateSelectedAddressDisplay();
+                currentLat = parseFloat(result.lat);
+                currentLng = parseFloat(result.lon);
+                document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
+                document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
+                document.getElementById('refAddress').textContent = result.display_name;
+                if (marker && map) {
+                    marker.setLatLng([currentLat, currentLng]);
+                    map.setView([currentLat, currentLng], 17);
+                    if (window.geofenceCircle) window.geofenceCircle.setLatLng([currentLat, currentLng]);
+                }
+            }
 
-        init();
+            // ══ CHIPS BILINGÜES ══
+            const chips = [
+                { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"" },
+                { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"" },
+                { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"" },
+                { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+                { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
+            ];
+            const alertLog = [];
+
+            function renderChips() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                chips.forEach(chip => analyzePatterns(chip));
+                document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
+                    const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
+                    const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
+                    return `<div class="chip ${chip.nivel}" onclick="window.toggleChip('${chip.id}')" id="chip-${chip.id}">
+                        <div class="chip-top">
+                            <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
+                            <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
+                        </div>
+                        <div class="chip-metrics">
+                            <span>⚡ <span class="val">${chip.voltage}V</span></span>
+                            <span>🌡️ <span class="val">${chip.temp}°C</span></span>
+                            <span>🔄 <span class="val">${chip.syncs}</span></span>
+                        </div>
+                        ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
+                        <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            function toggleChip(id) { document.getElementById('chip-' + id).classList.toggle('expanded'); }
+
+            function analyzePatterns(chip) {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); }
+                if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); }
+                if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertErrors + chip.errors); }
+            }
+
+            function addAlert(chip, nivel, mensaje) {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const chipIndex = chips.indexOf(chip);
+                const chipName = d.chipNames[chipIndex] || 'Unknown';
+                const exists = alertLog.find(a => a.chip === chipName && a.mensaje === mensaje);
+                if (!exists) {
+                    alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chipName, icon: chip.icon, nivel, mensaje });
+                    if (alertLog.length > 20) alertLog.pop();
+                }
+            }
+
+            function renderAlerts() {
+                const container = document.getElementById('alertList');
+                const d = langData[isSpanish ? 'es' : 'en'];
+                if (alertLog.length === 0) {
+                    container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
+                    return;
+                }
+                container.innerHTML = alertLog.map(a => `
+                    <div class="alert-item ${a.nivel}">
+                        <div class="icon">${a.icon}</div>
+                        <div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div>
+                    </div>
+                `).join('');
+            }
+
+            // ══ MAPA ══
+            function initMap() {
+                if (map) return;
+                const mapDiv = document.getElementById('map');
+                if (!mapDiv || mapDiv.offsetHeight === 0) { setTimeout(initMap, 300); return; }
+                try {
+                    map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: 'Esri', maxZoom: 19
+                    }).addTo(map);
+                    marker = L.marker([currentLat, currentLng]).addTo(map)
+                        .bindPopup('<strong>🚗 Tu auto está aquí</strong>');
+                    const initialColor = geofenceActive ? '#ff4466' : '#00ff88';
+                    window.geofenceCircle = L.circle([currentLat, currentLng], {
+                        color: initialColor, fillColor: initialColor, fillOpacity: 0.15, radius: geofenceRadius
+                    }).addTo(map);
+                    setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+                } catch (e) {
+                    console.error('Error al inicializar el mapa:', e);
+                }
+            }
+
+            function updateLocation() {
+                currentLat += (Math.random() - 0.5) * 0.0005;
+                currentLng += (Math.random() - 0.5) * 0.0005;
+                document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
+                document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
+                if (marker && map) {
+                    marker.setLatLng([currentLat, currentLng]);
+                    map.setView([currentLat, currentLng], 17);
+                    if (window.geofenceCircle) window.geofenceCircle.setLatLng([currentLat, currentLng]);
+                }
+            }
+
+            function shareLocation() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const loc = `📍 Mi auto: https://www.google.com/maps?q=${currentLat},${currentLng}`;
+                if (navigator.share) navigator.share({ title: '📍 Ubicación', text: loc });
+                else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
+            }
+
+            function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
+
+            // ══ CONFIGURACIÓN ══
+            function openSettings() {
+                document.getElementById('settingsModal').classList.add('active');
+                document.getElementById('homeAddress').value = userSettings.homeAddress;
+                document.getElementById('workAddress').value = userSettings.workAddress;
+                const d = langData[isSpanish ? 'es' : 'en'];
+                document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
+                document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
+            }
+            function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+            function saveSettings() {
+                userSettings.homeAddress = document.getElementById('homeAddress').value;
+                userSettings.workAddress = document.getElementById('workAddress').value;
+                localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
+                alert(langData[isSpanish?'es':'en'].settingsSaved);
+                closeSettings();
+            }
+
+            // ══ SIMULACIÓN ══
+            function simulateUpdate() {
+                chips.forEach(chip => {
+                    chip.voltage += (Math.random() - 0.5) * 0.2;
+                    chip.voltage = Math.round(chip.voltage * 10) / 10;
+                    chip.temp += (Math.random() - 0.5) * 1;
+                    chip.temp = Math.round(chip.temp);
+                    chip.vH.push(chip.voltage); chip.tH.push(chip.temp);
+                    if (chip.vH.length > 10) chip.vH.shift();
+                    if (chip.tH.length > 10) chip.tH.shift();
+                    if (Math.random() > 0.95) chip.errors++;
+                    chip.syncs += Math.floor(Math.random() * 10);
+                });
+                renderChips();
+                renderAlerts();
+            }
+
+            // ══ RELOJ ══
+            let countdown = 5;
+            setInterval(() => {
+                countdown--;
+                if (countdown <= 0) countdown = 5;
+                const el = document.getElementById('countdown');
+                if (el) el.textContent = countdown + 's';
+                document.getElementById('currentTime').textContent = new Date().toLocaleString();
+            }, 1000);
+
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSettings(); });
+            document.getElementById('settingsModal').addEventListener('click', e => { if (e.target === this) closeSettings(); });
+
+            // ══ EXPONER FUNCIONES GLOBALES (necesarias para onclick en HTML) ══
+            window.toggleLang = toggleLang;
+            window.updateRadiusDisplay = updateRadiusDisplay;
+            window.setGeofence = setGeofence;
+            window.updateLocation = updateLocation;
+            window.shareLocation = shareLocation;
+            window.navigateToCar = navigateToCar;
+            window.openSettings = openSettings;
+            window.closeSettings = closeSettings;
+            window.saveSettings = saveSettings;
+            window.logout = logout;
+            window.toggleChip = toggleChip;
+
+            // ══ INICIALIZAR ══
+            async function init() {
+                applyLanguage();
+                renderChips();
+                renderAlerts();
+                initMap();
+                await checkAuth();
+                setInterval(simulateUpdate, 15000);
+            }
+
+            init();
+        })();
     </script>
 </body>
 </html>

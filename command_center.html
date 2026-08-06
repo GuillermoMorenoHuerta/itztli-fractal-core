@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* (mismo CSS que tenías, lo dejamos igual) */
         :root {
             --bg: #0a0a0f; --card: #12121f; --border: #1e1e3a;
             --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88;
@@ -232,22 +231,22 @@
         // ============================================================
         const SUPABASE_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ✅ Usamos un nombre diferente para evitar conflicto con la variable global de Supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let datos = { usuarios: [], dispositivos: [], chips: [] };
 
         // ============================================================
-        // AUTENTICACIÓN DE ADMIN (SIN auth.js)
+        // AUTENTICACIÓN DE ADMIN
         // ============================================================
         async function checkAdminSession() {
             try {
-                const { data: { user }, error } = await supabase.auth.getUser();
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
                 if (error || !user) {
                     window.location.href = 'login.html';
                     return false;
                 }
-                // Verificar que el usuario tenga rol 'admin' en la tabla usuarios
-                const { data: userData, error: fetchError } = await supabase
+                const { data: userData, error: fetchError } = await supabaseClient
                     .from('usuarios')
                     .select('role')
                     .eq('id', user.id)
@@ -256,7 +255,9 @@
                     window.location.href = 'login.html';
                     return false;
                 }
-                document.getElementById('logoutBtn').style.display = 'inline-block';
+                // Mostrar botón de logout
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) logoutBtn.style.display = 'inline-block';
                 return true;
             } catch (err) {
                 window.location.href = 'login.html';
@@ -265,18 +266,24 @@
         }
 
         // ============================================================
-        // LOGOUT
+        // LOGOUT (se asigna dentro de DOMContentLoaded)
         // ============================================================
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.href = 'login.html';
-        });
+        function setupLogout() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    await supabaseClient.auth.signOut();
+                    window.location.href = 'login.html';
+                });
+            }
+        }
 
         // ============================================================
         // TOAST
         // ============================================================
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
+            if (!t) return;
             t.textContent = msg; t.className = `toast ${type} show`;
             setTimeout(() => t.classList.remove('show'), 3000);
         }
@@ -288,19 +295,27 @@
         function closeChipModal() { document.getElementById('chipModal').classList.remove('active'); }
 
         // ============================================================
-        // CARGAR DATOS
+        // CARGAR DATOS (con manejo de tablas faltantes)
         // ============================================================
         async function cargarDatos() {
             const isAdmin = await checkAdminSession();
             if (!isAdmin) return;
 
             try {
-                const { data: usuarios, error: errU } = await supabase.from('usuarios').select('*');
+                // Usuarios
+                const { data: usuarios, error: errU } = await supabaseClient.from('usuarios').select('*');
                 if (!errU) datos.usuarios = usuarios;
-                const { data: dispositivos, error: errD } = await supabase.from('dispositivos').select('*');
+                else console.warn('Error cargando usuarios:', errU);
+
+                // Dispositivos
+                const { data: dispositivos, error: errD } = await supabaseClient.from('dispositivos').select('*');
                 if (!errD) datos.dispositivos = dispositivos;
-                const { data: chips, error: errC } = await supabase.from('chips').select('*');
+                else console.warn('Error cargando dispositivos:', errD);
+
+                // Chips
+                const { data: chips, error: errC } = await supabaseClient.from('chips').select('*');
                 if (!errC) datos.chips = chips;
+                else console.warn('Error cargando chips:', errC);
             } catch (e) {
                 showToast('Error conectando a Supabase', 'error');
             }
@@ -356,10 +371,10 @@
                     <h2 style="color:var(--green); margin-bottom:1rem;">💻 Dispositivos (${d.dispositivos.length})</h2>
                     <div class="table-container">
                         <table><thead><tr><th>Chip ID</th><th>Licencia</th><th>Estado</th><th>Acciones</th></tr></thead>
-                        <tbody>${d.dispositivos.map(d => `<tr>
-                            <td>${d.chip_id}</td><td>${d.licencia || 'N/A'}</td>
-                            <td><span class="badge-status ${d.estado}">${d.estado}</span></td>
-                            <td><button class="btn btn-sm btn-red" onclick="deleteDevice('${d.id}')">🗑️</button></td>
+                        <tbody>${d.dispositivos.map(disp => `<tr>
+                            <td>${disp.chip_id}</td><td>${disp.licencia || 'N/A'}</td>
+                            <td><span class="badge-status ${disp.estado}">${disp.estado}</span></td>
+                            <td><button class="btn btn-sm btn-red" onclick="deleteDevice('${disp.id}')">🗑️</button></td>
                         </tr>`).join('')}</tbody></table>
                     </div>
                 `;
@@ -383,6 +398,9 @@
             }
         }
 
+        // ============================================================
+        // FUNCIONES PARA CHIPS
+        // ============================================================
         function filtrarChips() {
             const query = document.getElementById('searchChip').value.toLowerCase();
             const filtrados = datos.chips.filter(c => c.serial.toLowerCase().includes(query) || (c.fabricante||'').toLowerCase().includes(query));
@@ -449,10 +467,10 @@
             const id = document.getElementById('chipId').value;
 
             if (id) {
-                const { error } = await supabase.from('chips').update(chipData).eq('id', id);
+                const { error } = await supabaseClient.from('chips').update(chipData).eq('id', id);
                 if (error) return showToast('Error al actualizar: ' + error.message, 'error');
             } else {
-                const { error } = await supabase.from('chips').insert(chipData);
+                const { error } = await supabaseClient.from('chips').insert(chipData);
                 if (error) return showToast('Error al crear: ' + error.message, 'error');
             }
             showToast('Chip guardado correctamente');
@@ -463,7 +481,7 @@
 
         async function deleteChip(id) {
             if (!confirm('¿Eliminar chip definitivamente?')) return;
-            const { error } = await supabase.from('chips').delete().eq('id', id);
+            const { error } = await supabaseClient.from('chips').delete().eq('id', id);
             if (error) showToast('Error: ' + error.message, 'error');
             else showToast('Chip eliminado');
             await cargarDatos();
@@ -473,7 +491,7 @@
         async function toggleChip(id) {
             const chip = datos.chips.find(c => c.id == id);
             if (!chip) return;
-            const { error } = await supabase.from('chips').update({ suspendido: !chip.suspendido }).eq('id', id);
+            const { error } = await supabaseClient.from('chips').update({ suspendido: !chip.suspendido }).eq('id', id);
             if (error) showToast('Error', 'error');
             else showToast(chip.suspendido ? 'Chip activado' : 'Chip suspendido');
             await cargarDatos();
@@ -481,7 +499,7 @@
         }
 
         // ============================================================
-        // USUARIOS (SIN INSERT MANUAL)
+        // FUNCIONES PARA USUARIOS (CON RESPALDO MANUAL DEL PERFIL)
         // ============================================================
         async function openUserModal(userId = null) {
             document.getElementById('userModal').classList.add('active');
@@ -514,57 +532,105 @@
             if (password.length < 8) return showToast('Contraseña mínimo 8 caracteres', 'error');
 
             try {
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await supabaseClient.auth.signUp({
                     email,
                     password,
                     options: { data: { nombre: name, plan } }
                 });
                 if (error) throw error;
+                if (!data.user) throw new Error('No se pudo crear el usuario');
 
-                // ✅ EL TRIGGER CREA EL PERFIL AUTOMÁTICAMENTE – NO INSERTAMOS MANUAL
-                showToast('Usuario creado exitosamente (el perfil se crea automáticamente)');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                const { data: userData, error: checkError } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (checkError || !userData) {
+                    console.warn('Perfil no creado automáticamente, insertando manualmente...');
+                    const { error: insertError } = await supabaseClient.from('usuarios').insert({
+                        id: data.user.id,
+                        email: email,
+                        nombre: name || '',
+                        plan: plan,
+                        role: 'user',
+                        created_at: new Date().toISOString()
+                    });
+                    if (insertError) throw insertError;
+                    showToast('Usuario creado (perfil manual)');
+                } else {
+                    showToast('Usuario creado exitosamente (automático)');
+                }
+
                 closeModal();
                 await cargarDatos();
                 cargarVista('usuarios');
             } catch (err) {
-                showToast('Error: ' + err.message, 'error');
+                showToast('❌ Error: ' + err.message, 'error');
             }
         }
 
         async function deleteUser(id) {
-            if (!confirm('¿Eliminar usuario?')) return;
-            await supabase.from('usuarios').delete().eq('id', id);
-            showToast('Usuario removido del sistema');
-            await cargarDatos();
-            cargarVista('usuarios');
+            if (!confirm('¿Eliminar usuario permanentemente?')) return;
+            try {
+                const { error } = await supabaseClient.from('usuarios').delete().eq('id', id);
+                if (error) throw error;
+                showToast('Usuario eliminado de la base de datos (perfil removido)');
+                await cargarDatos();
+                cargarVista('usuarios');
+            } catch (err) {
+                showToast('❌ Error: ' + err.message, 'error');
+            }
         }
 
         function editUser(id) { openUserModal(id); }
 
+        // ============================================================
+        // FUNCIONES PARA DISPOSITIVOS
+        // ============================================================
         async function deleteDevice(id) {
             if (!confirm('¿Eliminar dispositivo?')) return;
-            await supabase.from('dispositivos').delete().eq('id', id);
-            showToast('Dispositivo eliminado');
-            await cargarDatos();
-            cargarVista('dispositivos');
+            try {
+                const { error } = await supabaseClient.from('dispositivos').delete().eq('id', id);
+                if (error) throw error;
+                showToast('Dispositivo eliminado');
+                await cargarDatos();
+                cargarVista('dispositivos');
+            } catch (err) {
+                showToast('❌ Error: ' + err.message, 'error');
+            }
         }
 
-        function updateClock() { document.getElementById('currentTime').textContent = new Date().toLocaleString('es-MX', { hour12: false }); }
-        setInterval(updateClock, 1000); updateClock();
-
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-                const vista = this.dataset.vista;
-                cargarVista(vista);
-            });
-        });
+        // ============================================================
+        // RELOJ Y NAVEGACIÓN
+        // ============================================================
+        function updateClock() { 
+            const el = document.getElementById('currentTime');
+            if (el) el.textContent = new Date().toLocaleString('es-MX', { hour12: false }); 
+        }
+        setInterval(updateClock, 1000); 
+        updateClock();
 
         // ============================================================
         // INICIALIZACIÓN
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
+            // Configurar logout
+            setupLogout();
+
+            // Configurar navegación
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    const vista = this.dataset.vista;
+                    cargarVista(vista);
+                });
+            });
+
+            // Verificar admin y cargar datos
             const isAdmin = await checkAdminSession();
             if (!isAdmin) return;
             await cargarDatos();

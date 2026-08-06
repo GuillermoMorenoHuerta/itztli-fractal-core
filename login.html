@@ -6,9 +6,7 @@
     <title>ITZTLI FRACTAL · Acceso</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://js.stripe.com/v3/"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* (mismo CSS, sin cambios) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
@@ -89,26 +87,26 @@
 
     <form id="loginForm" autocomplete="off">
         <div class="form-group" id="nombreGroup" style="display:none;">
-            <label for="nombre" data-i18n="nombreLabel">Nombre (opcional)</label>
+            <label for="nombre" id="lblNombre">Nombre (opcional)</label>
             <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
         </div>
         <div class="form-group">
-            <label for="email" data-i18n="emailLabel">Correo electrónico</label>
+            <label for="email" id="lblEmail">Correo electrónico</label>
             <input type="email" id="email" placeholder="tú@ejemplo.com" required autocomplete="email">
         </div>
         <div class="form-group">
-            <label for="password" data-i18n="passLabel">Contraseña</label>
+            <label for="password" id="lblPassword">Contraseña</label>
             <input type="password" id="password" placeholder="••••••••" required minlength="8" autocomplete="new-password">
         </div>
         <div class="form-group" id="password2Group" style="display:none;">
-            <label for="password2" data-i18n="pass2Label">Verificar contraseña</label>
+            <label for="password2" id="lblPassword2">Verificar contraseña</label>
             <input type="password" id="password2" placeholder="••••••••">
         </div>
         <div class="form-group" id="vinGroup" style="display:none;">
-            <label for="vin" data-i18n="vinLabel">VIN del Vehículo</label>
+            <label for="vin" id="lblVin">VIN del Vehículo</label>
             <input type="text" id="vin" placeholder="1HGBH41JXMN109186">
         </div>
-        <div class="captcha-row" id="captchaGroup">
+        <div class="captcha-row">
             <span id="captchaText">3 + 4 = ?</span>
             <input type="text" id="captchaInput" placeholder="?" maxlength="2" inputmode="numeric">
         </div>
@@ -119,251 +117,275 @@
         </div>
     </form>
     <div class="extra-info">
-        <span data-i18n="terms">Al registrarte aceptas nuestros</span>
+        <span id="txtTerms">Al registrarte aceptas nuestros</span>
         <a href="terminos.html">Términos y condiciones</a>
     </div>
 </div>
 
 <script>
-    // ═══════════════ INICIALIZACIÓN PROTEGIDA ═══════════════
-    let supabase = null;
-    let stripe = null;
-
-    try {
-        if (window.supabase) {
-            supabase = window.supabase.createClient(
-                'https://rpoqukrcvkcmaqsajchk.supabase.co',
-                'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5'
-            );
-        }
-    } catch (e) { console.error('Supabase init error:', e); }
-
-    try {
-        stripe = Stripe('pk_live_51SJOri22YPeLMMgswtUD9HC6bDsNrUA6Sv1WQY1kkM7WUEQRDcWSNVa09j2LGe3NdT6PiZNedeYklpwKEnNXhjsM00KTNp7fqh');
-    } catch (e) { console.error('Stripe init error:', e); }
-
-    const PRICE_IDS = {
-        premium: 'price_1TwjFe22YPeLMMgsYwq19tS1',
-        platinum: 'price_1TwjHs22YPeLMMgsieFHKlnm'
-    };
-
-    // ═══════════════ PLAN DESDE URL ═══════════════
-    const urlParams = new URLSearchParams(window.location.search);
-    let selectedPlan = urlParams.get('plan') || 'demo';
-    if (!['demo', 'premium', 'platinum'].includes(selectedPlan)) selectedPlan = 'demo';
-    document.getElementById('planName').textContent = selectedPlan.toUpperCase();
-
-    // ═══════════════ i18n ═══════════════
-    let currentLang = 'es';
-    const i18n = {
-        es: {
-            planLabel: 'Registro · Plan',
-            nombreLabel: 'Nombre (opcional)',
-            emailLabel: 'Correo electrónico',
-            passLabel: 'Contraseña',
-            pass2Label: 'Verificar contraseña',
-            vinLabel: 'VIN del Vehículo',
-            btnRegister: 'Registrarse',
-            btnLogin: 'Iniciar sesión',
-            toggleToRegister: '¿No tienes cuenta? Regístrate',
-            toggleToLogin: 'Ya tengo cuenta · Iniciar sesión',
-            terms: 'Al registrarte aceptas nuestros',
-            errorGeneral: 'Ocurrió un error.',
-            errorEmail: 'Correo inválido.',
-            errorPass: 'Mínimo 8 caracteres.',
-            errorPassMatch: 'Las contraseñas no coinciden.',
-            errorCaptcha: 'Captcha incorrecto.',
-            errorUserExists: 'El correo ya está registrado.',
-            errorInvalidCreds: 'Correo o contraseña incorrectos.',
-            errorNoUser: 'No existe una cuenta con ese correo.',
-            successRegister: '¡Registro exitoso! Redirigiendo...',
-            successLogin: 'Inicio de sesión exitoso. Redirigiendo...',
-            rateLimit: 'Demasiados intentos. Espera 5 minutos.',
-            noSupabase: 'Error de conexión con la base de datos.'
-        },
-        en: {
-            planLabel: 'Registration · Plan',
-            nombreLabel: 'Name (optional)',
-            emailLabel: 'Email',
-            passLabel: 'Password',
-            pass2Label: 'Confirm password',
-            vinLabel: 'Vehicle VIN',
-            btnRegister: 'Sign up',
-            btnLogin: 'Log in',
-            toggleToRegister: 'No account? Register',
-            toggleToLogin: 'Already have an account? Log in',
-            terms: 'By registering you accept our',
-            errorGeneral: 'An error occurred.',
-            errorEmail: 'Invalid email.',
-            errorPass: 'At least 8 characters.',
-            errorPassMatch: 'Passwords do not match.',
-            errorCaptcha: 'Captcha incorrect.',
-            errorUserExists: 'Email already registered.',
-            errorInvalidCreds: 'Incorrect email or password.',
-            errorNoUser: 'No account found with that email.',
-            successRegister: 'Registration successful! Redirecting...',
-            successLogin: 'Login successful. Redirecting...',
-            rateLimit: 'Too many attempts. Wait 5 minutes.',
-            noSupabase: 'Database connection error.'
-        }
-    };
-
-    function updateLanguage(lang) {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
-        });
-        document.getElementById('langLabel').textContent = lang.toUpperCase();
-        document.getElementById('planLabelTxt').textContent = i18n[lang].planLabel;
-        updateButtonLabels();
-    }
-
-    let isRegisterMode = false;
-    function updateButtonLabels() {
-        const btn = document.getElementById('btnSubmit');
-        const toggleBtn = document.getElementById('btnToggle');
+    // ═══════════════ FUNCIÓN AUTOEJECUTABLE (TODO AQUÍ DENTRO, SIN GLOBALES) ═══════════════
+    (function() {
+        // ══ ELEMENTOS DEL DOM ══
+        const langLabel = document.getElementById('langLabel');
+        const planLabelTxt = document.getElementById('planLabelTxt');
+        const planName = document.getElementById('planName');
         const nombreGroup = document.getElementById('nombreGroup');
         const password2Group = document.getElementById('password2Group');
         const vinGroup = document.getElementById('vinGroup');
         const planBadge = document.getElementById('planBadge');
+        const lblNombre = document.getElementById('lblNombre');
+        const lblEmail = document.getElementById('lblEmail');
+        const lblPassword = document.getElementById('lblPassword');
+        const lblPassword2 = document.getElementById('lblPassword2');
+        const lblVin = document.getElementById('lblVin');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const btnToggle = document.getElementById('btnToggle');
+        const errorMsg = document.getElementById('errorMsg');
+        const captchaText = document.getElementById('captchaText');
+        const captchaInput = document.getElementById('captchaInput');
+        const txtTerms = document.getElementById('txtTerms');
+        const langToggle = document.getElementById('langToggle');
 
-        if (isRegisterMode) {
-            btn.textContent = i18n[currentLang].btnRegister;
-            toggleBtn.textContent = i18n[currentLang].toggleToLogin;
-            nombreGroup.style.display = 'block';
-            password2Group.style.display = 'block';
-            vinGroup.style.display = 'block';
-            planBadge.style.display = 'block';
-            document.getElementById('password2').setAttribute('required', '');
-            document.getElementById('vin').setAttribute('required', '');
-        } else {
-            btn.textContent = i18n[currentLang].btnLogin;
-            toggleBtn.textContent = i18n[currentLang].toggleToRegister;
-            nombreGroup.style.display = 'none';
-            password2Group.style.display = 'none';
-            vinGroup.style.display = 'none';
-            planBadge.style.display = 'none';
-            document.getElementById('password2').removeAttribute('required');
-            document.getElementById('vin').removeAttribute('required');
+        // ══ INICIALIZAR SUPABASE Y STRIPE ══
+        let supabase = null;
+        let stripe = null;
+
+        try {
+            // Usar el objeto global window.supabase sin redeclarar
+            const sb = window.supabase;
+            if (sb) {
+                supabase = sb.createClient(
+                    'https://rpoqukrcvkcmaqsajchk.supabase.co',
+                    'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5'
+                );
+            }
+        } catch (e) { console.warn('Supabase no disponible:', e); }
+
+        try {
+            stripe = Stripe('pk_live_51SJOri22YPeLMMgswtUD9HC6bDsNrUA6Sv1WQY1kkM7WUEQRDcWSNVa09j2LGe3NdT6PiZNedeYklpwKEnNXhjsM00KTNp7fqh');
+        } catch (e) { console.warn('Stripe no disponible:', e); }
+
+        const PRICE_IDS = {
+            premium: 'price_1TwjFe22YPeLMMgsYwq19tS1',
+            platinum: 'price_1TwjHs22YPeLMMgsieFHKlnm'
+        };
+
+        // ══ PLAN DESDE URL ══
+        const urlParams = new URLSearchParams(window.location.search);
+        let selectedPlan = urlParams.get('plan') || 'demo';
+        if (!['demo', 'premium', 'platinum'].includes(selectedPlan)) selectedPlan = 'demo';
+        planName.textContent = selectedPlan.toUpperCase();
+
+        // ══ IDIOMA ══
+        let currentLang = 'es';
+        const i18n = {
+            es: {
+                planLabel: 'Registro · Plan',
+                lblNombre: 'Nombre (opcional)',
+                lblEmail: 'Correo electrónico',
+                lblPassword: 'Contraseña',
+                lblPassword2: 'Verificar contraseña',
+                lblVin: 'VIN del Vehículo',
+                btnRegistrarse: 'Registrarse',
+                btnLogin: 'Iniciar sesión',
+                toggleToRegister: '¿No tienes cuenta? Regístrate',
+                toggleToLogin: 'Ya tengo cuenta · Iniciar sesión',
+                terms: 'Al registrarte aceptas nuestros',
+                errorGeneral: 'Ocurrió un error.',
+                errorEmail: 'Correo inválido.',
+                errorPass: 'Mínimo 8 caracteres.',
+                errorPassMatch: 'Las contraseñas no coinciden.',
+                errorCaptcha: 'Captcha incorrecto.',
+                errorUserExists: 'El correo ya está registrado.',
+                errorInvalidCreds: 'Correo o contraseña incorrectos.',
+                errorNoUser: 'No existe una cuenta con ese correo.',
+                successRegister: '¡Registro exitoso! Redirigiendo...',
+                successLogin: 'Inicio de sesión exitoso. Redirigiendo...',
+                rateLimit: 'Demasiados intentos. Espera 5 minutos.',
+                noSupabase: 'Error de conexión con la base de datos.'
+            },
+            en: {
+                planLabel: 'Registration · Plan',
+                lblNombre: 'Name (optional)',
+                lblEmail: 'Email',
+                lblPassword: 'Password',
+                lblPassword2: 'Confirm password',
+                lblVin: 'Vehicle VIN',
+                btnRegistrarse: 'Sign up',
+                btnLogin: 'Log in',
+                toggleToRegister: 'No account? Register',
+                toggleToLogin: 'Already have an account? Log in',
+                terms: 'By registering you accept our',
+                errorGeneral: 'An error occurred.',
+                errorEmail: 'Invalid email.',
+                errorPass: 'At least 8 characters.',
+                errorPassMatch: 'Passwords do not match.',
+                errorCaptcha: 'Captcha incorrect.',
+                errorUserExists: 'Email already registered.',
+                errorInvalidCreds: 'Incorrect email or password.',
+                errorNoUser: 'No account found with that email.',
+                successRegister: 'Registration successful! Redirecting...',
+                successLogin: 'Login successful. Redirecting...',
+                rateLimit: 'Too many attempts. Wait 5 minutes.',
+                noSupabase: 'Database connection error.'
+            }
+        };
+
+        function updateLanguage() {
+            const d = i18n[currentLang];
+            lblNombre.textContent = d.lblNombre;
+            lblEmail.textContent = d.lblEmail;
+            lblPassword.textContent = d.lblPassword;
+            lblPassword2.textContent = d.lblPassword2;
+            lblVin.textContent = d.lblVin;
+            txtTerms.textContent = d.terms;
+            langLabel.textContent = currentLang.toUpperCase();
+            planLabelTxt.textContent = d.planLabel;
+            updateButtonLabels();
         }
-    }
 
-    function generateCaptcha() {
-        const num1 = Math.floor(Math.random() * 10) + 1;
-        const num2 = Math.floor(Math.random() * 10) + 1;
-        document.getElementById('captchaText').textContent = `${num1} + ${num2} = ?`;
-        document.getElementById('captchaInput').dataset.result = num1 + num2;
-        document.getElementById('captchaInput').value = '';
-    }
-    generateCaptcha();
+        let isRegisterMode = false;
+        function updateButtonLabels() {
+            const d = i18n[currentLang];
+            if (isRegisterMode) {
+                btnSubmit.textContent = d.btnRegistrarse;
+                btnToggle.textContent = d.toggleToLogin;
+            } else {
+                btnSubmit.textContent = d.btnLogin;
+                btnToggle.textContent = d.toggleToRegister;
+            }
+        }
 
-    document.getElementById('langToggle').addEventListener('click', () => {
-        currentLang = (currentLang === 'es') ? 'en' : 'es';
-        updateLanguage(currentLang);
-        generateCaptcha();
-    });
-
-    document.getElementById('btnToggle').addEventListener('click', () => {
-        isRegisterMode = !isRegisterMode;
-        updateButtonLabels();
-        document.getElementById('errorMsg').style.display = 'none';
-        generateCaptcha();
-    });
-
-    function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const errorDiv = document.getElementById('errorMsg');
-        errorDiv.style.display = 'none';
-        errorDiv.textContent = '';
-
-        const nombre = document.getElementById('nombre').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const password2 = document.getElementById('password2').value;
-        const vin = document.getElementById('vin').value.trim();
-        const captchaInput = document.getElementById('captchaInput').value;
-        const captchaResult = document.getElementById('captchaInput').dataset.result;
-
-        if (!email || !password) { showError('Completa todos los campos obligatorios.'); return; }
-        if (!validateEmail(email)) { showError(i18n[currentLang].errorEmail); return; }
-        if (password.length < 8) { showError(i18n[currentLang].errorPass); return; }
-        if (!captchaInput || parseInt(captchaInput) !== parseInt(captchaResult)) {
-            showError(i18n[currentLang].errorCaptcha);
+        // Eventos de los botones (SIEMPRE FUNCIONAN)
+        langToggle.addEventListener('click', () => {
+            currentLang = (currentLang === 'es') ? 'en' : 'es';
+            updateLanguage();
             generateCaptcha();
-            return;
+        });
+
+        btnToggle.addEventListener('click', () => {
+            isRegisterMode = !isRegisterMode;
+            nombreGroup.style.display = isRegisterMode ? 'block' : 'none';
+            password2Group.style.display = isRegisterMode ? 'block' : 'none';
+            vinGroup.style.display = isRegisterMode ? 'block' : 'none';
+            planBadge.style.display = isRegisterMode ? 'block' : 'none';
+            if (isRegisterMode) {
+                document.getElementById('password2').setAttribute('required', '');
+                document.getElementById('vin').setAttribute('required', '');
+            } else {
+                document.getElementById('password2').removeAttribute('required');
+                document.getElementById('vin').removeAttribute('required');
+            }
+            updateButtonLabels();
+        });
+
+        function generateCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            captchaText.textContent = `${num1} + ${num2} = ?`;
+            captchaInput.dataset.result = num1 + num2;
+            captchaInput.value = '';
         }
-        if (!supabase) { showError(i18n[currentLang].noSupabase); return; }
+        generateCaptcha();
 
-        if (isRegisterMode) {
-            if (!password2) { showError('Confirma tu contraseña.'); return; }
-            if (password !== password2) { showError(i18n[currentLang].errorPassMatch); return; }
-            if (!vin) { showError('El VIN es obligatorio.'); return; }
+        function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email, password,
-                    options: { data: { nombre, plan: selectedPlan, vin, role: 'user' } }
-                });
-                if (error) {
-                    if (error.message.includes('already registered')) showError(i18n[currentLang].errorUserExists);
-                    else if (error.message.includes('rate limit')) showError(i18n[currentLang].rateLimit);
-                    else showError(error.message);
-                    return;
-                }
+        // ══ ENVÍO DEL FORMULARIO (CONEXIÓN REAL) ══
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            errorMsg.textContent = '';
 
-                if (selectedPlan === 'demo') {
-                    showSuccess(i18n[currentLang].successRegister);
-                    setTimeout(() => { window.location.href = 'bienvenida-demo.html'; }, 1000);
-                } else {
-                    if (!stripe) { showError('Error de conexión con la pasarela de pago.'); return; }
-                    const priceId = PRICE_IDS[selectedPlan];
-                    if (!priceId) { showError('Plan no válido.'); return; }
-                    showSuccess(i18n[currentLang].successRegister);
-                    setTimeout(() => {
-                        stripe.redirectToCheckout({
-                            lineItems: [{ price: priceId, quantity: 1 }],
-                            mode: 'subscription',
-                            successUrl: window.location.origin + '/bienvenida-' + selectedPlan + '.html?session_id={CHECKOUT_SESSION_ID}',
-                            cancelUrl: window.location.origin + '/login.html?plan=' + selectedPlan,
-                        }).catch(err => showError('Error al redirigir a Stripe: ' + err.message));
-                    }, 500);
-                }
-            } catch (err) { showError(i18n[currentLang].errorGeneral); }
-        } else {
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) {
-                    if (error.message.includes('Invalid login credentials')) {
-                        const { data: checkUser } = await supabase.from('usuarios').select('id').eq('email', email).maybeSingle();
-                        if (!checkUser) showError(i18n[currentLang].errorNoUser);
-                        else showError(i18n[currentLang].errorInvalidCreds);
-                    } else if (error.message.includes('rate limit')) showError(i18n[currentLang].rateLimit);
-                    else showError(error.message);
-                    return;
-                }
-                const { data: userData } = await supabase.from('usuarios').select('plan').eq('id', data.user.id).single();
-                const userPlan = (userData && userData.plan) || 'demo';
-                showSuccess(i18n[currentLang].successLogin);
-                setTimeout(() => { window.location.href = 'bienvenida-' + userPlan + '.html'; }, 1000);
-            } catch (err) { showError(i18n[currentLang].errorGeneral); }
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+            const nombre = document.getElementById('nombre').value.trim();
+            const vin = document.getElementById('vin').value.trim();
+            const captchaVal = captchaInput.value;
+            const captchaRes = captchaInput.dataset.result;
+
+            if (!email || !password) { showError('Completa todos los campos obligatorios.'); return; }
+            if (!validateEmail(email)) { showError(i18n[currentLang].errorEmail); return; }
+            if (password.length < 8) { showError(i18n[currentLang].errorPass); return; }
+            if (!captchaVal || parseInt(captchaVal) !== parseInt(captchaRes)) {
+                showError(i18n[currentLang].errorCaptcha);
+                generateCaptcha();
+                return;
+            }
+            if (!supabase) { showError(i18n[currentLang].noSupabase); return; }
+
+            if (isRegisterMode) {
+                if (!password2) { showError('Confirma tu contraseña.'); return; }
+                if (password !== password2) { showError(i18n[currentLang].errorPassMatch); return; }
+                if (!vin) { showError('El VIN es obligatorio.'); return; }
+
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email, password,
+                        options: { data: { nombre, plan: selectedPlan, vin, role: 'user' } }
+                    });
+                    if (error) {
+                        if (error.message.includes('already registered')) showError(i18n[currentLang].errorUserExists);
+                        else if (error.message.includes('rate limit')) showError(i18n[currentLang].rateLimit);
+                        else showError(error.message);
+                        return;
+                    }
+
+                    if (selectedPlan === 'demo') {
+                        showSuccess(i18n[currentLang].successRegister);
+                        setTimeout(() => { window.location.href = 'bienvenida-demo.html'; }, 1000);
+                    } else {
+                        if (!stripe) { showError('Error de conexión con la pasarela de pago.'); return; }
+                        const priceId = PRICE_IDS[selectedPlan];
+                        if (!priceId) { showError('Plan no válido.'); return; }
+                        showSuccess(i18n[currentLang].successRegister);
+                        setTimeout(() => {
+                            stripe.redirectToCheckout({
+                                lineItems: [{ price: priceId, quantity: 1 }],
+                                mode: 'subscription',
+                                successUrl: window.location.origin + '/bienvenida-' + selectedPlan + '.html?session_id={CHECKOUT_SESSION_ID}',
+                                cancelUrl: window.location.origin + '/login.html?plan=' + selectedPlan,
+                            }).catch(err => showError('Error al redirigir a Stripe: ' + err.message));
+                        }, 500);
+                    }
+                } catch (err) { showError(i18n[currentLang].errorGeneral); }
+            } else {
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        if (error.message.includes('Invalid login credentials')) {
+                            const { data: checkUser } = await supabase.from('usuarios').select('id').eq('email', email).maybeSingle();
+                            if (!checkUser) showError(i18n[currentLang].errorNoUser);
+                            else showError(i18n[currentLang].errorInvalidCreds);
+                        } else if (error.message.includes('rate limit')) showError(i18n[currentLang].rateLimit);
+                        else showError(error.message);
+                        return;
+                    }
+                    const { data: userData } = await supabase.from('usuarios').select('plan').eq('id', data.user.id).single();
+                    const userPlan = (userData && userData.plan) || 'demo';
+                    showSuccess(i18n[currentLang].successLogin);
+                    setTimeout(() => { window.location.href = 'bienvenida-' + userPlan + '.html'; }, 1000);
+                } catch (err) { showError(i18n[currentLang].errorGeneral); }
+            }
+        });
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            errorMsg.style.borderLeftColor = '#c84a28';
+            errorMsg.style.color = '#f0b090';
         }
-    });
+        function showSuccess(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            errorMsg.style.borderLeftColor = '#4aff8a';
+            errorMsg.style.color = '#b0ffd0';
+        }
 
-    function showError(msg) {
-        const err = document.getElementById('errorMsg');
-        err.textContent = msg; err.style.display = 'block';
-        err.style.borderLeftColor = '#c84a28'; err.style.color = '#f0b090';
-    }
-    function showSuccess(msg) {
-        const err = document.getElementById('errorMsg');
-        err.textContent = msg; err.style.display = 'block';
-        err.style.borderLeftColor = '#4aff8a'; err.style.color = '#b0ffd0';
-    }
-
-    updateLanguage('es');
-    updateButtonLabels();
+        // ══ INICIALIZAR ══
+        updateLanguage();
+        updateButtonLabels();
+    })();
 </script>
 </body>
 </html>
