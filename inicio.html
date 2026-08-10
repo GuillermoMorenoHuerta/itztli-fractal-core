@@ -15,25 +15,91 @@
         body { background: var(--bg); color: var(--text); font-family: 'Times New Roman', Times, serif; line-height: 1.6; overflow-x: hidden; }
         h1, h2, h3 { font-family: 'Times New Roman', Times, serif; font-weight: 700; }
         
-        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: rgba(5,5,16,0.95); border-bottom: 1px solid var(--border); padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); }
-        .navbar .brand { font-family: 'Orbitron', sans-serif; color: var(--gold); font-size: 1.8rem; font-weight: 700; text-decoration: none; }
-        .navbar .nav-links { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
-        .navbar .nav-links a { color: var(--dim); text-decoration: none; font-size: 1.3rem; transition: 0.3s; font-family: 'Times New Roman', Times, serif; font-weight: 600; }
-        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--cyan); }
-        .navbar .nav-links a.challenge-link { color: var(--red); font-weight: 900; font-size: 1.5rem; text-shadow: 0 0 15px rgba(255,68,68,0.3); display: flex; align-items: center; gap: 5px; }
-        .navbar .nav-links a.challenge-link:hover, .navbar .nav-links a.challenge-link.active { color: #ff7777; text-shadow: 0 0 25px rgba(255,68,68,0.6); }
-        .navbar .nav-links a.challenge-link .skull-icon { font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255,68,68,0.4)); display: inline-block; }
-        .lang-btn { background: transparent; border: none; cursor: pointer; font-size: 2.2rem; transition: 0.3s; line-height: 1; }
-        .lang-btn:hover { transform: scale(1.1); }
-        @media (max-width: 768px) { .navbar { padding: 1rem; } .navbar .brand { font-size: 1.4rem; } .navbar .nav-links { gap: 0.8rem; } .navbar .nav-links a { font-size: 1rem; } .navbar .nav-links a.challenge-link { font-size: 1.2rem; } .navbar .nav-links a.challenge-link .skull-icon { font-size: 1.4rem; } .lang-btn { font-size: 1.8rem; } }
+        /* ============================================================
+           NAVBAR ESTÁNDAR UNIFICADO (Actualizado)
+           ============================================================ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            background: rgba(5,5,16,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+        .navbar .brand {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .navbar .nav-links a {
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 600;
+            /* CLAVE: Alineación y tamaño idéntico entre todas las páginas */
+            display: inline-flex; 
+            align-items: center;
+            gap: 6px;
+        }
+        .navbar .nav-links a:hover {
+            color: var(--cyan) !important;
+        }
+        /* Enlace activo: Color rojo */
+        .navbar .nav-links a.active {
+            color: var(--red) !important;
+        }
+        .navbar .nav-links a.active:hover {
+            color: var(--red) !important;
+        }
+        /* Icono: Solo visible en la pestaña activa, tamaño fijo */
+        .navbar .nav-links a .nav-icon {
+            display: none;
+            font-size: 1.1rem;
+        }
+        .navbar .nav-links a.active .nav-icon {
+            display: inline-block;
+        }
 
+        .lang-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            line-height: 1;
+        }
+        .lang-btn:hover { transform: scale(1.1); }
         .lang-es, .lang-en { display: block; }
         .lang-en { display: none; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.6rem 0.8rem; }
+            .navbar .brand { font-size: 1rem; }
+            .navbar .nav-links { gap: 0.4rem; }
+            .navbar .nav-links a { font-size: 0.75rem; gap: 4px; }
+            .lang-btn { font-size: 1.2rem; }
+            .hero { padding-top: 5rem; }
+        }
         
-        .hero { background: radial-gradient(ellipse at 50% 0%, #1a1a4e 0%, #0a0a1e 50%, var(--bg) 100%); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 7rem 2rem 2rem; position: relative; overflow: hidden; }
         .particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         .particle { position: absolute; width: 2px; height: 2px; background: var(--cyan); border-radius: 50%; animation: float 8s infinite ease-in-out; opacity: 0.4; }
         @keyframes float { 0%,100%{transform:translateY(0)translateX(0);opacity:.2} 25%{transform:translateY(-80px)translateX(30px);opacity:.6} 50%{transform:translateY(-160px)translateX(-20px);opacity:.3} 75%{transform:translateY(-80px)translateX(-40px);opacity:.7} }
+        
+        .hero { background: radial-gradient(ellipse at 50% 0%, #1a1a4e 0%, #0a0a1e 50%, var(--bg) 100%); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 7rem 2rem 2rem; position: relative; overflow: hidden; }
         .hero-content { position: relative; z-index: 1; width: 100%; max-width: 100%; }
         .hero h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); background: linear-gradient(135deg, var(--cyan), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.2rem; letter-spacing: 2px; }
         .hero .tagline { font-size: clamp(1.2rem, 2.5vw, 2.4rem); color: var(--gold); font-style: italic; margin-bottom: 2rem; text-align: center; font-family: 'Times New Roman', Times, serif; font-weight: 700; }
@@ -52,51 +118,63 @@
         .validation-table .passed { color: var(--green); font-weight: bold; }
         .validation-table .victory { color: var(--gold); font-weight: bold; }
         
-        .img-container { width: 100%; max-width: 100%; margin: 1.5rem auto 2rem; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
-        .img-container img { width: 100%; height: auto; display: block; }
+        .img-row {
+            width: 100%;
+            margin: 1.5rem 0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .img-row img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
         
         .contact-box { max-width: 700px; margin: auto; background: var(--card); padding: 3rem; border-radius: 20px; border: 1px solid var(--border); }
         .contact-box input, .contact-box textarea { width: 100%; padding: 14px; margin-bottom: 1.2rem; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 1.1rem; font-family: 'Times New Roman', Times, serif; }
-        
-        .social-section { max-width: 700px; margin: 2rem auto 0; padding: 2rem; background: var(--card); border: 1px solid var(--gold); border-radius: 20px; text-align: center; }
-        .social-section h3 { color: var(--gold); font-size: 1.8rem; margin-bottom: 1.5rem; }
-        .social-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
-        .social-link { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; color: var(--dim); text-decoration: none; transition: 0.3s; padding: 0.8rem 1.2rem; border-radius: 12px; border: 1px solid transparent; }
-        .social-link:hover { color: var(--gold); border-color: var(--gold); transform: translateY(-4px); }
-        .social-link .social-icon { font-size: 2.5rem; }
-        .social-link .social-name { font-size: 0.8rem; }
         
         .btn { background: var(--gold); color: var(--bg); padding: 14px 28px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; border-radius: 8px; letter-spacing: 1px; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(226,160,63,0.4); }
 
         footer { text-align: center; padding: 2rem; background: var(--bg); border-top: 1px solid var(--border); color: var(--dim); font-size: 0.95rem; font-family: 'Times New Roman', Times, serif; }
         footer .brand { font-weight: 700; color: var(--gold); }
-        @media (max-width: 768px) { .hero { padding: 6rem 1rem 2rem; min-height: auto; } .section-title { font-size: 2rem; } .social-grid { gap: 1rem; } }
+        @media (max-width: 768px) { .hero { padding: 6rem 1rem 2rem; min-height: auto; } .section-title { font-size: 2rem; } }
     </style>
 </head>
 <body>
 
-    <!-- ═══════════════ NAVBAR ═══════════════ -->
+    <!-- ═══════════════════════════════════════════════════
+    NAVBAR ESTÁNDAR (con icono en la pestaña activa)
+    ═══════════════════════════════════════════════════ -->
     <nav class="navbar">
         <a href="index.html" class="brand">ITZTLI FRACTAL</a>
         <div class="nav-links">
-            <a href="inicio.html" class="active lang-es">Inicio</a>
-            <a href="inicio.html" class="active lang-en" style="display:none;">Home</a>
+            <a href="inicio.html" class="active lang-es">
+                <span class="nav-icon"></span> Inicio
+            </a>
+            <a href="inicio.html" class="active lang-en" style="display:none;">
+                <span class="nav-icon"></span> Home
+            </a>
             <a href="autos.html" class="lang-es">Autos</a>
             <a href="autos.html" class="lang-en" style="display:none;">Cars</a>
             <a href="empresas.html" class="lang-es">Empresas</a>
             <a href="empresas.html" class="lang-en" style="display:none;">Enterprise</a>
             <a href="desarrolladores.html" class="lang-es">Desarrolladores</a>
             <a href="desarrolladores.html" class="lang-en" style="display:none;">Developers</a>
-            <a href="desafio.html" class="challenge-link lang-es"><span class="skull-icon">🏴‍☠️</span> Desafío</a>
-            <a href="desafio.html" class="challenge-link lang-en" style="display:none;"><span class="skull-icon">🏴‍☠️</span> Challenge</a>
+            <a href="defensa.html" class="lang-es">Ciberdefensa</a>
+            <a href="defensa.html" class="lang-en" style="display:none;">Cyberdefense</a>
+            <a href="comando-central.html" class="lang-es">Comando Central</a>
+            <a href="comando-central.html" class="lang-en" style="display:none;">Command Center</a>
             <a href="#contacto" class="lang-es">Contacto</a>
             <a href="#contacto" class="lang-en" style="display:none;">Contact</a>
             <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
         </div>
     </nav>
 
-    <!-- ═══════════════ ESPAÑOL ═══════════════ -->
+    <!-- ═══════════════════════════════════════════════════
+    CONTENIDO ESPAÑOL
+    ═══════════════════════════════════════════════════ -->
     <div class="lang-es">
         <section class="hero" id="inicio">
             <div class="particles" id="particles-es"></div>
@@ -112,7 +190,12 @@
         <div class="container">
             <h2 class="section-title">¿Por Qué Somos Totalmente Inhackeables?</h2>
             <p class="section-subtitle">La clave NUNCA existe fuera del chip que la genera.</p>
-            <div class="img-container"><img src="imagenes/seis-tarjetas.png" alt="6 Razones de seguridad"></div>
+            <div class="img-row">
+                <img src="imagenes/seis-tarjetas.png" alt="Enjambre ITZTLI">
+            </div>
+            <div class="img-row">
+                <img src="imagenes/enjambre.png" alt="6 Razones de seguridad">
+            </div>
         </div>
 
         <div class="container">
@@ -143,7 +226,7 @@
 
         <div class="container">
             <h2 class="section-title">Organismos Digitales que Creamos</h2>
-            <div class="img-container"><img src="imagenes/infografia-grande.png" alt="Infografía ITZTLI"></div>
+            <div class="img-row"><img src="imagenes/infografia-grande.png" alt="Infografía ITZTLI"></div>
         </div>
 
         <div class="container" id="contacto">
@@ -157,15 +240,6 @@
                     <button class="btn" type="submit" style="width:100%;">Enviar Mensaje</button>
                 </form>
             </div>
-            <div class="social-section">
-                <h3>🌐 Síguenos en Redes</h3>
-                <div class="social-grid">
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-youtube"></i></span><span class="social-name">YouTube</span></a>
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-x-twitter"></i></span><span class="social-name">X</span></a>
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-linkedin-in"></i></span><span class="social-name">LinkedIn</span></a>
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-github"></i></span><span class="social-name">GitHub</span></a>
-                </div>
-            </div>
         </div>
         
         <footer>
@@ -173,7 +247,9 @@
         </footer>
     </div>
 
-    <!-- ═══════════════ ENGLISH ═══════════════ -->
+    <!-- ═══════════════════════════════════════════════════
+    CONTENIDO INGLÉS
+    ═══════════════════════════════════════════════════ -->
     <div class="lang-en">
         <section class="hero" id="inicio-en">
             <div class="particles" id="particles-en"></div>
@@ -189,7 +265,12 @@
         <div class="container">
             <h2 class="section-title">Why Are We Totally Unhackable?</h2>
             <p class="section-subtitle">The key NEVER exists outside the chip that generates it.</p>
-            <div class="img-container"><img src="imagenes/ingles/seis-tarjetas-ingles.png" alt="6 Security Reasons"></div>
+            <div class="img-row">
+                <img src="imagenes/ingles/seis-tarjetas-ingles.png" alt="ITZTLI Swarm">
+            </div>
+            <div class="img-row">
+                <img src="imagenes/ingles/enjambre-ingles.png" alt="6 Security Reasons">
+            </div>
         </div>
 
         <div class="container">
@@ -220,7 +301,7 @@
 
         <div class="container">
             <h2 class="section-title">Digital Organisms We Create</h2>
-            <div class="img-container"><img src="imagenes/ingles/infografia-grande-ingles.png" alt="ITZTLI Infographic"></div>
+            <div class="img-row"><img src="imagenes/ingles/infografia-grande-ingles.png" alt="ITZTLI Infographic"></div>
         </div>
 
         <div class="container" id="contacto-en">
@@ -234,15 +315,6 @@
                     <button class="btn" type="submit" style="width:100%;">Send Message</button>
                 </form>
             </div>
-            <div class="social-section">
-                <h3>🌐 Follow Us</h3>
-                <div class="social-grid">
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-youtube"></i></span><span class="social-name">YouTube</span></a>
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-x-twitter"></i></span><span class="social-name">X</span></a>
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-linkedin-in"></i></span><span class="social-name">LinkedIn</span></a>
-                    <a href="#" class="social-link"><span class="social-icon"><i class="fab fa-github"></i></span><span class="social-name">GitHub</span></a>
-                </div>
-            </div>
         </div>
         
         <footer>
@@ -251,19 +323,39 @@
     </div>
 
     <script>
-        // Partículas
-        function createParticles(id) { const pc = document.getElementById(id); if(pc){for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}} }
-        createParticles('particles-es'); createParticles('particles-en');
+        function createParticles(id) {
+            const pc = document.getElementById(id);
+            if (!pc) return;
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 8 + 's';
+                p.style.animationDuration = (6 + Math.random() * 10) + 's';
+                pc.appendChild(p);
+            }
+        }
+        createParticles('particles-es');
+        createParticles('particles-en');
 
-        // Idioma
         let isSpanish = true;
         function toggleLang() {
-            isSpanish = !isSpanish;
+            isSpanish = !ispanish;
             const btn = document.getElementById('langBtn');
             const esContent = document.querySelectorAll('.lang-es');
             const enContent = document.querySelectorAll('.lang-en');
-            if(isSpanish) { btn.innerHTML = '🇲🇽'; document.documentElement.lang = 'es'; esContent.forEach(el => el.style.display = 'block'); enContent.forEach(el => el.style.display = 'none'); }
-            else { btn.innerHTML = '🇺🇸'; document.documentElement.lang = 'en'; esContent.forEach(el => el.style.display = 'none'); enContent.forEach(el => el.style.display = 'block'); }
+            if (isSpanish) {
+                btn.innerHTML = '🇲🇽';
+                document.documentElement.lang = 'es';
+                esContent.forEach(el => el.style.display = 'block');
+                enContent.forEach(el => el.style.display = 'none');
+            } else {
+                btn.innerHTML = '🇺🇸';
+                document.documentElement.lang = 'en';
+                esContent.forEach(el => el.style.display = 'none');
+                enContent.forEach(el => el.style.display = 'block');
+            }
         }
     </script>
 </body>

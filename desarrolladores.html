@@ -13,18 +13,80 @@
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:var(--bg);color:var(--text);font-family:'Times New Roman',Times,serif;line-height:1.6;overflow-x:hidden}
         h1,h2,h3{font-family:'Times New Roman',Times,serif;font-weight:700}
-        .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(5,5,16,0.95);border-bottom:1px solid var(--border);padding:1.2rem 2rem;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(12px)}
-        .navbar .brand{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:1.8rem;font-weight:700;text-decoration:none}
-        .navbar .nav-links{display:flex;gap:2rem;align-items:center;flex-wrap:wrap}
-        .navbar .nav-links a{color:var(--dim);text-decoration:none;font-size:1.3rem;transition:0.3s;font-family:'Times New Roman',Times,serif;font-weight:600}
-        .navbar .nav-links a:hover,.navbar .nav-links a.active{color:var(--cyan)}
-        .navbar .nav-links a.challenge-link{color:var(--red);font-weight:900;font-size:1.5rem;text-shadow:0 0 15px rgba(255,68,68,0.3);display:flex;align-items:center;gap:5px}
-        .navbar .nav-links a.challenge-link:hover,.navbar .nav-links a.challenge-link.active{color:#ff7777;text-shadow:0 0 25px rgba(255,68,68,0.6)}
-        .navbar .nav-links a.challenge-link .skull-icon{font-size:1.8rem;filter:drop-shadow(0 0 8px rgba(255,68,68,0.4));display:inline-block}
-        .lang-btn{background:transparent;border:none;cursor:pointer;font-size:2.2rem;transition:0.3s;line-height:1}
-        .lang-btn:hover{transform:scale(1.1)}
-        .lang-es,.lang-en{display:block}.lang-en{display:none}
-        @media(max-width:768px){.navbar{padding:1rem}.navbar .brand{font-size:1.4rem}.navbar .nav-links{gap:0.8rem}.navbar .nav-links a{font-size:1rem}.navbar .nav-links a.challenge-link{font-size:1.2rem}.navbar .nav-links a.challenge-link .skull-icon{font-size:1.4rem}.lang-btn{font-size:1.8rem}}
+
+        /* ============================================================
+           NAVBAR ESTÁNDAR (sin resaltes en pestañas no activas)
+           ============================================================ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            background: rgba(5,5,16,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+        .navbar .brand {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .navbar .nav-links a {
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .navbar .nav-links a .nav-icon {
+            display: none;
+            font-size: 1.1rem;
+        }
+        .navbar .nav-links a.active {
+            color: var(--cyan);
+        }
+        .navbar .nav-links a.active .nav-icon {
+            display: inline-block;
+        }
+        .navbar .nav-links a:hover {
+            color: var(--cyan);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            line-height: 1;
+        }
+        .lang-btn:hover { transform: scale(1.1); }
+        .lang-es, .lang-en { display: block; }
+        .lang-en { display: none; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.6rem 0.8rem; }
+            .navbar .brand { font-size: 1rem; }
+            .navbar .nav-links { gap: 0.4rem; }
+            .navbar .nav-links a { font-size: 0.75rem; }
+            .lang-btn { font-size: 1.2rem; }
+            .hero-dev { padding-top: 5rem; }
+        }
 
         .particles{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
         .particle{position:absolute;width:2px;height:2px;background:var(--cyan);border-radius:50%;animation:float 8s infinite ease-in-out;opacity:0.4}
@@ -45,64 +107,291 @@
         .comparison-table td{font-size:0.95rem}.comparison-table .winner{color:var(--green);font-weight:700}.comparison-table .loser{color:var(--red)}
         .video-container{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;border:2px solid var(--border);margin:1.5rem 0}
         .video-container iframe{position:absolute;top:0;left:0;width:100%;height:100%}
-        .download-box{background:linear-gradient(135deg,#1a1a3e,var(--bg));border:2px solid var(--green);border-radius:20px;padding:2.5rem;text-align:center}
+        .download-box{background:linear-gradient(135deg,#1a1a3e,var(--bg));border:2px solid var(--green);border-radius:20px;padding:2.5rem;text-align:center;margin-bottom:2rem}
         .download-box h3{color:var(--green);font-size:1.5rem;margin-bottom:0.5rem}
         .download-box p{color:var(--dim);font-size:1rem}
+
+        .command-center-box{background:linear-gradient(135deg,#0d0d3a,var(--bg));border:2px solid var(--gold);border-radius:20px;padding:2rem;text-align:center;margin:1.5rem 0}
+        .command-center-box h3{color:var(--gold);font-size:1.8rem;margin-bottom:0.5rem}
+        .command-center-box p{color:var(--dim);font-size:1.1rem;max-width:700px;margin:0 auto 1.5rem}
+        .command-center-box .features{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem}
+        .command-center-box .features span{background:var(--card);padding:0.5rem 1.2rem;border-radius:30px;border:1px solid var(--border);color:var(--text);font-size:0.95rem}
+        .command-center-box .features span i{margin-right:0.5rem;color:var(--gold)}
+
         .btn{background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px}
         .btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(226,160,63,0.4)}
+        .btn-cyan{background:var(--cyan);color:#000}
+        .btn-cyan:hover{box-shadow:0 0 30px rgba(0,180,216,0.4)}
         .btn-green{background:var(--green);color:var(--bg)}
+        .btn-green:hover{box-shadow:0 0 30px rgba(0,255,136,0.4)}
+        .btn-gold-border{border:2px solid var(--gold);background:transparent;color:var(--gold)}
+        .btn-gold-border:hover{background:var(--gold);color:#000;box-shadow:0 0 30px rgba(226,160,63,0.3)}
+
+        .plans-link-big {
+            display: inline-block;
+            margin: 1.5rem 0;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, var(--gold), #c9902a);
+            color: var(--bg);
+            font-size: 1.4rem;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            box-shadow: 0 0 30px rgba(226,160,63,0.3);
+        }
+        .plans-link-big:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(226,160,63,0.6);
+        }
+
         .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin:1.5rem 0}
         .step-card{text-align:center;padding:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:16px;transition:0.3s}
         .step-card:hover{border-color:var(--gold);transform:translateY(-4px)}
         .step-card .step-num{font-size:2.5rem;font-weight:900;color:var(--gold);opacity:0.3}
         .step-card h3{font-size:1.2rem;color:var(--cyan);margin:0.8rem 0}
         .step-card p{color:var(--dim);font-size:0.95rem}
-        .sync-image-container{width:100%;max-width:900px;margin:1.5rem auto;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
-        .sync-image-container img{width:100%;height:auto;display:block}
-        .chatbot-btn{position:fixed;bottom:30px;right:30px;z-index:9999;width:65px;height:65px;background:linear-gradient(135deg,#00ff88,#00cc6a);border:2px solid #00ff88;box-shadow:0 0 25px rgba(0,255,136,0.6);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-size:2rem;color:#1a1a2e}
-        .chatbot-btn:hover{transform:scale(1.1);box-shadow:0 0 45px rgba(0,255,136,0.9)}
-        .chatbot-btn.active{background:var(--red);border-color:var(--red);color:#fff}
-        .chatbot-container{position:fixed;bottom:110px;right:30px;z-index:9998;width:380px;max-width:90vw;height:550px;max-height:70vh;background:var(--card);border:1px solid #00ff88;border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,255,136,0.3)}
-        .chatbot-container.open{display:flex;animation:slideUp 0.3s ease}
-        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-        .chatbot-header{background:linear-gradient(135deg,#00cc6a,#00ff88);padding:1.2rem;text-align:center;color:#1a1a2e;font-weight:900;font-family:'Orbitron',sans-serif;font-size:1.1rem;letter-spacing:2px}
-        .chatbot-header .status-dot{display:inline-block;width:10px;height:10px;background:var(--green);border-radius:50%;margin-right:8px;animation:pulse 2s infinite}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-        .chatbot-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.8rem}
-        .chatbot-messages::-webkit-scrollbar{width:6px}.chatbot-messages::-webkit-scrollbar-track{background:transparent}.chatbot-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
-        .msg{max-width:85%;padding:12px 16px;border-radius:16px;font-size:0.9rem;line-height:1.5;animation:fadeIn 0.3s ease}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        .msg.bot{background:rgba(0,255,136,0.15);border:1px solid rgba(0,255,136,0.4);align-self:flex-start;border-bottom-left-radius:4px;color:var(--text)}
-        .msg.user{background:linear-gradient(135deg,#00cc6a,#00ff88);color:#1a1a2e;align-self:flex-end;border-bottom-right-radius:4px;font-weight:600}
-        .badge-ia{display:inline-block;background:linear-gradient(135deg,#00ff88,#00cc6a);color:#1a1a2e;padding:2px 8px;border-radius:10px;font-size:0.6rem;font-weight:900;margin-left:6px;vertical-align:middle}
-        .chatbot-input-area{padding:1rem;border-top:1px solid rgba(0,255,136,0.3);display:flex;gap:10px}
-        .chatbot-input-area input{flex:1;padding:12px 16px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:25px;font-size:0.9rem;outline:none;font-family:'Times New Roman',Times,serif}
-        .chatbot-input-area input:focus{border-color:#00ff88}
-        .chatbot-input-area button{width:45px;height:45px;background:linear-gradient(135deg,#00ff88,#00cc6a);border:none;border-radius:50%;cursor:pointer;font-size:1.2rem;transition:0.3s;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#1a1a2e}
-        .chatbot-input-area button:hover{background:#00cc6a;box-shadow:0 0 20px rgba(0,255,136,0.5)}
-        .quick-replies{display:flex;flex-wrap:wrap;gap:8px;padding:0 1rem 0.5rem}
-        .quick-reply{background:rgba(0,255,136,0.15);border:1px solid rgba(0,255,136,0.4);color:#00ff88;padding:6px 14px;border-radius:20px;font-size:0.8rem;cursor:pointer;transition:0.3s;white-space:nowrap}
-        .quick-reply:hover{background:rgba(0,255,136,0.3);border-color:#00ff88;color:#fff}
+
         footer{text-align:center;padding:2rem;background:var(--bg);border-top:1px solid var(--border);color:var(--dim);font-size:0.95rem;font-family:'Times New Roman',Times,serif}
         footer .brand{font-weight:700;color:var(--gold)}
-        @media(max-width:768px){.container{padding:1.5rem 1rem}.section-title{font-size:1.8rem}.steps-grid{grid-template-columns:1fr}.chatbot-container{width:95vw;right:2.5vw;bottom:100px}.chatbot-btn{bottom:20px;right:20px;width:55px;height:55px}}
+
+        @media(max-width:768px){.container{padding:1.5rem 1rem}.section-title{font-size:1.8rem}.steps-grid{grid-template-columns:1fr}.plans-link-big{font-size:1.1rem;padding:0.8rem 1.8rem}}
+
+        /* ============================================================
+           CHATBOT VERDE (similar al de autos.html)
+           ============================================================ */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #00cc6a, #00ff88);
+            border: 2px solid var(--green);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 2rem;
+            color: #1a1a2e;
+        }
+        .chatbot-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 45px rgba(0, 255, 136, 0.8);
+        }
+        .chatbot-btn.active {
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(255, 68, 68, 0.6);
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            z-index: 9998;
+            width: 380px;
+            max-width: 90vw;
+            height: 550px;
+            max-height: 70vh;
+            background: var(--card);
+            border: 1px solid var(--green);
+            border-radius: 20px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.2);
+        }
+        .chatbot-container.open {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chatbot-header {
+            background: linear-gradient(135deg, #00cc6a, #00ff88);
+            padding: 1.2rem;
+            text-align: center;
+            color: #1a1a2e;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+        .chatbot-header .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--green);
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chatbot-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chatbot-messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        .msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .msg.bot {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            color: var(--text);
+        }
+        .msg.user {
+            background: linear-gradient(135deg, #00cc6a, #00ff88);
+            color: #1a1a2e;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            font-weight: 600;
+        }
+        .badge-ia {
+            display: inline-block;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .chatbot-input-area {
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+            display: flex;
+            gap: 10px;
+        }
+        .chatbot-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            outline: none;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .chatbot-input-area input:focus {
+            border-color: var(--green);
+        }
+        .chatbot-input-area button {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #1a1a2e;
+        }
+        .chatbot-input-area button:hover {
+            background: #00cc6a;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 1rem 0.5rem;
+        }
+        .quick-reply {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: var(--green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        .quick-reply:hover {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: var(--green);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
 
+    <!-- ═══════════════════════════════════════════════════
+    NAVBAR ESTÁNDAR (sin resaltes en pestañas no activas)
+    ═══════════════════════════════════════════════════ -->
     <nav class="navbar">
         <a href="index.html" class="brand">ITZTLI FRACTAL</a>
         <div class="nav-links">
-            <a href="inicio.html" class="lang-es">Inicio</a><a href="inicio.html" class="lang-en" style="display:none;">Home</a>
-            <a href="autos.html" class="lang-es">Autos</a><a href="autos.html" class="lang-en" style="display:none;">Cars</a>
-            <a href="empresas.html" class="lang-es">Empresas</a><a href="empresas.html" class="lang-en" style="display:none;">Enterprise</a>
-            <a href="desarrolladores.html" class="active lang-es">Desarrolladores</a><a href="desarrolladores.html" class="active lang-en" style="display:none;">Developers</a>
-            <a href="desafio.html" class="challenge-link lang-es"><span class="skull-icon">🏴‍☠️</span> Desafío</a><a href="desafio.html" class="challenge-link lang-en" style="display:none;"><span class="skull-icon">🏴‍☠️</span> Challenge</a>
-            <a href="inicio.html#contacto" class="lang-es">Contacto</a><a href="inicio.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            <!-- Inicio (sin icono) -->
+            <a href="inicio.html" class="lang-es">Inicio</a>
+            <a href="inicio.html" class="lang-en" style="display:none;">Home</a>
+            <!-- Autos (sin icono) -->
+            <a href="autos.html" class="lang-es">Autos</a>
+            <a href="autos.html" class="lang-en" style="display:none;">Cars</a>
+            <!-- Empresas (sin icono) -->
+            <a href="empresas.html" class="lang-es">Empresas</a>
+            <a href="empresas.html" class="lang-en" style="display:none;">Enterprise</a>
+            <!-- Desarrolladores (ACTIVA con icono) -->
+            <a href="desarrolladores.html" class="active lang-es"><span class="nav-icon"></span> Desarrolladores</a>
+            <a href="desarrolladores.html" class="active lang-en" style="display:none;"><span class="nav-icon"></span> Developers</a>
+            <!-- Ciberdefensa (sin icono, sin color rojo) -->
+            <a href="defensa.html" class="lang-es">Ciberdefensa</a>
+            <a href="defensa.html" class="lang-en" style="display:none;">Cyberdefense</a>
+            <!-- Comando Central (sin icono) -->
+            <a href="comando-central.html" class="lang-es">Comando Central</a>
+            <a href="comando-central.html" class="lang-en" style="display:none;">Command Center</a>
+            <!-- Contacto (sin icono) -->
+            <a href="inicio.html#contacto" class="lang-es">Contacto</a>
+            <a href="inicio.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            <!-- Botón idioma -->
             <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
         </div>
     </nav>
 
+    <!-- =================== HERO =================== -->
     <section class="hero-dev">
         <div class="particles" id="particles-dev"></div>
         <div class="hero-content">
@@ -111,21 +400,37 @@
         </div>
     </section>
 
+    <!-- =================== CONTENIDO ESPAÑOL =================== -->
     <div class="lang-es">
-        <div class="container"><h2 class="section-title">Reprogramación desde tu Celular</h2>
-            <div class="comparison-table"><table><thead><tr><th>Característica</th><th>Programación Tradicional</th><th>ITZTLI FRACTAL CORE</th></tr></thead><tbody>
-                <tr><td>Equipo necesario</td><td class="loser">Programador físico + PC</td><td class="winner">✅ Solo navegador web</td></tr>
-                <tr><td>Conexión física</td><td class="loser">Sí (USB, JTAG)</td><td class="winner">✅ No (WiFi/Internet)</td></tr>
-                <tr><td>Distancia máxima</td><td class="loser">2 metros</td><td class="winner">✅ Cualquier parte del mundo</td></tr>
-                <tr><td>Tiempo por chip</td><td class="loser">30 min - 3 horas</td><td class="winner">✅ 30 segundos</td></tr>
-                <tr><td>Chips simultáneos</td><td class="loser">1 a la vez</td><td class="winner">✅ Miles a la vez</td></tr>
-            </tbody></table></div>
+        <div class="container">
+            <h2 class="section-title">Reprogramación desde tu Celular</h2>
+            <div class="comparison-table">
+                <table>
+                    <thead><tr><th>Característica</th><th>Programación Tradicional</th><th>ITZTLI FRACTAL CORE</th></tr></thead>
+                    <tbody>
+                        <tr><td>Equipo necesario</td><td class="loser">Programador físico + PC</td><td class="winner">✅ Solo navegador web</td></tr>
+                        <tr><td>Conexión física</td><td class="loser">Sí (USB, JTAG)</td><td class="winner">✅ No (WiFi/Internet)</td></tr>
+                        <tr><td>Distancia máxima</td><td class="loser">2 metros</td><td class="winner">✅ Cualquier parte del mundo</td></tr>
+                        <tr><td>Tiempo por chip</td><td class="loser">30 min - 3 horas</td><td class="winner">✅ 30 segundos</td></tr>
+                        <tr><td>Chips simultáneos</td><td class="loser">1 a la vez</td><td class="winner">✅ Miles a la vez</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="container"><h2 class="section-title">ITZTLI FRACTAL CORE — Demostración</h2>
-            <div class="video-container"><iframe src="https://www.youtube.com/embed/TU_VIDEO_ID" title="Demo ITZTLI" frameborder="0" allowfullscreen></iframe></div>
+
+        <div class="container">
+            <h2 class="section-title">ITZTLI FRACTAL CORE — Demostración</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/TU_VIDEO_ID" title="Demo ITZTLI" frameborder="0" allowfullscreen></iframe>
+            </div>
         </div>
-        <div class="container" id="kit-prueba"><h2 class="section-title">Prueba ITZTLI - ¡Gratis!</h2><p class="section-subtitle">Sin registro. Sin tarjeta de crédito.</p>
-            <div class="download-box"><h3>🔬 Kit de Prueba para 2 ESP32</h3>
+
+        <!-- ========== KIT DE PRUEBA ========== -->
+        <div class="container" id="kit-prueba">
+            <h2 class="section-title">Prueba ITZTLI - ¡Gratis!</h2>
+            <p class="section-subtitle">Sin registro. Sin tarjeta de crédito.</p>
+            <div class="download-box">
+                <h3>🔬 Kit de Prueba para 2 ESP32</h3>
                 <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0;">
                     <a href="firmware/itzli_demo_lia.bin" class="btn" download>Firmware LIA (Maestro)</a>
                     <a href="firmware/itzli_demo_bob.bin" class="btn btn-green" download>Firmware BOB (Cliente)</a>
@@ -138,24 +443,66 @@
                 </div>
             </div>
         </div>
-        <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — El Sistema Nervioso de la Tecnología</footer>
+
+        <!-- ========== NUEVA SECCIÓN: COMANDO CENTRAL ========== -->
+        <div class="container">
+            <div class="command-center-box">
+                <h3>🚀 Administra tus dispositivos desde Comando Central</h3>
+                <p>
+                    Con <strong>Comando Central</strong> tienes el control total de tu flota de dispositivos ITZTLI.
+                    Accede al <strong>Studio ITZTLI</strong> para generar código mediante bloques visuales (cubos)
+                    o directamente desde la terminal. Monitorea, actualiza y depura en tiempo real desde cualquier lugar.
+                </p>
+                <div class="features">
+                    <span><i class="fas fa-cubes"></i> Studio por Cubos</span>
+                    <span><i class="fas fa-terminal"></i> Terminal directa</span>
+                    <span><i class="fas fa-sync-alt"></i> Actualizaciones OTA</span>
+                    <span><i class="fas fa-chart-line"></i> Monitoreo en vivo</span>
+                </div>
+                <a href="comando-central.html" class="btn btn-gold-border">🌐 Ir a Comando Central →</a>
+            </div>
+        </div>
+
+        <!-- ========== BOTÓN GRANDE A PLANES ========== -->
+        <div class="container" style="text-align:center;padding-top:0;">
+            <a href="empresas.html#planes" class="plans-link-big">📊 Ver todos los planes de precios →</a>
+        </div>
+
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — El Sistema Nervioso de la Tecnología
+        </footer>
     </div>
 
+    <!-- =================== CONTENIDO INGLÉS =================== -->
     <div class="lang-en">
-        <div class="container"><h2 class="section-title">Reprogramming from Your Phone</h2>
-            <div class="comparison-table"><table><thead><tr><th>Feature</th><th>Traditional</th><th>ITZTLI FRACTAL CORE</th></tr></thead><tbody>
-                <tr><td>Hardware</td><td class="loser">Programmer + PC</td><td class="winner">✅ Just a browser</td></tr>
-                <tr><td>Connection</td><td class="loser">USB, JTAG</td><td class="winner">✅ WiFi/Internet</td></tr>
-                <tr><td>Distance</td><td class="loser">2 meters</td><td class="winner">✅ Worldwide</td></tr>
-                <tr><td>Time per chip</td><td class="loser">30 min - 3 hrs</td><td class="winner">✅ 30 seconds</td></tr>
-                <tr><td>Simultaneous</td><td class="loser">1 at a time</td><td class="winner">✅ Thousands</td></tr>
-            </tbody></table></div>
+        <div class="container">
+            <h2 class="section-title">Reprogramming from Your Phone</h2>
+            <div class="comparison-table">
+                <table>
+                    <thead><tr><th>Feature</th><th>Traditional</th><th>ITZTLI FRACTAL CORE</th></tr></thead>
+                    <tbody>
+                        <tr><td>Hardware</td><td class="loser">Programmer + PC</td><td class="winner">✅ Just a browser</td></tr>
+                        <tr><td>Connection</td><td class="loser">USB, JTAG</td><td class="winner">✅ WiFi/Internet</td></tr>
+                        <tr><td>Distance</td><td class="loser">2 meters</td><td class="winner">✅ Worldwide</td></tr>
+                        <tr><td>Time per chip</td><td class="loser">30 min - 3 hrs</td><td class="winner">✅ 30 seconds</td></tr>
+                        <tr><td>Simultaneous</td><td class="loser">1 at a time</td><td class="winner">✅ Thousands</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="container"><h2 class="section-title">ITZTLI FRACTAL CORE — Demo</h2>
-            <div class="video-container"><iframe src="https://www.youtube.com/embed/TU_VIDEO_ID" title="ITZTLI Demo" frameborder="0" allowfullscreen></iframe></div>
+
+        <div class="container">
+            <h2 class="section-title">ITZTLI FRACTAL CORE — Demo</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/TU_VIDEO_ID" title="ITZTLI Demo" frameborder="0" allowfullscreen></iframe>
+            </div>
         </div>
-        <div class="container" id="kit-prueba"><h2 class="section-title">Try ITZTLI — Free!</h2><p class="section-subtitle">No registration. No credit card.</p>
-            <div class="download-box"><h3>🔬 Test Kit for 2 ESP32</h3>
+
+        <div class="container" id="kit-prueba-en">
+            <h2 class="section-title">Try ITZTLI — Free!</h2>
+            <p class="section-subtitle">No registration. No credit card.</p>
+            <div class="download-box">
+                <h3>🔬 Test Kit for 2 ESP32</h3>
                 <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0;">
                     <a href="firmware/itzli_demo_lia.bin" class="btn" download>LIA Firmware (Master)</a>
                     <a href="firmware/itzli_demo_bob.bin" class="btn btn-green" download>BOB Firmware (Client)</a>
@@ -168,35 +515,164 @@
                 </div>
             </div>
         </div>
-        <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — The Nervous System of Technology</footer>
+
+        <!-- ========== COMMAND CENTER (EN) ========== -->
+        <div class="container">
+            <div class="command-center-box">
+                <h3>🚀 Manage your devices from Command Center</h3>
+                <p>
+                    With <strong>Command Center</strong> you have total control over your ITZTLI device fleet.
+                    Access <strong>ITZTLI Studio</strong> to generate code using visual blocks or directly from the terminal.
+                    Monitor, update and debug in real time from anywhere.
+                </p>
+                <div class="features">
+                    <span><i class="fas fa-cubes"></i> Block Studio</span>
+                    <span><i class="fas fa-terminal"></i> Direct Terminal</span>
+                    <span><i class="fas fa-sync-alt"></i> OTA Updates</span>
+                    <span><i class="fas fa-chart-line"></i> Live Monitoring</span>
+                </div>
+                <a href="comando-central.html" class="btn btn-gold-border">🌐 Go to Command Center →</a>
+            </div>
+        </div>
+
+        <!-- ========== BOTÓN GRANDE A PLANES (EN) ========== -->
+        <div class="container" style="text-align:center;padding-top:0;">
+            <a href="empresas.html#planes" class="plans-link-big">📊 View all pricing plans →</a>
+        </div>
+
+        <footer>
+            <span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — The Nervous System of Technology
+        </footer>
     </div>
 
+    <!-- =================== CHATBOT VERDE (con Supabase Edge Function) =================== -->
     <button class="chatbot-btn" id="chatbotBtn" onclick="toggleChatbot()" title="Soporte ITZTLI">💬</button>
     <div class="chatbot-container" id="chatbotContainer">
         <div class="chatbot-header"><span class="status-dot"></span>ITZTLI SOPORTE 24/7</div>
         <div class="chatbot-messages" id="chatbotMessages"></div>
         <div class="quick-replies" id="quickReplies"></div>
-        <div class="chatbot-input-area"><input type="text" id="chatbotInput" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')sendMessage()"><button onclick="sendMessage()">➤</button></div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()">➤</button>
+        </div>
     </div>
 
+    <!-- =================== SCRIPTS =================== -->
     <script>
-        const OPENAI_API_KEY = 'TU_OPENAI_API_KEY_AQUI';
-        function createParticles(id){const pc=document.getElementById(id);if(pc){for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}}}
+        // ===== PARTÍCULAS =====
+        function createParticles(id) {
+            const pc = document.getElementById(id);
+            if (!pc) return;
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 8 + 's';
+                p.style.animationDuration = (6 + Math.random() * 10) + 's';
+                pc.appendChild(p);
+            }
+        }
         createParticles('particles-dev');
-        let isSpanish=true;
-        function toggleLang(){isSpanish=!isSpanish;const b=document.getElementById('langBtn'),es=document.querySelectorAll('.lang-es'),en=document.querySelectorAll('.lang-en');if(isSpanish){b.innerHTML='🇲🇽';document.documentElement.lang='es';es.forEach(e=>e.style.display='block');en.forEach(e=>e.style.display='none');document.getElementById('img-programacion').src='imagenes/programacion.png';}else{b.innerHTML='🇺🇸';document.documentElement.lang='en';es.forEach(e=>e.style.display='none');en.forEach(e=>e.style.display='block');document.getElementById('img-programacion-en').src='imagenes/ingles/programacion-ingles.png';}updateChatbotLang();}
-        const FAQ={es:{greeting:'¡Hola! Soy el asistente ITZTLI. ¿En qué puedo ayudarte?',compatibility:'Ingresa el VIN en nuestro escáner.',plans:'📦 Planes:\n🆓 DEMO - $0/mes\n🥈 PREMIUM - $29.99/mes\n🥇 PLATINUM - $49.99/mes',installation:'🔧 4 opciones de instalación.',security:'🛡️ ITZTLI es INHACKEABLE.',payment:'💳 Pagos con Stripe.',contact:'📧 contacto@itztlifractal.com',thanks:'¡Gracias! 🚀',unknown:'Prueba: Compatibilidad, Planes, Instalación, Seguridad, Pagos'},en:{greeting:"Hello! I'm the ITZTLI assistant.",compatibility:'Enter your VIN in our scanner.',plans:'📦 Plans:\n🆓 DEMO - $0/mo\n🥈 PREMIUM - $29.99/mo\n🥇 PLATINUM - $49.99/mo',installation:'🔧 4 installation options.',security:'🛡️ ITZTLI is UNHACKABLE.',payment:'💳 Stripe payments.',contact:'📧 contacto@itztlifractal.com',thanks:'Thanks! 🚀',unknown:'Try: Compatibility, Plans, Installation, Security, Payments'}};
-        let chatbotOpen=false,conversationHistory=[];
-        function toggleChatbot(){chatbotOpen=!chatbotOpen;const c=document.getElementById('chatbotContainer'),b=document.getElementById('chatbotBtn');if(chatbotOpen){c.classList.add('open');b.classList.add('active');b.innerHTML='✕';if(document.getElementById('chatbotMessages').children.length===0)showGreeting();}else{c.classList.remove('open');b.classList.remove('active');b.innerHTML='💬';}}
-        function showGreeting(){const lang=isSpanish?'es':'en';addBotMessage(FAQ[lang].greeting);updateQuickReplies();}
-        function addBotMessage(text,isIA=false){const m=document.getElementById('chatbotMessages'),msg=document.createElement('div');msg.className='msg bot';msg.innerHTML=text.replace(/\n/g,'<br>');if(isIA){const badge=document.createElement('span');badge.className='badge-ia';badge.textContent='IA';msg.appendChild(badge);}m.appendChild(msg);m.scrollTop=m.scrollHeight;}
-        function addUserMessage(text){const m=document.getElementById('chatbotMessages'),msg=document.createElement('div');msg.className='msg user';msg.textContent=text;m.appendChild(msg);m.scrollTop=m.scrollHeight;}
-        async function sendMessage(){const input=document.getElementById('chatbotInput'),text=input.value.trim();if(!text)return;addUserMessage(text);input.value='';input.disabled=true;const lang=isSpanish?'es':'en';const hasAPI=OPENAI_API_KEY&&OPENAI_API_KEY!=='TU_OPENAI_API_KEY_AQUI';if(hasAPI){await sendToOpenAI(text,lang);}else{sendPredefined(text,lang);}input.disabled=false;input.focus();updateQuickReplies();}
-        function sendPredefined(text,lang){const lower=text.toLowerCase();let r='';if(/hola|hello|hi|buen/.test(lower))r=FAQ[lang].greeting;else if(/compat|vin|modelo|marca|año|year|brand/.test(lower))r=FAQ[lang].compatibility;else if(/plan|precio|costo|price|demo|premium|platinum/.test(lower))r=FAQ[lang].plans;else if(/instal|conect|obd|esp32/.test(lower))r=FAQ[lang].installation;else if(/segur|hack|proteg|security/.test(lower))r=FAQ[lang].security;else if(/hot|swap|respaldo|fallo/.test(lower))r=FAQ[lang].hotswap;else if(/pago|tarjeta|stripe|payment|card/.test(lower))r=FAQ[lang].payment;else if(/contact|soport|ayuda|email/.test(lower))r=FAQ[lang].contact;else if(/gracias|thank/.test(lower))r=FAQ[lang].thanks;else r=FAQ[lang].unknown;setTimeout(()=>addBotMessage(r),500);}
-        async function sendToOpenAI(text,lang){const systemPrompt=lang==='es'?'Eres ITZTLI-BOT, asistente ITZTLI. Responde en español.':"You are ITZTLI-BOT, ITZTLI assistant. Answer in English.";if(conversationHistory.length===0)conversationHistory.push({role:'system',content:systemPrompt});conversationHistory.push({role:'user',content:text});if(conversationHistory.length>12)conversationHistory=[conversationHistory[0],...conversationHistory.slice(-10)];try{const resp=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_API_KEY},body:JSON.stringify({model:'gpt-4o-mini',messages:conversationHistory,temperature:0.3,max_tokens:400})});if(!resp.ok)throw new Error('API Error');const data=await resp.json();const answer=data.choices[0].message.content;conversationHistory.push({role:'assistant',content:answer});addBotMessage(answer,true);}catch(e){sendPredefined(text,lang);}}
-        function sendQuickReply(text){document.getElementById('chatbotInput').value=text;sendMessage();}
-        function updateQuickReplies(){const lang=isSpanish?'es':'en',r=document.getElementById('quickReplies'),btns=isSpanish?['🔍 Compatibilidad','💰 Planes','🔧 Instalación','🛡️ Seguridad','💳 Pagos']:['🔍 Compatibility','💰 Plans','🔧 Installation','🛡️ Security','💳 Payments'];r.innerHTML=btns.map(b=>`<span class="quick-reply" onclick="sendQuickReply('${b}')">${b}</span>`).join('');}
-        function updateChatbotLang(){updateQuickReplies();const m=document.getElementById('chatbotMessages');if(m.children.length>0){conversationHistory=[];m.innerHTML='';showGreeting();}}
+
+        // ===== IDIOMA =====
+        let isSpanish = true;
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            const b = document.getElementById('langBtn');
+            const es = document.querySelectorAll('.lang-es');
+            const en = document.querySelectorAll('.lang-en');
+            if (isSpanish) {
+                b.innerHTML = '🇲🇽';
+                document.documentElement.lang = 'es';
+                es.forEach(e => e.style.display = 'block');
+                en.forEach(e => e.style.display = 'none');
+                document.getElementById('img-programacion').src = 'imagenes/programacion.png';
+            } else {
+                b.innerHTML = '🇺🇸';
+                document.documentElement.lang = 'en';
+                es.forEach(e => e.style.display = 'none');
+                en.forEach(e => e.style.display = 'block');
+                document.getElementById('img-programacion-en').src = 'imagenes/ingles/programacion-ingles.png';
+            }
+            // Actualizar chatbot al cambiar idioma
+            updateChatbotLang();
+        }
+
+        // ===== CHATBOT (usando Supabase Edge Function, sin API key en frontend) =====
+        const SUPABASE_CHAT_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co/functions/v1/chatbot';
+        let chatbotOpen = false;
+
+        function toggleChatbot() {
+            chatbotOpen = !chatbotOpen;
+            const c = document.getElementById('chatbotContainer'), b = document.getElementById('chatbotBtn');
+            if (chatbotOpen) {
+                c.classList.add('open'); b.classList.add('active'); b.innerHTML = '✕';
+                if (document.getElementById('chatbotMessages').children.length === 0) showGreeting();
+            } else {
+                c.classList.remove('open'); b.classList.remove('active'); b.innerHTML = '💬';
+            }
+        }
+
+        function showGreeting() {
+            const lang = isSpanish ? 'es' : 'en';
+            addBotMessage(isSpanish ? '¡Hola! Soy el asistente ITZTLI. ¿En qué puedo ayudarte?' : "Hello! I'm the ITZTLI assistant. How can I help?");
+            updateQuickReplies();
+        }
+
+        function addBotMessage(text, isIA = false) {
+            const m = document.getElementById('chatbotMessages'), msg = document.createElement('div');
+            msg.className = 'msg bot'; msg.innerHTML = text.replace(/\n/g, '<br>');
+            if (isIA) { const badge = document.createElement('span'); badge.className = 'badge-ia'; badge.textContent = 'IA'; msg.appendChild(badge); }
+            m.appendChild(msg); m.scrollTop = m.scrollHeight;
+        }
+
+        function addUserMessage(text) {
+            const m = document.getElementById('chatbotMessages'), msg = document.createElement('div');
+            msg.className = 'msg user'; msg.textContent = text;
+            m.appendChild(msg); m.scrollTop = m.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatbotInput'), text = input.value.trim();
+            if (!text) return;
+            addUserMessage(text); input.value = ''; input.disabled = true;
+
+            try {
+                const resp = await fetch(SUPABASE_CHAT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await resp.json();
+                if (data.reply) {
+                    addBotMessage(data.reply, true);
+                } else {
+                    addBotMessage('Lo siento, no puedo responder ahora.');
+                }
+            } catch (e) {
+                addBotMessage('Error de conexión. Intenta de nuevo.');
+            }
+            input.disabled = false; input.focus();
+            updateQuickReplies();
+        }
+
+        function sendQuickReply(text) { document.getElementById('chatbotInput').value = text; sendMessage(); }
+
+        function updateQuickReplies() {
+            const lang = isSpanish ? 'es' : 'en', r = document.getElementById('quickReplies');
+            const btns = isSpanish ? ['🔍 Compatibilidad','💰 Planes','🔧 Instalación','🛡️ Seguridad','💳 Pagos'] : ['🔍 Compatibility','💰 Plans','🔧 Installation','🛡️ Security','💳 Payments'];
+            r.innerHTML = btns.map(b => `<span class="quick-reply" onclick="sendQuickReply('${b}')">${b}</span>`).join('');
+        }
+
+        function updateChatbotLang() {
+            updateQuickReplies();
+            const m = document.getElementById('chatbotMessages');
+            if (m.children.length > 0) {
+                m.innerHTML = '';
+                showGreeting();
+            }
+        }
     </script>
 </body>
 </html>

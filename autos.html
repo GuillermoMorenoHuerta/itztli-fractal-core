@@ -4,27 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AUTOS — ITZTLI FRACTAL CORE</title>
-    <meta name="description" content="Protege tu auto con ITZTLI FRACTAL CORE. 30 chips sincronizados. Inhackeable. Desde $29.99 USD/mes.">
+    <meta name="description" content="Protege tu auto con ITZTLI FRACTAL CORE. Geolocalización, geocercas y alertas inteligentes. Demo gratuita disponible.">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* ============================================================
+           ESTILOS (se mantienen igual, solo se añade el estándar de navbar)
+           ============================================================ */
         :root{--bg:#050510;--card:#0d0d28;--border:#1a1a4a;--cyan:#00b4d8;--gold:#e2a03f;--green:#00ff88;--red:#ff4444;--text:#e0e0e0;--dim:#8899aa}
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:var(--bg);color:var(--text);font-family:'Times New Roman',Times,serif;line-height:1.6;overflow-x:hidden}
         h1,h2,h3{font-family:'Times New Roman',Times,serif;font-weight:700}
-        .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(5,5,16,0.95);border-bottom:1px solid var(--border);padding:1.2rem 2rem;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(12px)}
-        .navbar .brand{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:1.8rem;font-weight:700;text-decoration:none}
-        .navbar .nav-links{display:flex;gap:2rem;align-items:center;flex-wrap:wrap}
-        .navbar .nav-links a{color:var(--dim);text-decoration:none;font-size:1.3rem;transition:0.3s;font-family:'Times New Roman',Times,serif;font-weight:600}
-        .navbar .nav-links a:hover,.navbar .nav-links a.active{color:var(--cyan)}
-        .navbar .nav-links a.challenge-link{color:var(--red);font-weight:900;font-size:1.5rem;text-shadow:0 0 15px rgba(255,68,68,0.3);display:flex;align-items:center;gap:5px}
-        .navbar .nav-links a.challenge-link:hover,.navbar .nav-links a.challenge-link.active{color:#ff7777;text-shadow:0 0 25px rgba(255,68,68,0.6)}
-        .navbar .nav-links a.challenge-link .skull-icon{font-size:1.8rem;filter:drop-shadow(0 0 8px rgba(255,68,68,0.4));display:inline-block}
-        .lang-btn{background:transparent;border:none;cursor:pointer;font-size:2.2rem;transition:0.3s;line-height:1}
-        .lang-btn:hover{transform:scale(1.1)}
-        .lang-es,.lang-en{display:block}.lang-en{display:none}
-        @media(max-width:768px){.navbar{padding:1rem}.navbar .brand{font-size:1.4rem}.navbar .nav-links{gap:0.8rem}.navbar .nav-links a{font-size:1rem}.navbar .nav-links a.challenge-link{font-size:1.2rem}.navbar .nav-links a.challenge-link .skull-icon{font-size:1.4rem}.lang-btn{font-size:1.8rem}}
+
+        /* ============================================================
+           NAVBAR ESTÁNDAR (igual que en inicio, defensa, desarrolladores)
+           ============================================================ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            background: rgba(5,5,16,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+        .navbar .brand {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .navbar .nav-links a {
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 600;
+        }
+        .navbar .nav-links a:hover {
+            color: var(--cyan);
+        }
+        /* Enlace activo: color rojo y sin iconos adicionales excepto el de la página activa */
+        .navbar .nav-links a.active {
+            color: var(--red) !important;
+        }
+        .navbar .nav-links a.active:hover {
+            color: var(--red) !important;
+        }
+        /* Icono de la pestaña activa (solo se muestra en el enlace activo) */
+        .navbar .nav-links a .nav-icon {
+            display: none;
+        }
+        .navbar .nav-links a.active .nav-icon {
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            line-height: 1;
+        }
+        .lang-btn:hover { transform: scale(1.1); }
+        .lang-es, .lang-en { display: block; }
+        .lang-en { display: none; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.6rem 0.8rem; }
+            .navbar .brand { font-size: 1rem; }
+            .navbar .nav-links { gap: 0.4rem; }
+            .navbar .nav-links a { font-size: 0.75rem; }
+            .lang-btn { font-size: 1.2rem; }
+            .hero-auto { padding-top: 5rem; }
+        }
+
+        /* ============================================================
+           RESTO DE ESTILOS (sin cambios)
+           ============================================================ */
         .particles{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
         .particle{position:absolute;width:2px;height:2px;background:var(--cyan);border-radius:50%;animation:float 8s infinite ease-in-out;opacity:0.4}
         @keyframes float{0%,100%{transform:translateY(0)translateX(0);opacity:.2}25%{transform:translateY(-80px)translateX(30px);opacity:.6}50%{transform:translateY(-160px)translateX(-20px);opacity:.3}75%{transform:translateY(-80px)translateX(-40px);opacity:.7}}
@@ -48,44 +119,14 @@
         .demo-link-section .btn-demo{display:inline-block;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:#fff;padding:16px 40px;border-radius:50px;font-weight:900;font-size:1.2rem;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;letter-spacing:2px;box-shadow:0 0 30px rgba(139,92,246,0.4)}
         .demo-link-section .btn-demo:hover{transform:scale(1.05);box-shadow:0 0 50px rgba(139,92,246,0.7)}
         
-        .phone-section{text-align:center}.phone-grid{display:grid;grid-template-columns:1fr;gap:2rem;margin:1.5rem auto;max-width:900px;width:100%}
-        .phone-mockup{text-align:center;width:100%}.screen-large{background:#111;border:3px solid var(--border);border-radius:16px;padding:10px;width:100%;max-width:800px;margin:0 auto 1rem;display:flex;justify-content:center;align-items:center;overflow:hidden}
-        .screen-large img{width:100%;height:auto;border-radius:10px;display:block}
-        .phone-mockup h4{color:var(--gold);margin-bottom:0.3rem;font-size:1.4rem;margin-top:1.5rem;text-align:center;font-family:'Times New Roman',Times,serif;font-weight:700}
-        .phone-mockup p{color:var(--dim);font-size:1rem;margin-bottom:2rem;text-align:center}
+        .free-demo-section{background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,180,216,0.08));border:2px solid var(--green);border-radius:20px;padding:2.5rem;margin:1.5rem 0;text-align:center}
+        .free-demo-section h3{color:var(--green);font-size:1.8rem;margin-bottom:1rem}
+        .free-demo-section p{color:var(--dim);font-size:1.1rem;margin-bottom:1.5rem;max-width:800px;margin-left:auto;margin-right:auto}
+        .free-demo-section .btn-download{display:inline-block;background:var(--green);color:var(--bg);padding:16px 32px;border-radius:50px;font-weight:900;font-size:1.1rem;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;letter-spacing:2px;box-shadow:0 0 25px rgba(0,255,136,0.4);margin:10px}
+        .free-demo-section .btn-download:hover{transform:scale(1.05);box-shadow:0 0 50px rgba(0,255,136,0.7)}
+        .free-demo-section .btn-register{display:inline-block;background:var(--gold);color:var(--bg);padding:16px 32px;border-radius:50px;font-weight:900;font-size:1.1rem;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;letter-spacing:2px;box-shadow:0 0 25px rgba(226,160,63,0.4);margin:10px}
+        .free-demo-section .btn-register:hover{transform:scale(1.05);box-shadow:0 0 50px rgba(226,160,63,0.7)}
         
-        /* ======================================================== */
-        /* 🔥 AJUSTE PARA QUE LOS PLANES SE VERTICALES EN CELULAR  */
-        /* ======================================================== */
-        .plans-grid {
-            display: grid;
-            grid-template-columns: 1fr;  /* <--- Siempre 1 columna en móvil */
-            gap: 2rem;
-            margin: 1.5rem 0;
-        }
-        /* En pantallas grandes (tablet/desktop), se ponen en fila */
-        @media (min-width: 768px) {
-            .plans-grid {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            }
-        }
-        /* ======================================================== */
-
-        .plan-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center;transition:0.4s;position:relative;display:flex;flex-direction:column}
-        .plan-card:hover{transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,0,0,0.5)}
-        .plan-card.demo{border-color:var(--green)}.plan-card.premium{border-color:var(--cyan)}.plan-card.platinum{border:2px solid var(--gold);box-shadow:0 0 30px rgba(226,160,63,0.2)}
-        .plan-card .plan-badge{position:absolute;top:-12px;right:20px;background:var(--gold);color:#000;padding:4px 12px;border-radius:15px;font-size:0.8rem;font-weight:bold}
-        .plan-card h3{font-size:1.5rem;margin-bottom:0.5rem}.plan-card .price{font-size:2.5rem;font-weight:bold;margin:1rem 0;font-family:'Orbitron',sans-serif}
-        .plan-card .price small{font-size:0.9rem;font-weight:normal;color:var(--dim)}
-        .plan-card ul{list-style:none;text-align:left;margin:1.5rem 0;font-size:0.9rem;color:var(--dim);flex:1}
-        .plan-card ul li{padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03)}.plan-card ul li::before{content:"✅ "}.plan-card ul li.no::before{content:"❌ "}
-        .plan-card .highlight-feature{color:var(--green);font-weight:700}
-        .hw-notice{background:rgba(226,160,63,0.08);border:1px solid var(--gold);border-radius:12px;padding:1rem;margin:1rem 0 0.5rem;text-align:left;font-size:0.85rem;color:var(--dim)}
-        .hw-notice strong{color:var(--gold)}.hw-notice .esp-warning{color:var(--cyan);font-weight:600}
-        .btn{background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px}
-        .btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(226,160,63,0.4)}.btn-block{display:block;width:100%}
-        .btn-outline{background:transparent;border:2px solid var(--green);color:var(--green)}.btn-outline:hover{background:var(--green);color:var(--bg)}
-        .btn-green{background:var(--green);color:var(--bg)}.btn-green:hover{box-shadow:0 0 30px rgba(0,255,136,0.5)}
         .install-section{margin:1.5rem 0}.install-table-wrapper{overflow-x:auto;margin:2rem 0}
         .install-table{width:100%;border-collapse:collapse;font-size:0.95rem;background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--border)}
         .install-table th{background:var(--card);color:var(--gold);padding:16px 12px;text-align:left;border-bottom:2px solid var(--border);font-weight:700}
@@ -119,11 +160,6 @@
         .compatibility-badge{display:inline-block;padding:8px 20px;border-radius:25px;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:1.5rem}
         .compatibility-badge.full{background:rgba(0,255,136,0.15);color:var(--green);border:1px solid var(--green)}
         .compatibility-badge.partial{background:rgba(226,160,63,0.15);color:var(--gold);border:1px solid var(--gold)}
-        .promo-banner{background:linear-gradient(135deg,rgba(226,160,63,0.15),rgba(0,180,216,0.15));border:2px solid var(--gold);border-radius:16px;padding:2rem;text-align:center;margin:2rem 0 1rem}
-        .promo-banner .promo-title{font-size:1.8rem;color:var(--gold);font-weight:900;font-family:'Orbitron',sans-serif;letter-spacing:2px}
-        .promo-banner .promo-sub{color:var(--dim);font-size:1.1rem;margin:0.5rem 0 1.5rem}
-        .promo-banner .promo-link{display:inline-block;background:linear-gradient(135deg,var(--gold),#ff6b35);color:#000;padding:16px 40px;border-radius:50px;font-weight:900;font-size:1.2rem;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;letter-spacing:2px;box-shadow:0 0 30px rgba(226,160,63,0.3)}
-        .promo-banner .promo-link:hover{transform:scale(1.05);box-shadow:0 0 50px rgba(226,160,63,0.6)}
         .chatbot-btn{position:fixed;bottom:30px;right:30px;z-index:9999;width:65px;height:65px;background:linear-gradient(135deg,#e2a03f,#c8840f);border:2px solid var(--gold);box-shadow:0 0 25px rgba(226,160,63,0.5);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-size:2rem;color:#1a1a2e}
         .chatbot-btn:hover{transform:scale(1.1);box-shadow:0 0 45px rgba(226,160,63,0.8)}.chatbot-btn.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 25px rgba(255,68,68,0.6)}
         .chatbot-container{position:fixed;bottom:110px;right:30px;z-index:9998;width:380px;max-width:90vw;height:550px;max-height:70vh;background:var(--card);border:1px solid var(--gold);border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(226,160,63,0.2)}
@@ -150,210 +186,119 @@
 </head>
 <body>
 
+    <!-- ═══════════════════════════════════════════════════
+    NAVBAR ESTÁNDAR (con icono en la pestaña activa)
+    ═══════════════════════════════════════════════════ -->
     <nav class="navbar">
         <a href="index.html" class="brand">ITZTLI FRACTAL</a>
         <div class="nav-links">
-            <a href="inicio.html" class="lang-es">Inicio</a><a href="inicio.html" class="lang-en" style="display:none;">Home</a>
-            <a href="autos.html" class="active lang-es">Autos</a><a href="autos.html" class="active lang-en" style="display:none;">Cars</a>
-            <a href="empresas.html" class="lang-es">Empresas</a><a href="empresas.html" class="lang-en" style="display:none;">Enterprise</a>
-            <a href="desarrolladores.html" class="lang-es">Desarrolladores</a><a href="desarrolladores.html" class="lang-en" style="display:none;">Developers</a>
-            <a href="desafio.html" class="challenge-link lang-es"><span class="skull-icon">🏴‍☠️</span> Desafío</a>
-            <a href="desafio.html" class="challenge-link lang-en" style="display:none;"><span class="skull-icon">🏴‍☠️</span> Challenge</a>
-            <a href="inicio.html#contacto" class="lang-es">Contacto</a><a href="inicio.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            <a href="inicio.html" class="lang-es">Inicio</a>
+            <a href="inicio.html" class="lang-en" style="display:none;">Home</a>
+            
+            <a href="autos.html" class="active lang-es">
+                <span class="nav-icon"></span> Autos
+            </a>
+            <a href="autos.html" class="active lang-en" style="display:none;">
+                <span class="nav-icon"></span> Cars
+            </a>
+            
+            <a href="empresas.html" class="lang-es">Empresas</a>
+            <a href="empresas.html" class="lang-en" style="display:none;">Enterprise</a>
+            
+            <a href="desarrolladores.html" class="lang-es">Desarrolladores</a>
+            <a href="desarrolladores.html" class="lang-en" style="display:none;">Developers</a>
+            
+            <a href="defensa.html" class="lang-es">Ciberdefensa</a>
+            <a href="defensa.html" class="lang-en" style="display:none;">Cyberdefense</a>
+            
+            <a href="comando-central.html" class="lang-es">Comando Central</a>
+            <a href="comando-central.html" class="lang-en" style="display:none;">Command Center</a>
+            
+            <a href="inicio.html#contacto" class="lang-es">Contacto</a>
+            <a href="inicio.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            
             <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
         </div>
     </nav>
 
+    <!-- ═══════════════════════════════════════════════════
+    HERO
+    ═══════════════════════════════════════════════════ -->
     <section class="hero-auto">
         <div class="particles" id="particles-hero"></div>
         <div class="lang-es"><div class="hero-content-auto"><h1>PROTECCION TOTAL</h1><p class="tagline-auto">"Tu auto se convierte en un organismo vivo e inhackeable"</p><div class="infografia-hero-container"><img src="imagenes/infografia-auto.png" alt="Infografía ITZTLI"></div></div></div>
         <div class="lang-en"><div class="hero-content-auto"><h1>TOTAL PROTECTION</h1><p class="tagline-auto">"Your car becomes a living, unhackable organism"</p><div class="infografia-hero-container"><img src="imagenes/ingles/infografia-auto-ingles.png" alt="ITZTLI Infographic"></div></div></div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════
+    CONTENIDO ESPAÑOL
+    ═══════════════════════════════════════════════════ -->
     <div class="lang-es">
         <div class="container"><h2 class="section-title">¿Por Qué tu Auto Necesita ITZTLI?</h2><p class="section-subtitle">La tecnología avanza, y los ladrones también. ITZTLI te da ventaja.</p><div class="quantum-image-wrapper"><img src="imagenes/cuantica.png" alt="Protección cuántica"></div></div>
-        <div class="container"><div class="ventajas-section"><h3>Además, nuestro producto principal es tu tranquilidad!!!</h3><p>Sin contratar ningún paquete, desde la versión DEMO gratuita ya puedes ver el estado de todos los chips de tu auto. Con PREMIUM y PLATINUM, el control es total desde tu celular.</p></div></div>
-        
-        <!-- NUEVA SECCIÓN: DEMO PÚBLICO -->
+        <div class="container"><div class="ventajas-section">
+            <h3>Además, nuestro producto principal es tu tranquilidad!!!</h3>
+            <p>Desde la versión <strong>GRATIS</strong>, disfruta de <strong>geolocalización GPS en tiempo real</strong>, configuración de <strong>geocercas</strong> para recibir alertas si tu auto sale del perímetro, monitoreo del estado de los chips principales, y <strong>alertas personalizadas</strong> que te avisan al instante si alguien enciende el motor fuera de tu área de proximidad, si intentan robar la batería, o si el vehículo se mueve sin tu permiso. Nuestro sistema incluso puede seguir transmitiendo la ubicación durante minutos después de un corte de energía gracias a la batería de reserva del chip.</p>
+            <p>Sin contratar ningún paquete, desde la versión DEMO gratuita ya puedes ver el estado de todos los chips de tu auto.</p>
+        </div></div>
+
+        <!-- DEMO GRATUITA CON DESCARGA (CORREGIDO: ahora apunta a .bin para evitar que el navegador muestre el contenido) -->
+        <div class="container"><div class="free-demo-section">
+            <h3>🚀 Comienza con la Demo Gratuita</h3>
+            <p>Obtén <strong>geolocalización, geocercas, alertas de seguridad y monitoreo de chips</strong> sin costo. Solo necesitas un <strong>ESP32</strong> y un adaptador OBD‑II WiFi.</p>
+            <p>Descarga el firmware y regístrate para activar tu cuenta.</p>
+            <a href="login.html?plan=demo" class="btn-register">📝 Registrarse Gratis</a>
+            <!-- Se usa .bin para que el navegador lo descargue automáticamente, y download lo renombra a .ino -->
+            <a href="firmware/itzli_demo.bin" download="itzli.ino" class="btn-download">⬇️ Descargar Firmware (.ino)</a>
+            <p style="color:var(--dim);font-size:0.9rem;margin-top:1rem;">El firmware se comunica por USB, Bluetooth y WiFi para máxima compatibilidad.</p>
+        </div></div>
+
+        <!-- DEMO PÚBLICA INTERACTIVA -->
         <div class="container"><div class="demo-link-section">
-            <h3>🎮 ¿Quieres probar ITZTLI sin registro?</h3>
-            <p>Explora nuestra <strong>demo pública interactiva</strong> con todas las funciones PLATINUM en modo simulación. Sin registro, sin email, sin compromiso. ¡Solo diversión!</p>
+            <h3>🎮 ¿Quieres probar el futuro de ITZTLI?</h3>
+            <p>Explora nuestra <strong>demo pública interactiva</strong> con todas las funcionalidades que planeamos ofrecer en el futuro. Un vistazo a lo que estamos construyendo.</p>
             <a href="demo-publico.html" class="btn-demo">🔮 PROBAR DEMO PÚBLICA GRATIS</a>
         </div></div>
-        
-        <div class="container phone-section"><h2 class="section-title">Así se Ve tu Auto desde el Celular</h2><div class="phone-grid"><div class="phone-mockup"><h4>Modo PREMIUM</h4><div class="screen-large"><img id="img-premium" src="imagenes/premium-screen.png" alt="Premium"></div><p>Control remoto, ubicación GPS, alertas inteligentes.</p></div></div><div class="phone-grid" style="margin-top:0;"><div class="phone-mockup"><h4>Modo PLATINUM</h4><div class="screen-large"><img id="img-platinum" src="imagenes/platinum-screen.png" alt="Platinum"></div><p>Cámaras en vivo, hot-swap, grabación en nube.</p></div></div></div>
-        
-        <div class="container" id="planes">
-            <h2 class="section-title">Planes de Protección</h2>
-            <p class="section-subtitle">Elige el plan que mejor se adapte a tu auto. Todos los precios en USD.</p>
-            
-            <!-- GRID DE PLANES: GRATIS → PREMIUM → PLATINUM -->
-            <div class="plans-grid">
-                <div class="plan-card demo">
-                    <h3 style="color:var(--green);">🆓 GRATIS</h3>
-                    <div class="price" style="color:var(--green);">$0<small>/mes</small></div>
-                    <ul>
-                        <li><span class="highlight-feature">🔄 Rotación cada 5 segundos</span></li>
-                        <li>Monitoreo de 12 chips</li>
-                        <li>Alertas de seguridad</li>
-                        <li>Geolocalización GPS</li>
-                        <li>Geocerca configurable</li>
-                        <li>Registro sin tarjeta</li>
-                        <li class="no">Control remoto</li>
-                        <li class="no">Cámaras en vivo</li>
-                    </ul>
-                    <div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> Una placa <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi. <strong>Sin tarjeta de crédito.</strong></div>
-                    <a href="login.html?plan=demo" class="btn-plan" style="display:inline-block;background:var(--green);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Probar Demo Gratis</a>
-                </div>
-
-                <div class="plan-card premium">
-                    <h3 style="color:var(--cyan);">🥈 PREMIUM</h3>
-                    <div class="price" style="color:var(--cyan);">$29.99<small> USD/mes</small></div>
-                    <ul>
-                        <li>Todo lo de GRATIS</li>
-                        <li>Control remoto del auto</li>
-                        <li>Arrancar / Apagar</li>
-                        <li>Abrir / Cerrar puertas</li>
-                        <li>Luces y Claxon</li>
-                        <li>Alarma de seguridad</li>
-                        <li>Ubicación GPS</li>
-                        <li>Alertas inteligentes</li>
-                        <li>Chatbot IA 24/7</li>
-                        <li class="no">Entretenimiento</li>
-                        <li class="no">Clima y Espejos</li>
-                        <li class="no">Hot-Swap Digital</li>
-                        <li class="no">Cámaras en vivo</li>
-                    </ul>
-                    <div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi.</div>
-                    <a href="login.html?plan=premium" class="btn" style="display:block;width:100%;background:var(--cyan);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Plan Premium</a>
-                </div>
-
-                <div class="plan-card platinum">
-                    <div class="plan-badge">🥇 RECOMENDADO</div>
-                    <h3 style="color:var(--gold);">🥇 PLATINUM</h3>
-                    <div class="price" style="color:var(--gold);">$49.99<small> USD/mes</small></div>
-                    <ul>
-                        <li>Todo lo de PREMIUM</li>
-                        <li>Volumen / Estéreo</li>
-                        <li>Bluetooth</li>
-                        <li>Navegación GPS</li>
-                        <li>Clima (A/C)</li>
-                        <li>Espejos</li>
-                        <li>Cámaras en vivo</li>
-                        <li>Hot-Swap Digital</li>
-                        <li>Grabación en nube (5 GB)</li>
-                        <li>Soporte prioritario 24/7</li>
-                    </ul>
-                    <div class="hw-notice"><span>🛠️</span> <strong>Requisito:</strong> <span class="esp-warning">ESP32</span> + adaptador OBD-II WiFi.</div>
-                    <a href="login.html?plan=platinum" class="btn" style="display:block;width:100%;background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Plan Platinum</a>
-                </div>
-            </div> <!-- Fin .plans-grid -->
-
-            <!-- BANNER DE PROMOCIONES (SIEMPRE AL FINAL, FUERA DEL GRID) -->
-            <div class="promo-banner">
-                <div class="promo-title">🎉 PROMOCIÓN ESPECIAL POR INAUGURACIÓN</div>
-                <div class="promo-sub">Oferta por tiempo limitado — Descuentos exclusivos en planes anuales</div>
-                <a href="desafio.html#promociones" class="promo-link">🔥 VER PROMOCIONES 🔥</a>
-            </div>
-        </div> <!-- Fin container #planes -->
 
         <div class="container"><h2 class="section-title">¿Cómo se Instala?</h2><div class="install-section"><div class="install-table-wrapper"><table class="install-table"><thead><tr><th>Característica</th><th class="center">Opción 1<br>WiFi Integrado</th><th class="center">Opción 2<br>Adaptador + Cloud</th><th class="center" style="color:var(--green);">Opción 3<br>Adaptador + ESP32</th><th class="center" style="color:var(--cyan);">Opción 4 ⭐<br>WiFi Auto + ESP32</th></tr></thead><tbody><tr><td>Hardware necesario</td><td class="center winner">Ninguno</td><td class="center">Adaptador OBD-II</td><td class="center">Adaptador + ESP32</td><td class="center">ESP32</td></tr><tr><td>Funciona sin internet</td><td class="center loser">❌</td><td class="center loser">❌</td><td class="center winner">✅</td><td class="center winner">✅</td></tr><tr><td>Capas de verificación</td><td class="center">1</td><td class="center">1</td><td class="center">2</td><td class="center best"><strong>3</strong></td></tr><tr><td>Seguridad nivel</td><td class="center">Alta</td><td class="center">Alta</td><td class="center winner">Máxima</td><td class="center best"><strong>Total</strong></td></tr></tbody></table></div><h3 style="color:var(--cyan);text-align:center;font-size:1.6rem;margin:2rem 0 1rem 0;">📡 Guía de Conexión</h3><div class="guide-grid"><div class="guide-card"><h4>Opción 1: WiFi Integrado</h4><ul class="step-list"><li><span class="num">1.</span><span>Verifica WiFi integrado (2021+).</span></li><li><span class="num">2.</span><span>Conecta el auto a tu WiFi.</span></li><li><span class="num">3.</span><span>Descarga la app ITZTLI.</span></li><li><span class="num">4.</span><span>Escanea QR del tablero.</span></li><li><span class="num">5.</span><span>¡Sincronización automática!</span></li></ul></div><div class="guide-card"><h4>Opción 2: Adaptador + Cloud</h4><ul class="step-list"><li><span class="num">1.</span><span>Consigue adaptador OBD-II.</span></li><li><span class="num">2.</span><span>Conecta al puerto OBD-II.</span></li><li><span class="num">3.</span><span>Crea cuenta ITZTLI.</span></li><li><span class="num">4.</span><span>Enlace automático.</span></li><li><span class="num">5.</span><span>Control desde cualquier lugar.</span></li></ul></div><div class="guide-card"><h4>Opción 3: Adaptador + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Consigue adaptador + ESP32.</span></li><li><span class="num">2.</span><span>Conecta al OBD-II.</span></li><li><span class="num">3.</span><span>Carga firmware ITZTLI.</span></li><li><span class="num">4.</span><span>Comunicación local.</span></li><li><span class="num">5.</span><span>100% autónomo. Sin internet.</span></li></ul></div></div><div class="guide-grid" style="margin-top:0;"><div class="guide-card option-4"><h4>Opción 4 ⭐: WiFi Auto + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Verifica WiFi integrado.</span></li><li><span class="num">2.</span><span>Consigue ESP32.</span></li><li><span class="num">3.</span><span>Carga firmware ITZTLI.</span></li><li><span class="num">4.</span><span>Conecta al WiFi del auto.</span></li><li><span class="num">5.</span><span>Doble autenticación.</span></li></ul></div></div></div></div>
         <div class="container" id="vin"><div class="vin-real-section"><h2>🔍 Escáner de Compatibilidad VIN</h2><p class="vin-subtitle">Ingresa el número de serie de 17 caracteres de tu vehículo.</p><div class="vin-input-group"><input type="text" id="vinInputReal" placeholder="EJ: 1HGBH41JXMN109186" maxlength="17" autocomplete="off" oninput="onVINInput()"><button class="btn-scan" id="btnScan" onclick="scanVIN()" disabled>🔍 Escanear Auto</button></div><div class="vin-result-real" id="vinResultReal"></div></div></div>
         <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — Todos los Derechos Reservados</footer>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════
+    CONTENIDO INGLÉS
+    ═══════════════════════════════════════════════════ -->
     <div class="lang-en">
         <div class="container"><h2 class="section-title">Why Your Car Needs ITZTLI</h2><p class="section-subtitle">Technology advances, and so do thieves. ITZTLI gives you the edge.</p><div class="quantum-image-wrapper"><img src="imagenes/ingles/cuantica-ingles.png" alt="Quantum protection"></div></div>
-        <div class="container"><div class="ventajas-section"><h3>Plus, our main product is your peace of mind!!!</h3><p>Without hiring any package, from the free DEMO version you can already see the status of all the chips in your car.</p></div></div>
-        
-        <!-- DEMO PÚBLICO EN INGLÉS -->
+        <div class="container"><div class="ventajas-section">
+            <h3>Plus, our main product is your peace of mind!!!</h3>
+            <p>With the <strong>FREE</strong> version, enjoy <strong>real‑time GPS geolocation</strong>, customizable <strong>geofences</strong> with instant alerts, chip monitoring, and <strong>personalized notifications</strong> if the engine starts outside your proximity area, the battery is tampered with, or your car moves without authorization. Thanks to the reserve battery in the chip, location can still be transmitted for minutes after a power loss.</p>
+        </div></div>
+
+        <!-- FREE DEMO CON DESCARGA (CORREGIDO) -->
+        <div class="container"><div class="free-demo-section">
+            <h3>🚀 Start with the Free Demo</h3>
+            <p>Get <strong>geolocation, geofences, security alerts and chip monitoring</strong> at no cost. All you need is an <strong>ESP32</strong> and an OBD‑II WiFi adapter.</p>
+            <p>Download the firmware and register to activate your account.</p>
+            <a href="login.html?plan=demo" class="btn-register">📝 Register for Free</a>
+            <a href="firmware/itzli_demo.bin" download="itzli_demo.ino" class="btn-download">⬇️ Download Firmware (.ino)</a>
+            <p style="color:var(--dim);font-size:0.9rem;margin-top:1rem;">The firmware communicates via USB, Bluetooth and WiFi for maximum compatibility.</p>
+        </div></div>
+
+        <!-- DEMO PÚBLICA EN INGLÉS -->
         <div class="container"><div class="demo-link-section">
-            <h3>🎮 Want to try ITZTLI without registration?</h3>
-            <p>Explore our <strong>free public demo</strong> with all PLATINUM features in simulation mode. No registration, no email, no commitment. Just fun!</p>
+            <h3>🎮 Want to see the future of ITZTLI?</h3>
+            <p>Explore our <strong>free public demo</strong> with all the features we plan to offer. A glimpse of what we're building.</p>
             <a href="demo-publico.html" class="btn-demo">🔮 TRY FREE PUBLIC DEMO</a>
         </div></div>
-        
-        <div class="container phone-section"><h2 class="section-title">How Your Car Looks from Your Cell Phone</h2><div class="phone-grid"><div class="phone-mockup"><h4>PREMIUM Mode</h4><div class="screen-large"><img id="img-premium-en" src="imagenes/ingles/premium-screen-ingles.png" alt="Premium Mode"></div><p>Remote control, GPS location, smart alerts.</p></div></div><div class="phone-grid" style="margin-top:0;"><div class="phone-mockup"><h4>PLATINUM Mode</h4><div class="screen-large"><img id="img-platinum-en" src="imagenes/ingles/platinum-screen-ingles.png" alt="Platinum Mode"></div><p>Live cameras, hot-swap, cloud recording.</p></div></div></div>
-        
-        <div class="container" id="planes-en">
-            <h2 class="section-title">Protection Plans</h2>
-            <p class="section-subtitle">All prices in USD.</p>
-            
-            <!-- GRID EN INGLÉS: FREE → PREMIUM → PLATINUM -->
-            <div class="plans-grid">
-                <div class="plan-card demo">
-                    <h3 style="color:var(--green);">🆓 FREE</h3>
-                    <div class="price" style="color:var(--green);">$0<small>/mo</small></div>
-                    <ul>
-                        <li><span class="highlight-feature">🔄 Rotation every 5 seconds</span></li>
-                        <li>12 chip monitoring</li>
-                        <li>Security alerts</li>
-                        <li>GPS geolocation</li>
-                        <li>Configurable geofence</li>
-                        <li>Registration without credit card</li>
-                        <li class="no">Remote control</li>
-                        <li class="no">Live cameras</li>
-                    </ul>
-                    <div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> One <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter. <strong>No credit card required.</strong></div>
-                    <a href="itzli-demo-registro.html" class="btn-green btn-block" style="display:block;width:100%;background:var(--green);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Activate Free</a>
-                </div>
-
-                <div class="plan-card premium">
-                    <h3 style="color:var(--cyan);">🥈 PREMIUM</h3>
-                    <div class="price" style="color:var(--cyan);">$29.99<small> USD/mo</small></div>
-                    <ul>
-                        <li>Everything in FREE</li>
-                        <li>Remote car control</li>
-                        <li>Start / Stop</li>
-                        <li>Open / Close doors</li>
-                        <li>Lights and Horn</li>
-                        <li>Security alarm</li>
-                        <li>GPS location</li>
-                        <li>Smart alerts</li>
-                        <li>AI Chatbot 24/7</li>
-                        <li class="no">Entertainment</li>
-                        <li class="no">Climate and Mirrors</li>
-                        <li class="no">Digital Hot-Swap</li>
-                        <li class="no">Live cameras</li>
-                    </ul>
-                    <div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter.</div>
-                    <a href="itzli-premium.html" class="btn btn-block" style="display:block;width:100%;background:var(--cyan);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Choose PREMIUM</a>
-                </div>
-
-                <div class="plan-card platinum">
-                    <div class="plan-badge">🥇 RECOMMENDED</div>
-                    <h3 style="color:var(--gold);">🥇 PLATINUM</h3>
-                    <div class="price" style="color:var(--gold);">$49.99<small> USD/mo</small></div>
-                    <ul>
-                        <li>Everything in PREMIUM</li>
-                        <li>Volume / Stereo</li>
-                        <li>Bluetooth</li>
-                        <li>GPS Navigation</li>
-                        <li>Climate (A/C)</li>
-                        <li>Mirrors</li>
-                        <li>Live cameras</li>
-                        <li>Digital Hot-Swap</li>
-                        <li>Cloud recording (5 GB)</li>
-                        <li>Priority support 24/7</li>
-                    </ul>
-                    <div class="hw-notice"><span>🛠️</span> <strong>Requirement:</strong> <span class="esp-warning">ESP32</span> + OBD-II WiFi adapter.</div>
-                    <a href="itzli-platinum.html" class="btn btn-block" style="display:block;width:100%;background:var(--gold);color:var(--bg);padding:14px 28px;border:none;font-weight:700;cursor:pointer;text-decoration:none;transition:0.3s;font-family:'Orbitron',sans-serif;font-size:0.9rem;border-radius:8px;letter-spacing:1px;text-align:center;">Choose PLATINUM</a>
-                </div>
-            </div> <!-- Fin .plans-grid inglés -->
-
-            <!-- BANNER DE PROMOCIONES EN INGLÉS -->
-            <div class="promo-banner">
-                <div class="promo-title">🎉 INAUGURATION SPECIAL PROMOTION</div>
-                <div class="promo-sub">Limited time offer — Exclusive discounts on annual plans</div>
-                <a href="desafio.html#promociones" class="promo-link">🔥 VIEW PROMOTIONS 🔥</a>
-            </div>
-        </div> <!-- Fin container #planes-en -->
 
         <div class="container"><h2 class="section-title">How is it Installed?</h2><div class="install-section"><div class="install-table-wrapper"><table class="install-table"><thead><tr><th>Feature</th><th class="center">Option 1<br>Built-in WiFi</th><th class="center">Option 2<br>Adapter + Cloud</th><th class="center" style="color:var(--green);">Option 3<br>Adapter + ESP32</th><th class="center" style="color:var(--cyan);">Option 4 ⭐<br>Car WiFi + ESP32</th></tr></thead><tbody><tr><td>Hardware needed</td><td class="center winner">None</td><td class="center">OBD-II Adapter</td><td class="center">Adapter + ESP32</td><td class="center">ESP32</td></tr><tr><td>Works without internet</td><td class="center loser">❌</td><td class="center loser">❌</td><td class="center winner">✅</td><td class="center winner">✅</td></tr><tr><td>Verification layers</td><td class="center">1</td><td class="center">1</td><td class="center">2</td><td class="center best"><strong>3</strong></td></tr><tr><td>Security level</td><td class="center">High</td><td class="center">High</td><td class="center winner">Maximum</td><td class="center best"><strong>Total</strong></td></tr></tbody></table></div><h3 style="color:var(--cyan);text-align:center;font-size:1.6rem;margin:2rem 0 1rem 0;">📡 Step-by-Step Connection Guide</h3><div class="guide-grid"><div class="guide-card"><h4>Option 1: Built-in WiFi</h4><ul class="step-list"><li><span class="num">1.</span><span>Verify built-in WiFi (2021+).</span></li><li><span class="num">2.</span><span>Connect to your WiFi.</span></li><li><span class="num">3.</span><span>Download ITZTLI app.</span></li><li><span class="num">4.</span><span>Scan dashboard QR.</span></li><li><span class="num">5.</span><span>Automatic sync!</span></li></ul></div><div class="guide-card"><h4>Option 2: Adapter + Cloud</h4><ul class="step-list"><li><span class="num">1.</span><span>Get OBD-II Adapter.</span></li><li><span class="num">2.</span><span>Connect to OBD-II port.</span></li><li><span class="num">3.</span><span>Create ITZTLI account.</span></li><li><span class="num">4.</span><span>Automatic link.</span></li><li><span class="num">5.</span><span>Control from anywhere.</span></li></ul></div><div class="guide-card"><h4>Option 3: Adapter + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Get Adapter + ESP32.</span></li><li><span class="num">2.</span><span>Connect to OBD-II.</span></li><li><span class="num">3.</span><span>Flash ITZTLI firmware.</span></li><li><span class="num">4.</span><span>Local communication.</span></li><li><span class="num">5.</span><span>100% offline.</span></li></ul></div></div><div class="guide-grid" style="margin-top:0;"><div class="guide-card option-4"><h4>Option 4 ⭐: Car WiFi + ESP32</h4><ul class="step-list"><li><span class="num">1.</span><span>Verify built-in WiFi.</span></li><li><span class="num">2.</span><span>Get ESP32 board.</span></li><li><span class="num">3.</span><span>Flash ITZTLI firmware.</span></li><li><span class="num">4.</span><span>Connect to car WiFi.</span></li><li><span class="num">5.</span><span>Double authentication.</span></li></ul></div></div></div></div>
         <div class="container" id="vin-en"><div class="vin-real-section"><h2>🔍 VIN Compatibility Scanner</h2><p class="vin-subtitle">Enter your vehicle's 17-character serial number.</p><div class="vin-input-group"><input type="text" id="vinInputRealEN" placeholder="EX: 1HGBH41JXMN109186" maxlength="17" autocomplete="off" oninput="onVINInputEN()"><button class="btn-scan" id="btnScanEN" onclick="scanVIN_EN()" disabled>🔍 Scan My Car</button></div><div class="vin-result-real" id="vinResultRealEN"></div></div></div>
         <footer><span class="brand">© 2026 ITZTLI FRACTAL CORE ®</span> — All Rights Reserved</footer>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════
+    CHATBOT
+    ═══════════════════════════════════════════════════ -->
     <button class="chatbot-btn" id="chatbotBtn" onclick="toggleChatbot()" title="Soporte ITZTLI">💬</button>
     <div class="chatbot-container" id="chatbotContainer">
         <div class="chatbot-header"><span class="status-dot"></span>ITZTLI SOPORTE 24/7</div>
@@ -365,57 +310,201 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════
+    SCRIPTS
+    ═══════════════════════════════════════════════════ -->
     <script>
         function createParticles(id){const pc=document.getElementById(id);if(pc){for(let i=0;i<60;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*10)+'s';pc.appendChild(p);}}}
         createParticles('particles-hero');
         
         let isSpanish=true;
-        function toggleLang(){isSpanish=!isSpanish;const b=document.getElementById('langBtn'),es=document.querySelectorAll('.lang-es'),en=document.querySelectorAll('.lang-en');if(isSpanish){b.innerHTML='🇲🇽';document.documentElement.lang='es';es.forEach(e=>e.style.display='block');en.forEach(e=>e.style.display='none');document.getElementById('img-premium').src='imagenes/premium-screen.png';document.getElementById('img-platinum').src='imagenes/platinum-screen.png';}else{b.innerHTML='🇺🇸';document.documentElement.lang='en';es.forEach(e=>e.style.display='none');en.forEach(e=>e.style.display='block');document.getElementById('img-premium').src='imagenes/ingles/premium-screen-ingles.png';document.getElementById('img-platinum').src='imagenes/ingles/platinum-screen-ingles.png';}updateChatbotLang();}
+        function toggleLang(){isSpanish=!isSpanish;const b=document.getElementById('langBtn'),es=document.querySelectorAll('.lang-es'),en=document.querySelectorAll('.lang-en');if(isSpanish){b.innerHTML='🇲🇽';document.documentElement.lang='es';es.forEach(e=>e.style.display='block');en.forEach(e=>e.style.display='none');}else{b.innerHTML='🇺🇸';document.documentElement.lang='en';es.forEach(e=>e.style.display='none');en.forEach(e=>e.style.display='block');}updateChatbotLang();}
 
+        // ═══════════════ VIN SCANNER (con API NHTSA + fallback local) ═══════════════
         const WMI_DATABASE={'1G1':{brand:'Chevrolet',country:'🇺🇸 United States'},'1HG':{brand:'Honda USA',country:'🇺🇸 United States'},'1N4':{brand:'Nissan USA',country:'🇺🇸 United States'},'2T1':{brand:'Toyota Canada',country:'🇨🇦 Canada'},'3FA':{brand:'Ford México',country:'🇲🇽 Mexico'},'4T1':{brand:'Toyota USA',country:'🇺🇸 United States'},'5YJ':{brand:'Tesla',country:'🇺🇸 United States'},'WBA':{brand:'BMW',country:'🇩🇪 Germany'},'WDD':{brand:'Mercedes-Benz',country:'🇩🇪 Germany'},'WAU':{brand:'Audi',country:'🇩🇪 Germany'},'WP0':{brand:'Porsche',country:'🇩🇪 Germany'},'JHM':{brand:'Honda Japan',country:'🇯🇵 Japan'},'JT2':{brand:'Toyota Japan',country:'🇯🇵 Japan'},'JM1':{brand:'Mazda',country:'🇯🇵 Japan'},'KMH':{brand:'Hyundai',country:'🇰🇷 South Korea'},'KNA':{brand:'Kia',country:'🇰🇷 South Korea'},'SAL':{brand:'Land Rover',country:'🇬🇧 United Kingdom'},'ZFF':{brand:'Ferrari',country:'🇮🇹 Italy'}};
         const YEAR_CODES={'A':2010,'B':2011,'C':2012,'D':2013,'E':2014,'F':2015,'G':2016,'H':2017,'J':2018,'K':2019,'L':2020,'M':2021,'N':2022,'P':2023,'R':2024,'S':2025,'T':2026};
         const ITZTLI_COMPATIBILITY={'Toyota':{ecus:30,wifi:true,maxChips:30,yearMin:2015,features:['GPS','Remote Start','Climate Control']},'Honda':{ecus:28,wifi:true,maxChips:28,yearMin:2016,features:['GPS','Remote Start']},'BMW':{ecus:45,wifi:true,maxChips:45,yearMin:2014,features:['GPS','Remote Start','Climate Control','Cameras','360 View']},'Tesla':{ecus:60,wifi:true,maxChips:60,yearMin:2017,features:['GPS','Remote Start','Climate Control','Cameras','360 View','Autopilot Integration']},'Ford':{ecus:25,wifi:true,maxChips:25,yearMin:2018,features:['GPS','Remote Start']},'Nissan':{ecus:25,wifi:true,maxChips:25,yearMin:2017,features:['GPS','Remote Start']},'Volkswagen':{ecus:30,wifi:true,maxChips:30,yearMin:2016,features:['GPS','Remote Start','Climate Control']},'Hyundai':{ecus:28,wifi:true,maxChips:28,yearMin:2018,features:['GPS','Remote Start']},'Kia':{ecus:26,wifi:true,maxChips:26,yearMin:2018,features:['GPS','Remote Start']},'Mazda':{ecus:24,wifi:false,maxChips:24,yearMin:2019,features:['GPS']}};
 
-        function decodeVIN(vin){vin=vin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'');if(vin.length!==17)return{valid:false,error:'VIN must have 17 characters'};const wmi=vin.substring(0,3);let mf=null;for(const[p,i]of Object.entries(WMI_DATABASE)){if(wmi.startsWith(p)||wmi===p){mf=i;break;}}const yc=vin[9],year=YEAR_CODES[yc]||'Unknown',sn=vin.substring(11);return{valid:true,wmi,manufacturer:mf,year,serialNumber:sn,fullVIN:vin};}
-        function getCompatibility(brand,year){let c=null;for(const[k,v]of Object.entries(ITZTLI_COMPATIBILITY)){if(brand&&brand.toLowerCase().includes(k.toLowerCase())){c=v;break;}}if(!c)return{level:'partial',brand:brand||'Unknown',ecus:15,wifi:year>=2021,maxChips:15,yearMin:2020,features:[],message:'Manufacturer not verified.'};if(year<c.yearMin)return{...c,level:'partial',message:`Model ${c.yearMin}+ recommended.`};return{...c,level:'full',message:`TOTAL Compatibility! Up to ${c.maxChips} chips.`};}
-        function renderVINResult(vd,c,lang){const isES=lang==='es';const badges={full:isES?'✅ COMPATIBILIDAD TOTAL':'✅ FULL COMPATIBILITY',partial:isES?'⚠️ COMPATIBILIDAD PARCIAL':'⚠️ PARTIAL COMPATIBILITY'};let h=`<span class="compatibility-badge ${c.level}">${badges[c.level]}</span><p style="color:var(--dim);margin-bottom:1rem;">${c.message}</p><div class="vin-result-grid">`;const cards=[[isES?'Fabricante':'Manufacturer',c.brand||vd.manufacturer?.brand||'Desconocido',true],[isES?'País':'Country',vd.manufacturer?.country||'No identificado'],[isES?'Año':'Year',vd.year],[isES?'WMI':'WMI',vd.wmi],[isES?'No. Serie':'Serial',vd.serialNumber],[isES?'ECUs':'ECUs',c.ecus+' ECUs'],[isES?'WiFi':'WiFi',c.wifi?'✅ Sí':'❌ No'],[isES?'Chips Máx.':'Max Chips',c.maxChips+' chips']];cards.forEach(ca=>h+=`<div class="vin-info-card"><div class="label">${ca[0]}</div><div class="value${ca[2]?' highlight':''}">${ca[1]}</div></div>`);h+='</div>';if(c.level==='full')h+=`<a href="#planes" class="btn" style="margin-top:1rem;">${isES?'Ver Planes':'View Plans'}</a>`;return h;}
+        // Decodificador con API NHTSA (gratuita) + fallback local
+        async function decodeVIN(vin) {
+            vin = vin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+            if (vin.length !== 17) return { valid: false, error: 'VIN must have 17 characters' };
+            
+            // Intentar con API de NHTSA
+            try {
+                const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+                if (data.Results && data.Results.length > 0) {
+                    const make = data.Results.find(r => r.Variable === 'Make')?.Value || 'Unknown';
+                    const model = data.Results.find(r => r.Variable === 'Model')?.Value || 'Unknown';
+                    const year = data.Results.find(r => r.Variable === 'Model Year')?.Value || 'Unknown';
+                    const manufacturer = data.Results.find(r => r.Variable === 'Manufacturer Name')?.Value || make;
+                    const country = data.Results.find(r => r.Variable === 'Plant Country')?.Value || 'Unknown';
+                    return {
+                        valid: true,
+                        wmi: vin.substring(0, 3),
+                        manufacturer: { brand: manufacturer, country: country },
+                        year: year,
+                        serialNumber: vin.substring(11),
+                        fullVIN: vin,
+                        model: model,
+                        fromAPI: true
+                    };
+                }
+            } catch (e) {
+                console.warn('API falló, usando base local', e);
+            }
+            
+            // Fallback a la base local
+            const wmi = vin.substring(0, 3);
+            let mf = null;
+            for (const [p, i] of Object.entries(WMI_DATABASE)) {
+                if (wmi.startsWith(p) || wmi === p) { mf = i; break; }
+            }
+            const yc = vin[9];
+            const year = YEAR_CODES[yc] || 'Unknown';
+            const sn = vin.substring(11);
+            return { valid: true, wmi, manufacturer: mf, year, serialNumber: sn, fullVIN: vin, fromAPI: false };
+        }
+
+        function getCompatibility(brand, year) {
+            let c = null;
+            for (const [k, v] of Object.entries(ITZTLI_COMPATIBILITY)) {
+                if (brand && brand.toLowerCase().includes(k.toLowerCase())) { c = v; break; }
+            }
+            if (!c) return { level: 'partial', brand: brand || 'Unknown', ecus: 15, wifi: year >= 2021, maxChips: 15, yearMin: 2020, features: [], message: 'Manufacturer not verified.' };
+            if (year < c.yearMin) return { ...c, level: 'partial', message: `Model ${c.yearMin}+ recommended.` };
+            return { ...c, level: 'full', message: `TOTAL Compatibility! Up to ${c.maxChips} chips.` };
+        }
+
+        function renderVINResult(vd, c, lang) {
+            const isES = lang === 'es';
+            const badges = {
+                full: isES ? '✅ COMPATIBILIDAD TOTAL' : '✅ FULL COMPATIBILITY',
+                partial: isES ? '⚠️ COMPATIBILIDAD PARCIAL' : '⚠️ PARTIAL COMPATIBILITY'
+            };
+            let h = `<span class="compatibility-badge ${c.level}">${badges[c.level]}</span><p style="color:var(--dim);margin-bottom:1rem;">${c.message}</p><div class="vin-result-grid">`;
+            const cards = [
+                [isES ? 'Fabricante' : 'Manufacturer', c.brand || vd.manufacturer?.brand || 'Desconocido', true],
+                [isES ? 'País' : 'Country', vd.manufacturer?.country || 'No identificado'],
+                [isES ? 'Año' : 'Year', vd.year],
+                [isES ? 'WMI' : 'WMI', vd.wmi],
+                [isES ? 'No. Serie' : 'Serial', vd.serialNumber],
+                [isES ? 'ECUs' : 'ECUs', c.ecus + ' ECUs'],
+                [isES ? 'WiFi' : 'WiFi', c.wifi ? '✅ Sí' : '❌ No'],
+                [isES ? 'Chips Máx.' : 'Max Chips', c.maxChips + ' chips']
+            ];
+            cards.forEach(ca => h += `<div class="vin-info-card"><div class="label">${ca[0]}</div><div class="value${ca[2] ? ' highlight' : ''}">${ca[1]}</div></div>`);
+            h += '</div>';
+            // Se eliminó el enlace a "Ver Planes"
+            return h;
+        }
 
         function onVINInput(){const i=document.getElementById('vinInputReal'),b=document.getElementById('btnScan'),v=i.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'');i.value=v;b.disabled=v.length!==17;}
         function onVINInputEN(){const i=document.getElementById('vinInputRealEN'),b=document.getElementById('btnScanEN'),v=i.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'');i.value=v;b.disabled=v.length!==17;}
-        function scanVIN(){const i=document.getElementById('vinInputReal'),r=document.getElementById('vinResultReal'),v=i.value.toUpperCase();if(v.length!==17)return;const d=decodeVIN(v);if(!d.valid){r.innerHTML=`<p style="color:var(--red);text-align:center;">${d.error}</p>`;r.classList.add('active');return;}const b=d.manufacturer?.brand||'Desconocido',y=typeof d.year==='number'?d.year:2020,c=getCompatibility(b,y);r.innerHTML=renderVINResult(d,c,'es');r.classList.add('active');}
-        function scanVIN_EN(){const i=document.getElementById('vinInputRealEN'),r=document.getElementById('vinResultRealEN'),v=i.value.toUpperCase();if(v.length!==17)return;const d=decodeVIN(v);if(!d.valid){r.innerHTML=`<p style="color:var(--red);text-align:center;">${d.error}</p>`;r.classList.add('active');return;}const b=d.manufacturer?.brand||'Unknown',y=typeof d.year==='number'?d.year:2020,c=getCompatibility(b,y);r.innerHTML=renderVINResult(d,c,'en');r.classList.add('active');}
 
-        // ═══════════════ CHATBOT ═══════════════
-        const FAQ={es:{greeting:'¡Hola! Soy el asistente ITZTLI. ¿En qué puedo ayudarte?',compatibility:'Para verificar compatibilidad, ingresa el VIN (17 caracteres) en nuestro escáner.',plans:'📦 Planes:\n🆓 GRATIS - $0/mes (rotación 5s, monitoreo, geolocalización)\n🥈 PREMIUM - $29.99 USD/mes\n🥇 PLATINUM - $49.99 USD/mes',installation:'🔧 4 opciones de instalación disponibles.',security:'🛡️ ITZTLI es INHACKEABLE. Rotación de claves cada 5 segundos.',hotswap:'🔄 Hot-Swap: Si un chip falla, otro asume en 0.3s.',payment:'💳 Pagos con Stripe. $29.99 PREMIUM, $49.99 PLATINUM.',contact:'📧 contacto@itztlifractal.com',thanks:'¡Gracias! 🚀',unknown:'Prueba con: Compatibilidad, Planes, Instalación, Seguridad, Pagos'},en:{greeting:"Hello! I'm the ITZTLI assistant. How can I help?",compatibility:'Enter your VIN or tell me brand, model, year.',plans:'📦 Plans:\n🆓 FREE - $0/mo (5s rotation, monitoring, geolocation)\n🥈 PREMIUM - $29.99 USD/mo\n🥇 PLATINUM - $49.99 USD/mo',installation:'🔧 4 installation options available.',security:'🛡️ ITZTLI is UNHACKABLE. Key rotation every 5 seconds.',hotswap:'🔄 Hot-Swap: 0.3s failover.',payment:'💳 Stripe payments. $29.99 PREMIUM, $49.99 PLATINUM.',contact:'📧 contacto@itztlifractal.com',thanks:'Thanks! 🚀',unknown:'Try: Compatibility, Plans, Installation, Security, Payments'}};
-
-        let chatbotOpen=false,conversationHistory=[];
-        function toggleChatbot(){chatbotOpen=!chatbotOpen;const c=document.getElementById('chatbotContainer'),b=document.getElementById('chatbotBtn');if(chatbotOpen){c.classList.add('open');b.classList.add('active');b.innerHTML='✕';if(document.getElementById('chatbotMessages').children.length===0)showGreeting();}else{c.classList.remove('open');b.classList.remove('active');b.innerHTML='💬';}}
-        function showGreeting(){const lang=isSpanish?'es':'en';addBotMessage(FAQ[lang].greeting);updateQuickReplies();}
-        function addBotMessage(text,isIA=false){const m=document.getElementById('chatbotMessages'),msg=document.createElement('div');msg.className='msg bot';msg.innerHTML=text.replace(/\n/g,'<br>');if(isIA){const badge=document.createElement('span');badge.className='badge-ia';badge.textContent='IA';msg.appendChild(badge);}m.appendChild(msg);m.scrollTop=m.scrollHeight;}
-        function addUserMessage(text){const m=document.getElementById('chatbotMessages'),msg=document.createElement('div');msg.className='msg user';msg.textContent=text;m.appendChild(msg);m.scrollTop=m.scrollHeight;}
-
-        async function sendMessage(){const input=document.getElementById('chatbotInput'),text=input.value.trim();if(!text)return;addUserMessage(text);input.value='';input.disabled=true;const lang=isSpanish?'es':'en';await sendToOpenAI(text,lang);input.disabled=false;input.focus();updateQuickReplies();}
-        
-        function sendPredefined(text,lang){const lower=text.toLowerCase();let r='';if(/hola|hello|hi|buen/.test(lower))r=FAQ[lang].greeting;else if(/compat|vin|modelo|marca|año|year|brand/.test(lower))r=FAQ[lang].compatibility;else if(/plan|precio|costo|price|demo|premium|platinum/.test(lower))r=FAQ[lang].plans;else if(/instal|conect|obd|esp32/.test(lower))r=FAQ[lang].installation;else if(/segur|hack|proteg|security/.test(lower))r=FAQ[lang].security;else if(/hot|swap|respaldo|fallo/.test(lower))r=FAQ[lang].hotswap;else if(/pago|tarjeta|stripe|payment|card/.test(lower))r=FAQ[lang].payment;else if(/contact|soport|ayuda|email/.test(lower))r=FAQ[lang].contact;else if(/gracias|thank/.test(lower))r=FAQ[lang].thanks;else r=FAQ[lang].unknown;setTimeout(()=>addBotMessage(r),500);}
-
-        async function sendToOpenAI(text,lang){
-            const systemPrompt=lang==='es'?'Eres ITZTLI-BOT, asistente virtual de ITZTLI FRACTAL CORE. Planes: GRATIS $0/mes (rotación 5s), PREMIUM $29.99/mes, PLATINUM $49.99/mes. Responde en español.':"You are ITZTLI-BOT, ITZTLI FRACTAL CORE assistant. Plans: FREE $0/mo (5s rotation), PREMIUM $29.99/mo, PLATINUM $49.99/mo. Answer in English.";
-            if(conversationHistory.length===0)conversationHistory.push({role:'system',content:systemPrompt});
-            conversationHistory.push({role:'user',content:text});
-            if(conversationHistory.length>12)conversationHistory=[conversationHistory[0],...conversationHistory.slice(-10)];
-            try{
-                const resp=await fetch('http://localhost:3000/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:conversationHistory})});
-                if(!resp.ok)throw new Error('API Error');
-                const data=await resp.json();
-                const answer=data.choices[0].message.content;
-                conversationHistory.push({role:'assistant',content:answer});
-                addBotMessage(answer,true);
-            }catch(e){console.error('Error:',e);sendPredefined(text,lang);}
+        async function scanVIN() {
+            const i = document.getElementById('vinInputReal');
+            const r = document.getElementById('vinResultReal');
+            const v = i.value.toUpperCase();
+            if (v.length !== 17) return;
+            const d = await decodeVIN(v);
+            if (!d.valid) {
+                r.innerHTML = `<p style="color:var(--red);text-align:center;">${d.error}</p>`;
+                r.classList.add('active');
+                return;
+            }
+            const b = d.manufacturer?.brand || 'Desconocido';
+            const y = typeof d.year === 'number' ? d.year : (d.year !== 'Unknown' ? parseInt(d.year) : 2020);
+            const c = getCompatibility(b, y);
+            r.innerHTML = renderVINResult(d, c, 'es');
+            r.classList.add('active');
         }
 
-        function sendQuickReply(text){document.getElementById('chatbotInput').value=text;sendMessage();}
-        function updateQuickReplies(){const lang=isSpanish?'es':'en',r=document.getElementById('quickReplies'),btns=isSpanish?['🔍 Compatibilidad','💰 Planes','🔧 Instalación','🛡️ Seguridad','💳 Pagos']:['🔍 Compatibility','💰 Plans','🔧 Installation','🛡️ Security','💳 Payments'];r.innerHTML=btns.map(b=>`<span class="quick-reply" onclick="sendQuickReply('${b}')">${b}</span>`).join('');}
-        function updateChatbotLang(){updateQuickReplies();const m=document.getElementById('chatbotMessages');if(m.children.length>0){conversationHistory=[];m.innerHTML='';showGreeting();}}
+        async function scanVIN_EN() {
+            const i = document.getElementById('vinInputRealEN');
+            const r = document.getElementById('vinResultRealEN');
+            const v = i.value.toUpperCase();
+            if (v.length !== 17) return;
+            const d = await decodeVIN(v);
+            if (!d.valid) {
+                r.innerHTML = `<p style="color:var(--red);text-align:center;">${d.error}</p>`;
+                r.classList.add('active');
+                return;
+            }
+            const b = d.manufacturer?.brand || 'Unknown';
+            const y = typeof d.year === 'number' ? d.year : (d.year !== 'Unknown' ? parseInt(d.year) : 2020);
+            const c = getCompatibility(b, y);
+            r.innerHTML = renderVINResult(d, c, 'en');
+            r.classList.add('active');
+        }
+
+        // ═══════════════ CHATBOT (SUPABASE EDGE FUNCTION) ═══════════════
+        const SUPABASE_CHAT_URL = 'https://rpoqukrcvkcmaqsajchk.supabase.co/functions/v1/chatbot';
+        let chatbotOpen = false;
+
+        function toggleChatbot() {
+            chatbotOpen = !chatbotOpen;
+            const c = document.getElementById('chatbotContainer'), b = document.getElementById('chatbotBtn');
+            if (chatbotOpen) {
+                c.classList.add('open'); b.classList.add('active'); b.innerHTML = '✕';
+                if (document.getElementById('chatbotMessages').children.length === 0) showGreeting();
+            } else {
+                c.classList.remove('open'); b.classList.remove('active'); b.innerHTML = '💬';
+            }
+        }
+
+        function showGreeting() {
+            const lang = isSpanish ? 'es' : 'en';
+            addBotMessage(isSpanish ? '¡Hola! Soy el asistente ITZTLI. ¿En qué puedo ayudarte?' : "Hello! I'm the ITZTLI assistant. How can I help?");
+            updateQuickReplies();
+        }
+
+        function addBotMessage(text, isIA = false) {
+            const m = document.getElementById('chatbotMessages'), msg = document.createElement('div');
+            msg.className = 'msg bot'; msg.innerHTML = text.replace(/\n/g, '<br>');
+            if (isIA) { const badge = document.createElement('span'); badge.className = 'badge-ia'; badge.textContent = 'IA'; msg.appendChild(badge); }
+            m.appendChild(msg); m.scrollTop = m.scrollHeight;
+        }
+
+        function addUserMessage(text) {
+            const m = document.getElementById('chatbotMessages'), msg = document.createElement('div');
+            msg.className = 'msg user'; msg.textContent = text;
+            m.appendChild(msg); m.scrollTop = m.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatbotInput'), text = input.value.trim();
+            if (!text) return;
+            addUserMessage(text); input.value = ''; input.disabled = true;
+
+            try {
+                const resp = await fetch(SUPABASE_CHAT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await resp.json();
+                if (data.reply) {
+                    addBotMessage(data.reply, true);
+                } else {
+                    addBotMessage('Lo siento, no puedo responder ahora.');
+                }
+            } catch (e) {
+                addBotMessage('Error de conexión. Intenta de nuevo.');
+            }
+            input.disabled = false; input.focus();
+            updateQuickReplies();
+        }
+
+        function sendQuickReply(text) { document.getElementById('chatbotInput').value = text; sendMessage(); }
+        function updateQuickReplies() {
+            const lang = isSpanish ? 'es' : 'en', r = document.getElementById('quickReplies');
+            const btns = isSpanish ? ['🔍 Compatibilidad','💰 Planes','🔧 Instalación','🛡️ Seguridad','💳 Pagos'] : ['🔍 Compatibility','💰 Plans','🔧 Installation','🛡️ Security','💳 Payments'];
+            r.innerHTML = btns.map(b => `<span class="quick-reply" onclick="sendQuickReply('${b}')">${b}</span>`).join('');
+        }
+        function updateChatbotLang() { updateQuickReplies(); const m = document.getElementById('chatbotMessages'); if (m.children.length > 0) { m.innerHTML = ''; showGreeting(); } }
     </script>
 </body>
 </html>

@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI FRACTAL CORE · SIMULACIÓN</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ITZTLI SIM">
+    <meta name="theme-color" content="#2c0e3a">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --bg: #0d0618;
+            --card: #1a0e2a;
+            --border: #4a2a6a;
+            --violet: #9b59b6;
+            --purple: #8e44ad;
+            --dark-purple: #6c3483;
+            --light-violet: #af7ac5;
+            --green: #00ff88;
+            --red: #ff4466;
+            --yellow: #ffaa00;
+            --text: #e8e8f0;
+            --dim: #a88ab8;
+            --font: 'Segoe UI', system-ui, sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.5;
+            padding: 15px;
+            max-width: 1100px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px 15px;
+            margin-bottom: 20px;
+            position: relative;
+            border: 2px solid var(--violet);
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(155,89,182,0.08), rgba(142,68,173,0.08));
+        }
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #af7ac5, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .header .subtitle { color: var(--dim); font-size: 14px; margin-top: 4px; }
+        .header .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #9b59b6, #6c3483);
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: 8px;
+            box-shadow: 0 0 20px rgba(155,89,182,0.3);
+        }
+        .badge small { font-weight: normal; font-size: 10px; opacity: 0.7; }
+        .header-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+            .header-buttons { position: relative; top: 0; right: 0; justify-content: center; margin-bottom: 10px; }
+            .header h1 { font-size: 22px; }
+        }
+        .lang-btn, .settings-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .lang-btn:hover, .settings-btn:hover { border-color: var(--violet); color: var(--violet); }
+        .lang-btn {
+            background: rgba(155,89,182,0.1);
+            border-color: var(--violet);
+            color: var(--violet);
+            font-weight: bold;
+        }
+        .lang-btn:hover { background: var(--violet); color: #000; }
+        .settings-btn { font-size: 18px; }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        .status-bar span { display: flex; align-items: center; gap: 6px; }
+        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+        .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+        .dot-yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+        .dot-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--violet);
+        }
+        .hotswap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 600px) { .hotswap-grid { grid-template-columns: 1fr; } }
+        .hotswap-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+        }
+        .hotswap-card.fail { border-color: var(--red); background: rgba(255,68,102,0.05); }
+        .hotswap-card.success { border-color: var(--green); background: rgba(0,255,136,0.05); }
+        .hotswap-card h4 { font-size: 13px; margin-bottom: 4px; display: flex; gap: 8px; }
+        .hotswap-card p { font-size: 11px; color: var(--dim); margin: 3px 0; }
+        .hotswap-card .status-text { font-size: 11px; display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+        .section-title {
+            color: var(--light-violet);
+            font-size: 13px;
+            margin: 18px 0 10px 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        .btn {
+            padding: 12px 6px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+        .btn:hover { transform: scale(1.02); filter: brightness(1.3); box-shadow: 0 0 15px currentColor; }
+        .btn-green { border-color: var(--green); color: var(--green); }
+        .btn-green:hover { background: var(--green); color: #000; }
+        .btn-red { border-color: var(--red); color: var(--red); }
+        .btn-red:hover { background: var(--red); color: #000; }
+        .btn-gold { border-color: var(--yellow); color: var(--yellow); }
+        .btn-gold:hover { background: var(--yellow); color: #000; }
+        .btn-purple { border-color: var(--violet); color: var(--violet); }
+        .btn-purple:hover { background: var(--violet); color: #000; }
+        .btn-cyan { border-color: #00d4ff; color: #00d4ff; }
+        .btn-cyan:hover { background: #00d4ff; color: #000; }
+        .btn-blue { border-color: #4a8bf5; color: #4a8bf5; }
+        .btn-blue:hover { background: #4a8bf5; color: #000; }
+        #cmdResult {
+            text-align: center;
+            font-size: 11px;
+            color: var(--dim);
+            margin-top: 15px;
+            transition: color 0.3s;
+        }
+        .camera-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        @media (max-width: 600px) { .camera-grid { grid-template-columns: 1fr; } }
+        .camera-feed {
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .camera-feed:hover { border-color: var(--violet); }
+        .camera-name {
+            position: absolute;
+            bottom: 45px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #fff;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+        .camera-feed.front .camera-name { color: #00d4ff; }
+        .camera-feed.rear .camera-name { color: var(--violet); }
+        .camera-feed.interior .camera-name { color: var(--green); }
+        .camera-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        .camera-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: #0a0a1a;
+        }
+        .camera-feed.video-on .camera-image { opacity: 0; }
+        .camera-feed.video-on .camera-video { opacity: 1; }
+        .camera-feed.video-on { border-color: var(--green); }
+        .camera-recording {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            background: var(--red);
+            border-radius: 50%;
+            animation: pulse-rec 1s infinite;
+            z-index: 3;
+            display: none;
+        }
+        .camera-feed.video-on.recording .camera-recording { display: block; }
+        @keyframes pulse-rec { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .record-btn-individual {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            z-index: 3;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--red);
+            color: var(--red);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .record-btn-individual:hover { transform: scale(1.05); }
+        .record-btn-individual.recording { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 0 15px rgba(255,68,102,0.5); }
+        .record-btn-individual.recording::before { content: "● "; }
+        .record-btn-individual:not(.recording)::before { content: "○ "; }
+        .cam-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .btn-online.on { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.1); }
+        .btn-online.off { border-color: var(--red); color: var(--red); background: rgba(255,68,102,0.1); }
+        .btn-record-all {
+            width: auto;
+            padding: 8px 20px;
+            font-size: 12px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--red);
+            color: var(--red);
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+        .btn-record-all.recording { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 0 15px rgba(255,68,102,0.5); }
+        .btn-record-all.recording::before { content: "⏺️ "; }
+        .btn-record-all.stopped { border-color: #666; color: #999; background: rgba(0,0,0,0.5); }
+        .btn-record-all.stopped::before { content: "⏹️ "; }
+        .cloud-modal, .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .cloud-modal.active, .settings-modal.active { display: flex; }
+        .modal-content {
+            background: var(--card);
+            border: 2px solid var(--violet);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--violet); font-size: 18px; }
+        .modal-close-btn {
+            background: transparent;
+            border: 1px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .modal-close-btn:hover { background: var(--red); color: #000; }
+        .cloud-tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .cloud-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            transition: 0.3s;
+        }
+        .cloud-tab.active { border-color: var(--violet); color: var(--violet); background: rgba(155,89,182,0.1); }
+        #cloudVideoPlayer { width: 100%; border-radius: 10px; margin-top: 10px; background: #000; display: none; max-height: 300px; }
+        #cloudVideoPlayer.active { display: block; }
+        #cloudVideoList { max-height: 200px; overflow-y: auto; margin-bottom: 10px; }
+        .video-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin: 4px 0;
+            font-size: 11px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .video-item:hover { border-color: var(--violet); }
+        .video-item .video-actions { display: flex; gap: 8px; align-items: center; }
+        .video-item .video-actions button {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .download-btn:hover { border-color: var(--green) !important; color: var(--green) !important; }
+        #map {
+            height: 280px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin: 10px 0;
+            background: #0d1424;
+        }
+        .geofence-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .geofence-range span { font-size: 11px; color: var(--dim); min-width: 30px; text-align: center; }
+        .geofence-range input[type="range"] { flex: 1; accent-color: var(--violet); }
+        .geofence-range .val { color: var(--violet); font-weight: bold; min-width: 60px; text-align: right; }
+        .location-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .location-info .item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; }
+        .location-info .item strong { color: var(--violet); display: block; font-size: 10px; margin-bottom: 2px; }
+        .location-info .item .val { font-size: 13px; font-weight: 500; }
+        .map-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .alert-config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        .alert-config-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .alert-config-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--violet);
+            cursor: pointer;
+        }
+        .alert-config-item label {
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+        }
+        .alert-config-item .icon { font-size: 18px; }
+        .alert-config-item .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            grid-column: span 2;
+        }
+        .chip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .chip {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .chip:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
+        .chip-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .chip-icon-name { display: flex; align-items: center; gap: 8px; }
+        .chip-icon-name .icon { font-size: 20px; }
+        .chip-icon-name .name { font-weight: 600; font-size: 13px; }
+        .chip-status { font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .chip-status .dot { width: 6px; height: 6px; }
+        .chip-metrics { margin-top: 8px; font-size: 11px; color: var(--dim); display: flex; gap: 12px; flex-wrap: wrap; }
+        .chip-metrics .val { color: var(--text); font-weight: 500; }
+        .chip-alert { font-size: 10px; margin-top: 6px; color: var(--yellow); display: flex; align-items: center; gap: 4px; }
+        .chip-alert.red { color: var(--red); }
+        .chip-detail { display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 11px; color: var(--dim); }
+        .chip.expanded .chip-detail { display: block; }
+        .chip.normal { border-left: 4px solid var(--green); }
+        .chip.warning { border-left: 4px solid var(--yellow); background: rgba(255,170,0,0.05); }
+        .chip.critical { border-left: 4px solid var(--red); background: rgba(255,68,102,0.08); animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0%,100%{box-shadow:0 0 5px rgba(255,0,0,0.2)} 50%{box-shadow:0 0 15px rgba(255,0,0,0.4)} }
+        .alert-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
+        .alert-list { display: flex; flex-direction: column; gap: 8px; }
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            border-left: 3px solid var(--border);
+        }
+        .alert-item.warning { border-left-color: var(--yellow); }
+        .alert-item.critical { border-left-color: var(--red); }
+        .alert-item .time { color: var(--dim); font-size: 10px; margin-top: 2px; }
+        .historial-list { max-height: 150px; overflow-y: auto; }
+        .historial-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .historial-item .h-time { color: var(--dim); }
+        .historial-item .h-event { color: var(--text); }
+        .footer { text-align: center; font-size: 11px; color: var(--dim); padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
+        @media (max-width: 600px) {
+            .chip-grid { grid-template-columns: 1fr 1fr; }
+            .control-grid { grid-template-columns: 1fr 1fr; }
+            .alert-config-grid { grid-template-columns: 1fr; }
+            .map-actions { grid-template-columns: 1fr; }
+            #map { height: 200px; }
+            .modal-content { padding: 15px; }
+        }
+        .auth-input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+        }
+        .auth-input:focus { border-color: var(--violet); outline: none; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-buttons">
+        <button class="settings-btn" onclick="openSettings()" title="Configuración">⚙️</button>
+        <button class="lang-btn" id="langToggle" onclick="toggleLang()">🇲🇽 ESP</button>
+    </div>
+    <h1>ITZTLI FRACTAL CORE</h1>
+    <p class="subtitle" id="txtSubtitle">Sistema Nervioso Digital · Simulación</p>
+    <div class="badge" id="txtBadge">🥇 PLAN DEMO ACTIVO <small>· SIMULACIÓN</small></div>
+</div>
+
+<div class="status-bar">
+    <span><span class="dot dot-green" id="statusDot"></span> <strong id="txtSecure">SEGURO</strong></span>
+    <span id="txtKey">🔑 Clave: <strong style="color:var(--violet);">SIM-21E41421</strong></span>
+    <span id="txtRotation">🔄 <strong id="countdown">5s</strong></span>
+    <span id="txtCloud">☁️ <strong style="color:var(--green);">SIM 4.2/5 GB</strong></span>
+</div>
+
+<!-- HOT-SWAP -->
+<div class="card">
+    <div class="card-header" style="color:var(--green);">
+        <span>🔄 <span id="txtHotSwapTitle">HOT-SWAP DIGITAL — Auto-Reparación (SIM)</span></span>
+    </div>
+    <div class="hotswap-grid" id="hotswapGrid"></div>
+</div>
+
+<!-- CONTROL VEHÍCULO -->
+<div class="card">
+    <div class="card-header" style="color:var(--violet);">
+        <span>🎮 <span id="txtControlTitle">CONTROL TOTAL DEL VEHÍCULO (SIM)</span></span>
+    </div>
+    <p class="section-title" id="txtSecMotor">🚗 MOTOR Y ACCESO</p>
+    <div class="control-grid">
+        <button class="btn btn-green" onclick="sendCommand('arrancar')" id="btnStart">🚀 <span>ARRANCAR</span></button>
+        <button class="btn btn-red" onclick="sendCommand('apagar')" id="btnStop">🛑 <span>APAGAR</span></button>
+        <button class="btn btn-green" onclick="sendCommand('abrir')" id="btnOpen">🔓 <span>ABRIR</span></button>
+        <button class="btn btn-red" onclick="sendCommand('cerrar')" id="btnClose">🔒 <span>CERRAR</span></button>
+        <button class="btn btn-gold" onclick="sendCommand('luces')" id="btnLights">💡 <span>LUCES</span></button>
+        <button class="btn btn-gold" onclick="sendCommand('claxon')" id="btnHorn">📢 <span>CLAXON</span></button>
+    </div>
+    <p class="section-title" id="txtSecEnt">🎵 ENTRETENIMIENTO</p>
+    <div class="control-grid">
+        <button class="btn btn-purple" onclick="sendCommand('vol_up')" id="btnVolUp">🔊 <span>VOL +</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('vol_down')" id="btnVolDown">🔉 <span>VOL -</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('mute')" id="btnMute">🔇 <span>SILENCIO</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('bluetooth')" id="btnBt">📱 <span>BLUETOOTH</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('radio_fm')" id="btnFm">📻 <span>FM</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('radio_am')" id="btnAm">📻 <span>AM</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('aux')" id="btnAux">🎧 <span>AUX</span></button>
+        <button class="btn btn-purple" onclick="sendCommand('next_track')" id="btnNext">⏭️ <span>SIGUIENTE</span></button>
+    </div>
+    <p class="section-title" id="txtSecClimate">🌡️ CLIMA Y CONFORT</p>
+    <div class="control-grid">
+        <button class="btn btn-cyan" onclick="sendCommand('ac_on')" id="btnAcOn">❄️ <span>A/C ON</span></button>
+        <button class="btn btn-cyan" onclick="sendCommand('ac_off')" id="btnAcOff">🌡️ <span>A/C OFF</span></button>
+        <button class="btn btn-cyan" onclick="sendCommand('temp_up')" id="btnTempUp">🔺 <span>TEMP +</span></button>
+        <button class="btn btn-cyan" onclick="sendCommand('temp_down')" id="btnTempDown">🔻 <span>TEMP -</span></button>
+        <button class="btn btn-cyan" onclick="sendCommand('fan_up')" id="btnFanUp">💨 <span>FAN +</span></button>
+        <button class="btn btn-cyan" onclick="sendCommand('fan_down')" id="btnFanDown">💨 <span>FAN -</span></button>
+        <button class="btn btn-gold" onclick="sendCommand('seat_heat')" id="btnSeat">🔥 <span>ASIENTOS</span></button>
+        <button class="btn btn-cyan" onclick="sendCommand('defrost')" id="btnDefrost">❄️ <span>DESHIELO</span></button>
+    </div>
+    <p class="section-title" id="txtSecNav">🗺️ NAVEGACIÓN Y ESPEJOS</p>
+    <div class="control-grid">
+        <button class="btn btn-gold" onclick="navigateToAddress('home')" id="btnNavHome">🏠 <span>NAV CASA</span></button>
+        <button class="btn btn-gold" onclick="navigateToAddress('work')" id="btnNavWork">🏢 <span>NAV TRABAJO</span></button>
+        <button class="btn btn-red" onclick="sendCommand('nav_stop')" id="btnNavStop">🛑 <span>DETENER RUTA</span></button>
+        <button class="btn btn-gold" onclick="sendCommand('mirror_fold')" id="btnFold">🪞 <span>PLEGAR</span></button>
+        <button class="btn btn-gold" onclick="sendCommand('mirror_unfold')" id="btnUnfold">🪞 <span>DESPLEGAR</span></button>
+        <button class="btn btn-gold" onclick="sendCommand('mirror_heat')" id="btnMirrorHeat">🔥 <span>CALEFACCIÓN</span></button>
+    </div>
+    <p id="cmdResult">Esperando comando simulado...</p>
+</div>
+
+<!-- CÁMARAS -->
+<div class="card">
+    <div class="card-header" style="color:var(--violet);">
+        <span>📹 <span id="txtCamTitle">CÁMARAS EN VIVO (SIM)</span></span>
+        <button class="btn btn-online on" onclick="toggleAllCameras()" style="font-size:11px; padding:4px 14px;">
+            ● <span id="txtOnlineStatus">EN LÍNEA</span>
+        </button>
+    </div>
+    <div class="camera-grid" id="cameraGrid"></div>
+    <div class="cam-actions">
+        <button class="btn btn-record-all stopped" id="btnRecordAll" onclick="toggleRecordAll()">
+            <span id="txtBtnRecordAll">GRABAR TODO</span>
+        </button>
+        <button class="btn btn-purple" onclick="openCloudModal()" style="width:auto;padding:8px 20px;font-size:11px;">
+            ☁️ <span id="txtViewCloud">VER NUBE</span>
+        </button>
+    </div>
+</div>
+
+<!-- MAPA Y GEOCERCA (SIEMPRE VISIBLE) -->
+<div class="card" id="mapCard">
+    <div class="card-header" style="color:var(--violet);">
+        <span>📍 <span id="txtMapTitle">UBICACIÓN Y GEOCERCA</span></span>
+    </div>
+    <div id="map"></div>
+    <div class="location-info">
+        <div class="item"><strong id="txtLat">Latitud</strong><div class="val" id="lat">19.4326° N</div></div>
+        <div class="item"><strong id="txtLng">Longitud</strong><div class="val" id="lng">-99.1332° W</div></div>
+        <div class="item"><strong id="txtRef">Referencia</strong><div class="val" id="refAddress">Av. Reforma 222, CDMX</div></div>
+        <div class="item"><strong id="txtPrec">Precisión</strong><div class="val" style="color:var(--green);">3 m (GPS + WiFi)</div></div>
+    </div>
+    <div class="geofence-range">
+        <span id="rangeMin">10m</span>
+        <input type="range" id="radiusSlider" min="10" max="100" value="50" step="5" oninput="updateRadiusDisplay()">
+        <span id="rangeMax">100m</span>
+        <span class="val" id="radiusValue">50 m</span>
+    </div>
+    <p style="color:var(--dim);font-size:10px;margin-top:8px;" id="geofenceHint">Recibirás alerta si el auto sale de este perímetro (simulación).</p>
+    <div class="map-actions">
+        <button class="btn btn-cyan" onclick="updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
+        <button class="btn btn-gold" onclick="shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
+        <button class="btn btn-blue" onclick="navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
+        <button class="btn btn-purple" onclick="toggleGeofence()" id="btnGeofenceToggle">📐 <span>ACTIVAR GEOCERCA</span></button>
+    </div>
+    <p id="geofenceStatus" style="text-align:center;font-size:11px;color:var(--dim);margin-top:8px;">Geocerca inactiva.</p>
+</div>
+
+<!-- CONFIGURACIÓN DE ALERTAS -->
+<div class="card">
+    <div class="card-header" style="color:var(--violet);">
+        <span>⚙️ <span id="txtAlertConfigTitle">CONFIGURACIÓN DE ALERTAS</span></span>
+    </div>
+    <div class="alert-config-grid">
+        <div class="alert-config-item">
+            <span class="icon">📐</span>
+            <input type="checkbox" id="chkGeofence" checked>
+            <label for="chkGeofence" id="lblGeofence">Fuera de geocerca</label>
+        </div>
+        <div class="alert-config-item">
+            <span class="icon">🔌</span>
+            <input type="checkbox" id="chkBattery" checked>
+            <label for="chkBattery" id="lblBattery">Desconexión de batería</label>
+        </div>
+        <div class="alert-config-item">
+            <span class="icon">🚗</span>
+            <input type="checkbox" id="chkStart" checked>
+            <label for="chkStart" id="lblStart">Arranque sin proximidad</label>
+        </div>
+        <div class="alert-config-item">
+            <span class="icon">📏</span>
+            <input type="checkbox" id="chkRadio" checked>
+            <label for="chkRadio" id="lblRadio">Radio de geocerca</label>
+        </div>
+        <div class="alert-config-item" style="grid-column: span 2; border: none; background: none;">
+            <span style="color:var(--dim);font-size:12px;">⏱️ Intervalo de simulación:</span>
+            <input type="range" min="5" max="30" value="15" style="flex:1; accent-color:var(--violet);" id="simInterval">
+            <span style="color:var(--violet);font-size:13px;" id="simIntervalLabel">15s</span>
+        </div>
+    </div>
+    <button class="btn btn-purple" onclick="saveAlertConfig()" style="width:100%;margin-top:5px;">💾 <span id="txtSaveAlertConfig">GUARDAR CONFIGURACIÓN</span></button>
+    <p style="color:var(--dim);font-size:10px;margin-top:6px;text-align:center;">Configuración guardada en modo simulación.</p>
+</div>
+
+<!-- MONITOREO DE CHIPS -->
+<div class="card">
+    <div class="card-header">
+        <span>🧠 <span id="txtChipTitle">MONITOREO DE CHIPS (SIM)</span></span>
+    </div>
+    <div class="chip-grid" id="chipGrid"></div>
+</div>
+
+<!-- ALERTAS -->
+<div class="card">
+    <div class="card-header" style="color:var(--red);">
+        <span>🔔 <span id="txtAlertTitle">ALERTAS (SIM)</span></span>
+    </div>
+    <div class="alert-container">
+        <div class="alert-list" id="alertList">
+            <p style="color:var(--dim);font-size:13px;" id="txtNoAlerts">✅ Sin alertas.</p>
+        </div>
+    </div>
+</div>
+
+<!-- HISTORIAL (solo ubicaciones) -->
+<div class="card">
+    <div class="card-header" style="color:var(--light-violet);">
+        <span>📜 <span id="txtHistorialTitle">HISTORIAL DE UBICACIONES</span></span>
+    </div>
+    <div class="historial-list" id="historialList">
+        <div class="historial-item"><span class="h-event">📍 Ubicación inicial</span><span class="h-time">ahora</span></div>
+    </div>
+</div>
+
+<!-- MODAL NUBE -->
+<div class="cloud-modal" id="cloudModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>☁️ <span id="txtCloudModalTitle">GRABACIONES EN LA NUBE (SIM)</span></h3>
+            <button class="modal-close-btn" onclick="closeCloudModal()">✕ <span id="txtCloseCloud">CERRAR</span></button>
+        </div>
+        <div class="cloud-tabs">
+            <button class="cloud-tab active" onclick="switchCloudTab('frontal')" id="tabFrontal">📹 <span id="txtTabFront">FRONTAL</span></button>
+            <button class="cloud-tab" onclick="switchCloudTab('trasera')" id="tabTrasera">📹 <span id="txtTabRear">TRASERA</span></button>
+            <button class="cloud-tab" onclick="switchCloudTab('interior')" id="tabInterior">📹 <span id="txtTabInt">INTERIOR</span></button>
+        </div>
+        <div id="cloudVideoList"><p style="color:var(--dim);text-align:center;" id="txtLoadingCloud">Cargando...</p></div>
+        <video id="cloudVideoPlayer" controls></video>
+    </div>
+</div>
+
+<!-- MODAL CONFIGURACIÓN -->
+<div class="settings-modal" id="settingsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⚙️ <span id="txtSettingsTitle">CONFIGURACIÓN (SIM)</span></h3>
+            <button class="modal-close-btn" onclick="closeSettings()">✕ <span id="txtCloseSettings">CERRAR</span></button>
+        </div>
+        <label class="section-title" id="txtHomeLabel">🏠 Dirección de Casa</label>
+        <input type="text" class="auth-input" id="homeAddress" placeholder="Av. Reforma 222, CDMX" value="Av. Reforma 222, CDMX">
+        <label class="section-title" id="txtWorkLabel">🏢 Dirección de Trabajo</label>
+        <input type="text" class="auth-input" id="workAddress" placeholder="Paseo de la Reforma 500, CDMX" value="Paseo de la Reforma 500, CDMX">
+        <button class="btn btn-purple" onclick="saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
+    </div>
+</div>
+
+<div class="footer">
+    ITZTLI FRACTAL CORE © 2026 | SIMULACIÓN | <span id="currentTime"></span>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // ============================================================
+    //  DICCIONARIO BILINGÜE
+    // ============================================================
+    const langData = {
+        es: {
+            subtitle: "Sistema Nervioso Digital · Simulación",
+            badge: "🥇 PLAN DEMO ACTIVO · SIMULACIÓN",
+            secure: "SEGURO",
+            keyLabel: "🔑 Clave:",
+            rotationLabel: "🔄 Rotación:",
+            cloudLabel: "☁️ Nube:",
+            hotSwapTitle: "HOT-SWAP DIGITAL — Auto-Reparación (SIM)",
+            hsFailName: "🔴 GPS/Navegación (UX7E5)",
+            hsFailVolt: "Voltaje: 10.2V",
+            hsFailTemp: "Temp: 55°C",
+            hsFailStatus: "⚠️ Chip malfunction detectado",
+            hsFailCov: "🔄 Transmisión manejando funciones",
+            hsBackName: "🟢 Transmisión (UX7E1)",
+            hsBackVolt: "Voltaje: 12.3V",
+            hsBackTemp: "Temp: 43°C",
+            hsBackStatus: "✅ Modo redundante activo",
+            hsBackBuy: "📦 Reemplazo solicitado",
+            controlTitle: "CONTROL TOTAL DEL VEHÍCULO (SIM)",
+            secMotor: "🚗 MOTOR Y ACCESO",
+            secEnt: "🎵 ENTRETENIMIENTO",
+            secClimate: "🌡️ CLIMA Y CONFORT",
+            secNav: "🗺️ NAVEGACIÓN Y ESPEJOS",
+            btnStart: "ARRANCAR",
+            btnStop: "APAGAR",
+            btnOpen: "ABRIR",
+            btnClose: "CERRAR",
+            btnLights: "LUCES",
+            btnHorn: "CLAXON",
+            btnVolUp: "VOL +",
+            btnVolDown: "VOL -",
+            btnMute: "SILENCIO",
+            btnBt: "BLUETOOTH",
+            btnFm: "FM",
+            btnAm: "AM",
+            btnAux: "AUX",
+            btnNext: "SIGUIENTE",
+            btnAcOn: "A/C ON",
+            btnAcOff: "A/C OFF",
+            btnTempUp: "TEMP +",
+            btnTempDown: "TEMP -",
+            btnFanUp: "FAN +",
+            btnFanDown: "FAN -",
+            btnSeat: "ASIENTOS",
+            btnDefrost: "DESHIELO",
+            btnNavHome: "NAV CASA",
+            btnNavWork: "NAV TRABAJO",
+            btnNavStop: "DETENER RUTA",
+            btnFold: "PLEGAR",
+            btnUnfold: "DESPLEGAR",
+            btnMirrorHeat: "CALEFACCIÓN",
+            cmdResult: "Esperando comando simulado...",
+            camTitle: "CÁMARAS EN VIVO (SIM)",
+            onlineStatus: "EN LÍNEA",
+            offlineStatus: "DESCONECTADO",
+            partialStatus: "PARCIAL",
+            camFront: "FRONTAL",
+            camRear: "REVERSA",
+            camInt: "INTERIOR",
+            recordBtn: "GRABAR",
+            recordBtnOn: "GRABANDO",
+            btnRecordAll: "GRABAR TODO",
+            btnRecordAllOff: "DETENER TODO",
+            btnViewCloud: "VER NUBE",
+            chipTitle: "MONITOREO DE CHIPS (SIM)",
+            alertTitle: "ALERTAS (SIM)",
+            noAlerts: "✅ Sin alertas.",
+            mapTitle: "UBICACIÓN Y GEOCERCA",
+            latLabel: "Latitud",
+            lngLabel: "Longitud",
+            refLabel: "Referencia",
+            precLabel: "Precisión",
+            refAddr: "Av. Reforma 222, CDMX",
+            btnUpdateLoc: "ACTUALIZAR",
+            btnShareLoc: "COMPARTIR",
+            btnNavigate: "LLEGAR AL AUTO",
+            rangeMin: "10m",
+            rangeMax: "100m",
+            geofenceHint: "Recibirás alerta si el auto sale de este perímetro (simulación).",
+            btnActivateGeo: "ACTIVAR GEOCERCA",
+            btnDeactivateGeo: "DESACTIVAR GEOCERCA",
+            geofenceActive: "✅ Geocerca ACTIVADA (radio {radius}m)",
+            geofenceInactive: "❌ Geocerca DESACTIVADA",
+            alertConfigTitle: "CONFIGURACIÓN DE ALERTAS",
+            lblGeofence: "Fuera de geocerca",
+            lblBattery: "Desconexión de batería",
+            lblStart: "Arranque sin proximidad",
+            lblRadio: "Radio de geocerca",
+            saveAlertConfig: "GUARDAR CONFIGURACIÓN",
+            cloudModalTitle: "GRABACIONES EN LA NUBE (SIM)",
+            closeCloud: "CERRAR",
+            tabFront: "FRONTAL",
+            tabRear: "TRASERA",
+            tabInt: "INTERIOR",
+            loadingCloud: "Cargando videos...",
+            noVideos: "📭 No hay grabaciones en esta cámara",
+            downloadBtn: "⬇ DESCARGAR",
+            settingsTitle: "CONFIGURACIÓN (SIM)",
+            closeSettings: "CERRAR",
+            homeLabel: "🏠 Dirección de Casa",
+            workLabel: "🏢 Dirección de Trabajo",
+            saveSettings: "GUARDAR",
+            navHomeMsg: "🏠 Calculando ruta a casa...",
+            navWorkMsg: "🏢 Calculando ruta al trabajo...",
+            shareAlert: "📍 Copiado al portapapeles",
+            settingsSaved: "✅ Configuración guardada",
+            historialTitle: "HISTORIAL DE UBICACIONES",
+            simIntervalLabel: "Intervalo de simulación",
+            chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"]
+        },
+        en: {
+            subtitle: "Digital Nervous System · Simulation",
+            badge: "🥇 DEMO PLAN ACTIVE · SIMULATION",
+            secure: "SECURE",
+            keyLabel: "🔑 Key:",
+            rotationLabel: "🔄 Rotation:",
+            cloudLabel: "☁️ Cloud:",
+            hotSwapTitle: "DIGITAL HOT-SWAP — Self-Healing (SIM)",
+            hsFailName: "🔴 GPS/Navigation (UX7E5)",
+            hsFailVolt: "Voltage: 10.2V",
+            hsFailTemp: "Temp: 55°C",
+            hsFailStatus: "⚠️ Chip malfunction detected",
+            hsFailCov: "🔄 Transmission handling functions",
+            hsBackName: "🟢 Transmission (UX7E1)",
+            hsBackVolt: "Voltage: 12.3V",
+            hsBackTemp: "Temp: 43°C",
+            hsBackStatus: "✅ Redundant mode active",
+            hsBackBuy: "📦 Replacement requested",
+            controlTitle: "VEHICLE CONTROL CENTER (SIM)",
+            secMotor: "🚗 ENGINE & ACCESS",
+            secEnt: "🎵 ENTERTAINMENT",
+            secClimate: "🌡️ CLIMATE & COMFORT",
+            secNav: "🗺️ NAVIGATION & MIRRORS",
+            btnStart: "START",
+            btnStop: "STOP",
+            btnOpen: "UNLOCK",
+            btnClose: "LOCK",
+            btnLights: "LIGHTS",
+            btnHorn: "HORN",
+            btnVolUp: "VOL +",
+            btnVolDown: "VOL -",
+            btnMute: "MUTE",
+            btnBt: "BLUETOOTH",
+            btnFm: "FM",
+            btnAm: "AM",
+            btnAux: "AUX",
+            btnNext: "NEXT",
+            btnAcOn: "A/C ON",
+            btnAcOff: "A/C OFF",
+            btnTempUp: "TEMP +",
+            btnTempDown: "TEMP -",
+            btnFanUp: "FAN +",
+            btnFanDown: "FAN -",
+            btnSeat: "SEATS",
+            btnDefrost: "DEFROST",
+            btnNavHome: "HOME",
+            btnNavWork: "WORK",
+            btnNavStop: "STOP ROUTE",
+            btnFold: "FOLD",
+            btnUnfold: "UNFOLD",
+            btnMirrorHeat: "HEATED",
+            cmdResult: "Waiting for simulated command...",
+            camTitle: "LIVE VIDEO STREAMS (SIM)",
+            onlineStatus: "ONLINE",
+            offlineStatus: "OFFLINE",
+            partialStatus: "PARTIAL",
+            camFront: "FRONT",
+            camRear: "REAR",
+            camInt: "INTERIOR",
+            recordBtn: "RECORD",
+            recordBtnOn: "RECORDING",
+            btnRecordAll: "RECORD ALL",
+            btnRecordAllOff: "STOP ALL",
+            btnViewCloud: "VIEW CLOUD",
+            chipTitle: "ECU HEALTH MONITORING (SIM)",
+            alertTitle: "CRITICAL EVENTS (SIM)",
+            noAlerts: "✅ No alerts.",
+            mapTitle: "LOCATION & GEOFENCE",
+            latLabel: "Latitude",
+            lngLabel: "Longitude",
+            refLabel: "Reference",
+            precLabel: "Accuracy",
+            refAddr: "222 Reforma Ave, Mexico City",
+            btnUpdateLoc: "REFRESH",
+            btnShareLoc: "SHARE",
+            btnNavigate: "NAVIGATE TO CAR",
+            rangeMin: "33ft",
+            rangeMax: "330ft",
+            geofenceHint: "You'll be alerted if the car leaves this perimeter (simulation).",
+            btnActivateGeo: "ACTIVATE GEOFENCE",
+            btnDeactivateGeo: "DEACTIVATE GEOFENCE",
+            geofenceActive: "✅ Geofence ACTIVATED (radius {radius}ft)",
+            geofenceInactive: "❌ Geofence DEACTIVATED",
+            alertConfigTitle: "ALERT CONFIGURATION",
+            lblGeofence: "Outside geofence",
+            lblBattery: "Battery disconnect",
+            lblStart: "Start without proximity",
+            lblRadio: "Geofence radius",
+            saveAlertConfig: "SAVE CONFIG",
+            cloudModalTitle: "CLOUD RECORDINGS (SIM)",
+            closeCloud: "CLOSE",
+            tabFront: "FRONT",
+            tabRear: "REAR",
+            tabInt: "INTERIOR",
+            loadingCloud: "Loading videos...",
+            noVideos: "📭 No recordings on this camera",
+            downloadBtn: "⬇ DOWNLOAD",
+            settingsTitle: "SETTINGS (SIM)",
+            closeSettings: "CLOSE",
+            homeLabel: "🏠 Home Address",
+            workLabel: "🏢 Work Address",
+            saveSettings: "SAVE",
+            navHomeMsg: "🏠 Calculating route home...",
+            navWorkMsg: "🏢 Calculating route to work...",
+            shareAlert: "📍 Copied to clipboard",
+            settingsSaved: "✅ Settings saved",
+            historialTitle: "LOCATION HISTORY",
+            simIntervalLabel: "Simulation interval",
+            chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"]
+        }
+    };
+
+    // ============================================================
+    //  ESTADO GLOBAL
+    // ============================================================
+    let isSpanish = true;
+    let userSettings = JSON.parse(localStorage.getItem('itzli_sim_settings') || '{}');
+    if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
+    if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
+
+    let cameraStates = { frontal: true, trasera: true, interior: true };
+    let recordStates = { frontal: false, trasera: false, interior: false };
+    let currentCloudCam = 'frontal';
+
+    let geofenceRadius = 50;
+    let geofenceActive = false;
+    let currentLat = 19.4326, currentLng = -99.1332;
+    let map = null, marker = null, geofenceCircle = null;
+    let mapInitialized = false;
+
+    let alertConfig = {
+        geofence: true,
+        battery: true,
+        start: true,
+        radio: true,
+        simInterval: 15
+    };
+
+    // Chips (los nombres se tomarán del diccionario)
+    const chips = [
+        { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"⚠️ Voltaje descendente" },
+        { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"🔴 CRÍTICO" },
+        { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"⚠️ Voltaje bajo" },
+        { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
+        { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
+    ];
+    const alertLog = [];
+    const historial = []; // solo guardará eventos de ubicación
+
+    // ============================================================
+    //  IDIOMA
+    // ============================================================
+    function toggleLang() {
+        isSpanish = !isSpanish;
+        const lang = isSpanish ? 'es' : 'en';
+        const d = langData[lang];
+
+        document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+        document.documentElement.lang = isSpanish ? 'es' : 'en';
+
+        document.getElementById('txtSubtitle').innerText = d.subtitle;
+        document.getElementById('txtBadge').innerHTML = d.badge;
+        document.getElementById('txtSecure').innerText = d.secure;
+        document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--violet);">SIM-21E41421</strong>';
+        document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">5s</strong>';
+        document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">SIM 4.2/5 GB</strong>';
+
+        document.getElementById('txtHotSwapTitle').innerText = d.hotSwapTitle;
+        document.getElementById('txtControlTitle').innerText = d.controlTitle;
+        document.getElementById('txtSecMotor').innerHTML = d.secMotor;
+        document.getElementById('txtSecEnt').innerHTML = d.secEnt;
+        document.getElementById('txtSecClimate').innerHTML = d.secClimate;
+        document.getElementById('txtSecNav').innerHTML = d.secNav;
+
+        document.getElementById('btnStart').innerHTML = '🚀 <span>' + d.btnStart + '</span>';
+        document.getElementById('btnStop').innerHTML = '🛑 <span>' + d.btnStop + '</span>';
+        document.getElementById('btnOpen').innerHTML = '🔓 <span>' + d.btnOpen + '</span>';
+        document.getElementById('btnClose').innerHTML = '🔒 <span>' + d.btnClose + '</span>';
+        document.getElementById('btnLights').innerHTML = '💡 <span>' + d.btnLights + '</span>';
+        document.getElementById('btnHorn').innerHTML = '📢 <span>' + d.btnHorn + '</span>';
+        document.getElementById('btnVolUp').innerHTML = '🔊 <span>' + d.btnVolUp + '</span>';
+        document.getElementById('btnVolDown').innerHTML = '🔉 <span>' + d.btnVolDown + '</span>';
+        document.getElementById('btnMute').innerHTML = '🔇 <span>' + d.btnMute + '</span>';
+        document.getElementById('btnBt').innerHTML = '📱 <span>' + d.btnBt + '</span>';
+        document.getElementById('btnFm').innerHTML = '📻 <span>' + d.btnFm + '</span>';
+        document.getElementById('btnAm').innerHTML = '📻 <span>' + d.btnAm + '</span>';
+        document.getElementById('btnAux').innerHTML = '🎧 <span>' + d.btnAux + '</span>';
+        document.getElementById('btnNext').innerHTML = '⏭️ <span>' + d.btnNext + '</span>';
+        document.getElementById('btnAcOn').innerHTML = '❄️ <span>' + d.btnAcOn + '</span>';
+        document.getElementById('btnAcOff').innerHTML = '🌡️ <span>' + d.btnAcOff + '</span>';
+        document.getElementById('btnTempUp').innerHTML = '🔺 <span>' + d.btnTempUp + '</span>';
+        document.getElementById('btnTempDown').innerHTML = '🔻 <span>' + d.btnTempDown + '</span>';
+        document.getElementById('btnFanUp').innerHTML = '💨 <span>' + d.btnFanUp + '</span>';
+        document.getElementById('btnFanDown').innerHTML = '💨 <span>' + d.btnFanDown + '</span>';
+        document.getElementById('btnSeat').innerHTML = '🔥 <span>' + d.btnSeat + '</span>';
+        document.getElementById('btnDefrost').innerHTML = '❄️ <span>' + d.btnDefrost + '</span>';
+        document.getElementById('btnNavHome').innerHTML = '🏠 <span>' + d.btnNavHome + '</span>';
+        document.getElementById('btnNavWork').innerHTML = '🏢 <span>' + d.btnNavWork + '</span>';
+        document.getElementById('btnNavStop').innerHTML = '🛑 <span>' + d.btnNavStop + '</span>';
+        document.getElementById('btnFold').innerHTML = '🪞 <span>' + d.btnFold + '</span>';
+        document.getElementById('btnUnfold').innerHTML = '🪞 <span>' + d.btnUnfold + '</span>';
+        document.getElementById('btnMirrorHeat').innerHTML = '🔥 <span>' + d.btnMirrorHeat + '</span>';
+        document.getElementById('cmdResult').innerText = d.cmdResult;
+
+        document.getElementById('txtCamTitle').innerText = d.camTitle;
+        document.getElementById('txtViewCloud').innerText = d.btnViewCloud;
+        document.getElementById('txtChipTitle').innerText = d.chipTitle;
+        document.getElementById('txtAlertTitle').innerText = d.alertTitle;
+
+        document.getElementById('txtMapTitle').textContent = d.mapTitle;
+        document.getElementById('txtLat').textContent = d.latLabel;
+        document.getElementById('txtLng').textContent = d.lngLabel;
+        document.getElementById('txtRef').textContent = d.refLabel;
+        document.getElementById('txtPrec').textContent = d.precLabel;
+        document.getElementById('refAddress').textContent = d.refAddr;
+        document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
+        document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
+        document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
+
+        document.getElementById('rangeMin').innerText = d.rangeMin;
+        document.getElementById('rangeMax').innerText = d.rangeMax;
+        document.getElementById('geofenceHint').innerText = d.geofenceHint;
+        // Botón geocerca (alterna)
+        document.getElementById('btnGeofenceToggle').innerHTML = '📐 <span>' + (geofenceActive ? d.btnDeactivateGeo : d.btnActivateGeo) + '</span>';
+        updateGeofenceStatus();
+
+        document.getElementById('txtAlertConfigTitle').innerText = d.alertConfigTitle;
+        document.getElementById('lblGeofence').innerText = d.lblGeofence;
+        document.getElementById('lblBattery').innerText = d.lblBattery;
+        document.getElementById('lblStart').innerText = d.lblStart;
+        document.getElementById('lblRadio').innerText = d.lblRadio;
+        document.getElementById('txtSaveAlertConfig').innerText = d.saveAlertConfig;
+
+        document.getElementById('txtCloudModalTitle').innerText = d.cloudModalTitle;
+        document.getElementById('txtCloseCloud').innerText = d.closeCloud;
+        document.getElementById('txtTabFront').innerText = d.tabFront;
+        document.getElementById('txtTabRear').innerText = d.tabRear;
+        document.getElementById('txtTabInt').innerText = d.tabInt;
+
+        document.getElementById('txtSettingsTitle').innerText = d.settingsTitle;
+        document.getElementById('txtCloseSettings').innerText = d.closeSettings;
+        document.getElementById('txtHomeLabel').innerText = d.homeLabel;
+        document.getElementById('txtWorkLabel').innerText = d.workLabel;
+        document.getElementById('txtSaveSettings').innerText = d.saveSettings;
+
+        document.getElementById('txtHistorialTitle').innerText = d.historialTitle;
+        document.getElementById('txtNoAlerts').innerText = d.noAlerts;
+
+        renderHotSwap();
+        renderCameras();
+        renderChips();
+        renderAlerts();
+        renderHistorial();
+    }
+
+    // ============================================================
+    //  RENDERIZADO DE SECCIONES
+    // ============================================================
+    function renderHotSwap() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        document.getElementById('hotswapGrid').innerHTML = `
+            <div class="hotswap-card fail">
+                <h4>${d.hsFailName}</h4>
+                <p>${d.hsFailVolt} | ${d.hsFailTemp}</p>
+                <div class="status-text" style="color:var(--red);">${d.hsFailStatus}</div>
+                <div class="status-text" style="color:var(--gold);">${d.hsFailCov}</div>
+            </div>
+            <div class="hotswap-card success">
+                <h4>${d.hsBackName}</h4>
+                <p>${d.hsBackVolt} | ${d.hsBackTemp}</p>
+                <div class="status-text" style="color:var(--green);">${d.hsBackStatus}</div>
+                <div class="status-text" style="color:var(--dim);">${d.hsBackBuy}</div>
+            </div>
+        `;
+    }
+
+    function renderCameras() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        const cameras = [
+            { id: 'frontal', name: d.camFront, color: 'front', img: 'imagenes/frontal.png' },
+            { id: 'trasera', name: d.camRear, color: 'rear', img: 'imagenes/reversa.png' },
+            { id: 'interior', name: d.camInt, color: 'interior', img: 'imagenes/interior.png' }
+        ];
+
+        document.getElementById('cameraGrid').innerHTML = cameras.map(cam => `
+            <div class="camera-feed ${cam.color} ${cameraStates[cam.id] ? 'video-on' : ''} ${recordStates[cam.id] ? 'recording' : ''}" 
+                 id="cam-${cam.id}">
+                <img src="${cam.img}" alt="${cam.name}" class="camera-image" id="img-${cam.id}" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.opacity='1';">
+                <video class="camera-video" id="video-${cam.id}" muted loop playsinline></video>
+                <button class="record-btn-individual ${recordStates[cam.id] ? 'recording' : ''}" 
+                        onclick="event.stopPropagation(); toggleRecordIndividual('${cam.id}')">
+                    ${recordStates[cam.id] ? d.recordBtnOn : d.recordBtn}
+                </button>
+                <div class="camera-name">${cam.name}</div>
+                <div class="camera-recording"></div>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.camera-feed').forEach(feed => {
+            const camId = feed.id.replace('cam-', '');
+            feed.onclick = function(e) {
+                if(e.detail === 1) toggleCamera(camId);
+            };
+            feed.ondblclick = function() {
+                handleDoubleClick(camId);
+            };
+        });
+
+        updateOnlineButton();
+        updateRecordAllButton();
+    }
+
+    function toggleCamera(camId) {
+        cameraStates[camId] = !cameraStates[camId];
+        renderCameras();
+        // No agregamos al historial (solo ubicaciones)
+    }
+
+    function toggleAllCameras() {
+        const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
+        cameraStates.frontal = cameraStates.trasera = cameraStates.interior = !allOn;
+        renderCameras();
+    }
+
+    function toggleRecordIndividual(camId) {
+        recordStates[camId] = !recordStates[camId];
+        renderCameras();
+    }
+
+    function toggleRecordAll() {
+        const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior;
+        recordStates.frontal = recordStates.trasera = recordStates.interior = !allRecording;
+        renderCameras();
+    }
+
+    function updateOnlineButton() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        const allOn = cameraStates.frontal && cameraStates.trasera && cameraStates.interior;
+        const allOff = !cameraStates.frontal && !cameraStates.trasera && !cameraStates.interior;
+        const btn = document.querySelector('.btn-online');
+        if (btn) {
+            btn.className = 'btn btn-online ' + (allOn ? 'on' : allOff ? 'off' : '');
+            document.getElementById('txtOnlineStatus').innerText = allOn ? d.onlineStatus : allOff ? d.offlineStatus : d.partialStatus;
+        }
+    }
+
+    function updateRecordAllButton() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        const allRecording = recordStates.frontal && recordStates.trasera && recordStates.interior;
+        const btn = document.getElementById('btnRecordAll');
+        if (btn) {
+            btn.className = 'btn btn-record-all ' + (allRecording ? 'recording' : 'stopped');
+            document.getElementById('txtBtnRecordAll').innerText = allRecording ? d.btnRecordAll : d.btnRecordAllOff;
+        }
+    }
+
+    function handleDoubleClick(camId) {
+        const feed = document.getElementById('cam-' + camId);
+        if (!document.fullscreenElement) {
+            feed.requestFullscreen().catch(() => {});
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // ============================================================
+    //  MAPA Y GEOCERCA (SIEMPRE VISIBLE)
+    // ============================================================
+    function initMap() {
+        if (mapInitialized) { setTimeout(() => { if(map) map.invalidateSize(); }, 100); return; }
+        const mapDiv = document.getElementById('map');
+        if (!mapDiv || mapDiv.offsetHeight === 0) { setTimeout(initMap, 300); return; }
+        mapInitialized = true;
+
+        map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Esri',
+            maxZoom: 19
+        }).addTo(map);
+
+        marker = L.marker([currentLat, currentLng]).addTo(map)
+            .bindPopup('<strong>🚗 Tu auto (simulación)</strong>');
+
+        geofenceCircle = L.circle([currentLat, currentLng], {
+            color: '#9b59b6',
+            fillColor: '#9b59b6',
+            fillOpacity: 0.15,
+            radius: geofenceRadius
+        }).addTo(map);
+
+        setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+    }
+
+    function updateLocation() {
+        // Simular movimiento aleatorio
+        currentLat += (Math.random() - 0.5) * 0.001;
+        currentLng += (Math.random() - 0.5) * 0.001;
+        document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
+        document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
+        if (marker && map) {
+            marker.setLatLng([currentLat, currentLng]);
+            map.setView([currentLat, currentLng], 17);
+            if (geofenceCircle) geofenceCircle.setLatLng([currentLat, currentLng]);
+        }
+        // Agregar al historial (solo ubicación)
+        addHistorial('📍 Ubicación actualizada: ' + currentLat.toFixed(4) + ', ' + currentLng.toFixed(4));
+
+        // Verificar si está fuera de geocerca (si está activa)
+        if (geofenceActive && alertConfig.geofence) {
+            const dist = calcularDistancia(currentLat, currentLng, geofenceCircle.getLatLng().lat, geofenceCircle.getLatLng().lng);
+            if (dist > geofenceRadius) {
+                addAlert('Geocerca', 'critical', '🚨 El auto ha salido del perímetro (simulación)');
+                playSimulatedSound();
+            }
+        }
+    }
+
+    function calcularDistancia(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const φ1 = lat1 * Math.PI/180;
+        const φ2 = lat2 * Math.PI/180;
+        const Δφ = (lat2-lat1) * Math.PI/180;
+        const Δλ = (lon2-lon1) * Math.PI/180;
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    function shareLocation() {
+        const loc = `📍 Mi auto (simulación): https://www.google.com/maps?q=${currentLat},${currentLng}`;
+        if (navigator.share) {
+            navigator.share({ title: '📍 Ubicación (sim)', text: loc });
+        } else {
+            navigator.clipboard.writeText(loc);
+            const d = langData[isSpanish ? 'es' : 'en'];
+            alert(d.shareAlert);
+        }
+    }
+
+    function navigateToCar() {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank');
+    }
+
+    function updateRadiusDisplay() {
+        const slider = document.getElementById('radiusSlider');
+        if (!slider) return;
+        const val = parseInt(slider.value);
+        geofenceRadius = val;
+        const unit = isSpanish ? 'm' : 'ft';
+        const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+        document.getElementById('radiusValue').textContent = displayVal + ' ' + unit;
+        if (geofenceCircle) {
+            geofenceCircle.setRadius(geofenceRadius);
+        }
+        updateGeofenceStatus();
+    }
+
+    function toggleGeofence() {
+        geofenceActive = !geofenceActive;
+        const d = langData[isSpanish ? 'es' : 'en'];
+        if (geofenceCircle) {
+            const color = geofenceActive ? '#ff4466' : '#9b59b6';
+            geofenceCircle.setStyle({ color: color, fillColor: color });
+        }
+        document.getElementById('btnGeofenceToggle').innerHTML = '📐 <span>' + (geofenceActive ? d.btnDeactivateGeo : d.btnActivateGeo) + '</span>';
+        updateGeofenceStatus();
+        // No agregamos al historial (solo ubicaciones)
+    }
+
+    function updateGeofenceStatus() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        const statusEl = document.getElementById('geofenceStatus');
+        if (!statusEl) return;
+        const radiusDisplay = isSpanish ? geofenceRadius + 'm' : Math.round(geofenceRadius * 3.28084) + 'ft';
+        if (geofenceActive) {
+            statusEl.textContent = d.geofenceActive.replace('{radius}', radiusDisplay);
+            statusEl.style.color = 'var(--green)';
+        } else {
+            statusEl.textContent = d.geofenceInactive;
+            statusEl.style.color = 'var(--dim)';
+        }
+    }
+
+    // ============================================================
+    //  CONFIGURACIÓN DE ALERTAS
+    // ============================================================
+    function saveAlertConfig() {
+        alertConfig.geofence = document.getElementById('chkGeofence').checked;
+        alertConfig.battery = document.getElementById('chkBattery').checked;
+        alertConfig.start = document.getElementById('chkStart').checked;
+        alertConfig.radio = document.getElementById('chkRadio').checked;
+        alertConfig.simInterval = parseInt(document.getElementById('simInterval').value);
+        document.getElementById('simIntervalLabel').textContent = alertConfig.simInterval + 's';
+        localStorage.setItem('itzli_sim_alert_config', JSON.stringify(alertConfig));
+        const d = langData[isSpanish ? 'es' : 'en'];
+        alert(d.settingsSaved);
+        // Reiniciar intervalo de simulación
+        if (window.simIntervalId) clearInterval(window.simIntervalId);
+        window.simIntervalId = setInterval(simulateUpdate, alertConfig.simInterval * 1000);
+    }
+
+    function loadAlertConfig() {
+        const saved = JSON.parse(localStorage.getItem('itzli_sim_alert_config') || '{}');
+        if (saved.geofence !== undefined) alertConfig.geofence = saved.geofence;
+        if (saved.battery !== undefined) alertConfig.battery = saved.battery;
+        if (saved.start !== undefined) alertConfig.start = saved.start;
+        if (saved.radio !== undefined) alertConfig.radio = saved.radio;
+        if (saved.simInterval !== undefined) alertConfig.simInterval = saved.simInterval;
+
+        document.getElementById('chkGeofence').checked = alertConfig.geofence;
+        document.getElementById('chkBattery').checked = alertConfig.battery;
+        document.getElementById('chkStart').checked = alertConfig.start;
+        document.getElementById('chkRadio').checked = alertConfig.radio;
+        document.getElementById('simInterval').value = alertConfig.simInterval;
+        document.getElementById('simIntervalLabel').textContent = alertConfig.simInterval + 's';
+    }
+
+    // ============================================================
+    //  CHIPS
+    // ============================================================
+    function renderChips() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        chips.forEach(chip => analyzePatterns(chip));
+        document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
+            const chipName = d.chipNames[index] || chip.id;
+            const statusLabel = chip.nivel === 'normal' ? 'Normal' : chip.nivel === 'warning' ? 'Precaución' : 'Crítico';
+            const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
+            return `<div class="chip ${chip.nivel}" onclick="toggleChip('${chip.id}')" id="chip-${chip.id}">
+                <div class="chip-top">
+                    <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${chipName}</span></div>
+                    <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
+                </div>
+                <div class="chip-metrics">
+                    <span>⚡ <span class="val">${chip.voltage}V</span></span>
+                    <span>🌡️ <span class="val">${chip.temp}°C</span></span>
+                    <span>🔄 <span class="val">${chip.syncs}</span></span>
+                </div>
+                ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel === 'critical' ? 'red' : ''}">${chip.alertaMsg}</div>` : ''}
+                <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggleChip(id) { document.getElementById('chip-' + id).classList.toggle('expanded'); }
+
+    function analyzePatterns(chip) {
+        if (chip.vH.length >= 4 && chip.voltage < 10.5) {
+            chip.nivel = "critical";
+            addAlert(chip.id, "critical", "⚡ Voltaje crítico: " + chip.voltage + "V");
+        }
+        if (chip.tH.length >= 4 && chip.temp > 50) {
+            chip.nivel = "critical";
+            addAlert(chip.id, "critical", "🌡️ Temp elevada: " + chip.temp + "°C");
+        }
+        if (chip.errors >= 5) {
+            chip.nivel = "critical";
+            addAlert(chip.id, "critical", "⚠️ Errores: " + chip.errors);
+        }
+    }
+
+    function addAlert(chipName, nivel, mensaje) {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        // Buscar nombre del chip en el diccionario
+        const idx = chips.findIndex(c => c.id === chipName);
+        const displayName = (idx !== -1) ? d.chipNames[idx] : chipName;
+        const exists = alertLog.find(a => a.chip === displayName && a.mensaje === mensaje);
+        if (!exists) {
+            alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: displayName, icon: '🔔', nivel, mensaje });
+            if (alertLog.length > 20) alertLog.pop();
+            renderAlerts();
+            playSimulatedSound();
+        }
+    }
+
+    function renderAlerts() {
+        const container = document.getElementById('alertList');
+        const d = langData[isSpanish ? 'es' : 'en'];
+        if (alertLog.length === 0) {
+            container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
+            return;
+        }
+        container.innerHTML = alertLog.map(a => `
+            <div class="alert-item ${a.nivel}">
+                <div class="icon">${a.icon}</div>
+                <div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div>
+            </div>
+        `).join('');
+    }
+
+    // ============================================================
+    //  SIMULACIÓN
+    // ============================================================
+    function simulateUpdate() {
+        chips.forEach(chip => {
+            chip.voltage += (Math.random() - 0.5) * 0.2;
+            chip.voltage = Math.round(chip.voltage * 10) / 10;
+            chip.temp += (Math.random() - 0.5) * 1;
+            chip.temp = Math.round(chip.temp);
+            chip.vH.push(chip.voltage);
+            chip.tH.push(chip.temp);
+            if (chip.vH.length > 10) chip.vH.shift();
+            if (chip.tH.length > 10) chip.tH.shift();
+            if (Math.random() > 0.95) chip.errors++;
+            chip.syncs += Math.floor(Math.random() * 10);
+        });
+        renderChips();
+        renderAlerts();
+        // Simular movimiento aleatorio cada cierto tiempo (si no se ha movido manualmente)
+        // No lo hacemos aquí para no saturar el historial, mejor solo con el botón.
+    }
+
+    function playSimulatedSound() {
+        console.log('🔊 Alarma simulada (sonido)');
+        // Aquí se podría reproducir un audio real si se desea
+    }
+
+    // ============================================================
+    //  HISTORIAL (SOLO UBICACIONES)
+    // ============================================================
+    function addHistorial(evento) {
+        const time = new Date().toLocaleTimeString();
+        historial.unshift({ time, evento });
+        if (historial.length > 20) historial.pop();
+        renderHistorial();
+    }
+
+    function renderHistorial() {
+        const container = document.getElementById('historialList');
+        if (historial.length === 0) {
+            container.innerHTML = `<div class="historial-item"><span class="h-event">No hay ubicaciones registradas</span><span class="h-time">-</span></div>`;
+            return;
+        }
+        container.innerHTML = historial.map(h => `
+            <div class="historial-item"><span class="h-event">${h.evento}</span><span class="h-time">${h.time}</span></div>
+        `).join('');
+    }
+
+    // ============================================================
+    //  NUBE (SIMULACIÓN)
+    // ============================================================
+    function openCloudModal() {
+        document.getElementById('cloudModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        switchCloudTab('frontal');
+    }
+
+    function closeCloudModal() {
+        document.getElementById('cloudModal').classList.remove('active');
+        document.body.style.overflow = '';
+        const player = document.getElementById('cloudVideoPlayer');
+        player.pause();
+        player.src = '';
+        player.classList.remove('active');
+    }
+
+    function switchCloudTab(cam) {
+        currentCloudCam = cam;
+        document.querySelectorAll('.cloud-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const d = langData[isSpanish ? 'es' : 'en'];
+        const container = document.getElementById('cloudVideoList');
+        container.innerHTML = `<p style="color:var(--dim);text-align:center;">${d.loadingCloud}</p>`;
+
+        const localVideos = {
+            frontal: [{name:'2026-07-29_14-30-00_sim.mp4',size:45200000},{name:'2026-07-29_12-15-00_sim.mp4',size:38900000}],
+            trasera: [{name:'2026-07-29_14-30-00_sim.mp4',size:42300000}],
+            interior: [{name:'2026-07-29_14-30-00_sim.mp4',size:41000000},{name:'2026-07-29_09-10-00_sim.mp4',size:35600000}]
+        };
+
+        const videos = localVideos[cam] || [];
+        container.innerHTML = videos.length ? videos.map(v => `
+            <div class="video-item" onclick="playLocalVideo('${cam}','${v.name}')">
+                <span>🎬 ${v.name}</span>
+                <div class="video-actions">
+                    <span style="color:var(--dim);">${formatSize(v.size)}</span>
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadLocalVideo('${cam}','${v.name}')">${d.downloadBtn}</button>
+                </div>
+            </div>
+        `).join('') : `<p style="color:var(--dim);text-align:center;">${d.noVideos}</p>`;
+    }
+
+    function playLocalVideo(cam, name) {
+        const player = document.getElementById('cloudVideoPlayer');
+        player.classList.add('active');
+        const canvas = document.createElement('canvas');
+        canvas.width = 640; canvas.height = 360;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#1a0e2a'; ctx.fillRect(0, 0, 640, 360);
+        ctx.fillStyle = '#9b59b6'; ctx.font = 'bold 24px Segoe UI'; ctx.textAlign = 'center';
+        ctx.fillText(cam.toUpperCase() + ' (SIM)', 320, 160);
+        ctx.fillStyle = '#a88ab8'; ctx.font = '14px Segoe UI';
+        ctx.fillText(name, 320, 200);
+        ctx.fillStyle = '#7a8aa0'; ctx.font = '12px Segoe UI';
+        ctx.fillText('Reproducción simulada', 320, 240);
+        player.srcObject = canvas.captureStream(30);
+        player.play();
+    }
+
+    function downloadLocalVideo(cam, name) {
+        const blob = new Blob(['Video ITZTLI SIM - ' + cam], { type: 'video/mp4' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function formatSize(bytes) {
+        if (!bytes) return '0 B';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    // ============================================================
+    //  CONFIGURACIÓN GENERAL
+    // ============================================================
+    function openSettings() {
+        document.getElementById('settingsModal').classList.add('active');
+        document.getElementById('homeAddress').value = userSettings.homeAddress;
+        document.getElementById('workAddress').value = userSettings.workAddress;
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsModal').classList.remove('active');
+    }
+
+    function saveSettings() {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        userSettings.homeAddress = document.getElementById('homeAddress').value;
+        userSettings.workAddress = document.getElementById('workAddress').value;
+        localStorage.setItem('itzli_sim_settings', JSON.stringify(userSettings));
+        alert(d.settingsSaved);
+        closeSettings();
+    }
+
+    // ============================================================
+    //  COMANDOS
+    // ============================================================
+    function sendCommand(cmd) {
+        const messages = {
+            'arrancar': '🚀 Motor ARRANCADO (sim)',
+            'apagar': '🛑 Motor APAGADO (sim)',
+            'abrir': '🔓 Puertas ABIERTAS (sim)',
+            'cerrar': '🔒 Puertas CERRADAS (sim)',
+            'luces': '💡 Luces ENCENDIDAS (sim)',
+            'claxon': '📢 Claxon ACTIVADO (sim)',
+            'vol_up': '🔊 Volumen subido (sim)',
+            'vol_down': '🔉 Volumen bajado (sim)',
+            'mute': '🔇 Silenciado (sim)',
+            'bluetooth': '📱 Bluetooth activado (sim)',
+            'radio_fm': '📻 Radio FM (sim)',
+            'radio_am': '📻 Radio AM (sim)',
+            'aux': '🎧 Modo AUX (sim)',
+            'next_track': '⏭️ Siguiente pista (sim)',
+            'ac_on': '❄️ A/C encendido (sim)',
+            'ac_off': '🌡️ A/C apagado (sim)',
+            'temp_up': '🔺 Temperatura + (sim)',
+            'temp_down': '🔻 Temperatura - (sim)',
+            'fan_up': '💨 Ventilador + (sim)',
+            'fan_down': '💨 Ventilador - (sim)',
+            'seat_heat': '🔥 Asientos calefactados (sim)',
+            'defrost': '❄️ Desempañador activado (sim)',
+            'nav_stop': '🛑 Ruta detenida (sim)',
+            'mirror_fold': '🪞 Espejos plegados (sim)',
+            'mirror_unfold': '🪞 Espejos desplegados (sim)',
+            'mirror_heat': '🔥 Calefacción espejos (sim)',
+            'geo_alarm': '📐 Geocerca activada (sim)'
+        };
+        const result = document.getElementById('cmdResult');
+        result.textContent = messages[cmd] || '✅ Comando ejecutado (sim)';
+        result.style.color = 'var(--green)';
+        setTimeout(() => {
+            const d = langData[isSpanish ? 'es' : 'en'];
+            result.textContent = d.cmdResult;
+            result.style.color = 'var(--dim)';
+        }, 3000);
+    }
+
+    function navigateToAddress(type) {
+        const d = langData[isSpanish ? 'es' : 'en'];
+        const address = type === 'home' ? userSettings.homeAddress : userSettings.workAddress;
+        document.getElementById('cmdResult').textContent = type === 'home' ? d.navHomeMsg : d.navWorkMsg;
+        document.getElementById('cmdResult').style.color = 'var(--cyan)';
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
+        setTimeout(() => {
+            document.getElementById('cmdResult').textContent = d.cmdResult;
+            document.getElementById('cmdResult').style.color = 'var(--dim)';
+        }, 3000);
+    }
+
+    // ============================================================
+    //  RELOJ Y CIERRE DE MODALES
+    // ============================================================
+    let countdown = 5;
+    setInterval(() => {
+        countdown--;
+        if (countdown <= 0) countdown = 5;
+        const el = document.getElementById('countdown');
+        if (el) el.textContent = countdown + 's';
+        document.getElementById('currentTime').textContent = new Date().toLocaleString();
+    }, 1000);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCloudModal();
+            closeSettings();
+        }
+    });
+
+    document.getElementById('cloudModal').addEventListener('click', function(e) {
+        if (e.target === this) closeCloudModal();
+    });
+    document.getElementById('settingsModal').addEventListener('click', function(e) {
+        if (e.target === this) closeSettings();
+    });
+
+    // ============================================================
+    //  INICIALIZACIÓN
+    // ============================================================
+    function init() {
+        loadAlertConfig();
+        toggleLang();
+        renderHotSwap();
+        renderCameras();
+        renderChips();
+        renderAlerts();
+        renderHistorial();
+        initMap();
+        // Establecer geocerca inactiva por defecto
+        geofenceActive = false;
+        updateGeofenceStatus();
+        // Registrar ubicación inicial en historial
+        addHistorial('📍 Ubicación inicial: ' + currentLat.toFixed(4) + ', ' + currentLng.toFixed(4));
+        // Intervalo de simulación de chips
+        window.simIntervalId = setInterval(simulateUpdate, alertConfig.simInterval * 1000);
+    }
+
+    init();
+</script>
+</body>
+</html>

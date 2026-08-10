@@ -3,161 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITZTLI GRATIS - Geocerca Manual</title>
-    
+    <title>ITZTLI FRACTAL CORE · Registro</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ITZTLI GRATIS">
-    <meta name="theme-color" content="#050510">
-    
+    <meta name="apple-mobile-web-app-title" content="ITZTLI REGISTRO">
+    <meta name="theme-color" content="#00ff88">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
-        /* (MISMO CSS SIN CAMBIOS) */
         :root {
             --bg: #090a18; --card: #12142e; --border: #2a2f5a;
-            --cyan: #00d4ff; --gold: #f5c542; --green: #00ff88;
+            --primary: #00ff88; --primary-dark: #00cc66; --gold: #ffaa00;
             --red: #ff4466; --yellow: #ffaa00; --text: #e8e8f0; --dim: #7a8aa0;
             --font: 'Segoe UI', system-ui, sans-serif;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg); color: var(--text);
-            font-family: var(--font);
-            line-height: 1.5; padding: 15px; max-width: 1100px; margin: auto;
+            font-family: var(--font); line-height: 1.5; padding: 15px; max-width: 1100px; margin: auto;
         }
-        
         .header {
-            text-align: center; padding: 30px 20px 15px;
-            margin-bottom: 20px; position: relative;
-            border: 2px solid var(--green); border-radius: 20px;
-            background: linear-gradient(135deg, rgba(0,255,136,0.05), rgba(0,212,255,0.05));
+            text-align: center; padding: 30px 20px 20px; margin-bottom: 20px; position: relative;
+            border: 2px solid var(--primary); border-radius: 20px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.05), rgba(0,230,118,0.05));
         }
         .header h1 {
-            font-size: 28px;
-            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            font-size: 28px; background: linear-gradient(135deg, #00ff88, #00cc66);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             letter-spacing: 2px; text-transform: uppercase;
         }
         .header .subtitle { color: var(--dim); font-size: 14px; margin-top: 4px; }
         .header .badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            display: inline-block; background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: #000; padding: 6px 20px; border-radius: 30px; font-weight: bold; font-size: 13px;
-            margin-top: 8px; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            margin-top: 8px; box-shadow: 0 0 20px rgba(0,255,136,0.3);
         }
-        
-        .header-buttons { 
-            position: absolute; top: 20px; right: 20px; 
-            display: flex; gap: 8px; flex-wrap: wrap; 
+        .key-rotation {
+            margin-top: 10px; font-size: 11px; color: var(--dim);
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
         }
-        @media (max-width: 600px) {
-            .header-buttons { position: relative; top: 0; right: 0; justify-content: center; margin-bottom: 10px; }
-            .header h1 { font-size: 22px; }
-        }
-        
-        .lang-btn, .settings-btn, .logout-btn { 
-            background: transparent; border: 1px solid var(--border); 
-            border-radius: 8px; color: var(--text); padding: 5px 12px;
-            cursor: pointer; font-size: 13px; transition: 0.3s;
-        }
-        .lang-btn:hover, .settings-btn:hover { border-color: var(--green); color: var(--green); }
+        .key-rotation span { display: flex; align-items: center; gap: 5px; }
+        .key-rotation strong { color: var(--primary); }
+        .header-buttons { position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+        @media (max-width: 600px) { .header-buttons { position: relative; top: 0; right: 0; justify-content: center; margin-bottom: 10px; } .header h1 { font-size: 22px; } }
+        .lang-btn, .logout-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 5px 12px; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        .lang-btn:hover { border-color: var(--primary); color: var(--primary); }
         .logout-btn:hover { border-color: var(--red); color: var(--red); }
-        .lang-btn { background: rgba(0,255,136,0.1); border-color: var(--green); color: var(--green); font-weight: bold; }
-        .lang-btn:hover { background: var(--green); color: #000; }
-        .settings-btn { font-size: 18px; }
-        
-        .status-bar {
-            display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 20px; margin-bottom: 20px;
-            font-size: 13px;
-        }
-        .status-bar span { display: flex; align-items: center; gap: 6px; }
-        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-        .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
-        .dot-yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
-        .dot-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
-        
-        .card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px; margin-bottom: 20px;
-        }
-        .card-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; font-size: 15px; font-weight: bold;
-            color: var(--cyan);
-        }
-        
+        .lang-btn { background: rgba(0,255,136,0.1); border-color: var(--primary); color: var(--primary); font-weight: bold; }
+        .lang-btn:hover { background: var(--primary); color: #000; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; color: var(--primary); }
         .section-title { color: var(--gold); font-size: 13px; margin: 18px 0 10px 0; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        
-        .address-autocomplete {
-            position: relative; margin-bottom: 15px;
-        }
-        .address-autocomplete input {
-            width: 100%; padding: 14px 16px;
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            border-radius: 40px; color: var(--text); font-size: 14px; outline: none;
-        }
-        .address-autocomplete input:focus {
-            border-color: var(--green); box-shadow: 0 0 10px rgba(0,255,136,0.3);
-        }
-        .suggestions-list {
-            position: absolute; top: 100%; left: 0; right: 0;
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto;
-            z-index: 10; display: none; list-style: none;
-        }
-        .suggestions-list.active { display: block; }
-        .suggestions-list li {
-            padding: 12px 16px; cursor: pointer; font-size: 13px;
-            border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--dim);
-            transition: 0.2s;
-        }
-        .suggestions-list li:hover, .suggestions-list li.selected {
-            background: rgba(0,255,136,0.1); color: var(--text);
-        }
-        .selected-address {
-            margin-top: 8px; font-size: 12px; color: var(--green);
-            display: flex; align-items: center; gap: 6px;
-        }
-        
-        .geofence-range {
-            display: flex; align-items: center; gap: 10px; margin: 10px 0;
-        }
-        .geofence-range span { font-size: 11px; color: var(--dim); min-width: 30px; text-align: center; }
-        .geofence-range input[type="range"] { flex: 1; accent-color: var(--cyan); }
-        .geofence-range .val { color: var(--cyan); font-weight: bold; min-width: 60px; text-align: right; }
-        
-        .control-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
         .btn {
-            padding: 12px 6px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            cursor: pointer; transition: 0.3s; text-align: center;
-            background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 14px 8px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            text-align: center; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;
             border: 2px solid var(--border); color: var(--text);
         }
         .btn:hover { transform: scale(1.02); filter: brightness(1.3); box-shadow: 0 0 15px currentColor; }
-        .btn-green { border-color: var(--green); color: var(--green); }
-        .btn-green:hover { background: var(--green); color: #000; }
-        .btn-red { border-color: var(--red); color: var(--red); }
-        .btn-red:hover { background: var(--red); color: #000; }
-        .btn-gold { border-color: var(--gold); color: var(--gold); }
-        .btn-gold:hover { background: var(--gold); color: #000; }
-        .btn-cyan { border-color: var(--cyan); color: var(--cyan); }
-        .btn-cyan:hover { background: var(--cyan); color: #000; }
-        .btn-blue { border-color: #4a8bf5; color: #4a8bf5; }
-        .btn-blue:hover { background: #4a8bf5; color: #000; }
-        
-        #cmdResult { text-align: center; font-size: 11px; color: var(--dim); margin-top: 15px; transition: color 0.3s; }
-        
-        .chip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-        .chip {
-            background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px;
-            padding: 14px; transition: 0.3s; cursor: pointer;
+        .btn-green { border-color: var(--primary); color: var(--primary); } .btn-green:hover { background: var(--primary); color: #000; }
+        .btn-red { border-color: var(--red); color: var(--red); } .btn-red:hover { background: var(--red); color: #000; }
+        .btn-gold { border-color: var(--gold); color: var(--gold); } .btn-gold:hover { background: var(--gold); color: #000; }
+        .btn-blue { border-color: #4a8bf5; color: #4a8bf5; } .btn-blue:hover { background: #4a8bf5; color: #000; }
+        .map-wrapper { position: relative; margin: 10px 0; }
+        #map { height: 400px; width: 100%; border-radius: 12px; border: 1px solid var(--border); background: #0d1424; }
+        .location-overlay {
+            position: absolute; bottom: 10px; left: 10px; right: 10px; z-index: 500;
+            background: rgba(10,10,25,0.85); border-radius: 10px;
+            padding: 8px 12px; display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 6px; font-size: 11px; color: var(--text);
+            backdrop-filter: blur(4px); border: 1px solid var(--border);
+            overflow: hidden; white-space: nowrap;
         }
+        .location-overlay .item { overflow: hidden; text-overflow: ellipsis; }
+        .location-overlay .item strong { color: var(--primary); font-size: 10px; display: block; }
+        .location-overlay .item .val { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+        .geofence-range { display: flex; align-items: center; gap: 10px; margin: 10px 0; width: 100%; }
+        .geofence-range span { font-size: 11px; color: var(--dim); min-width: 30px; text-align: center; }
+        .geofence-range input[type=range] { flex: 1; accent-color: var(--primary); }
+        .geofence-range .val { color: var(--primary); font-weight: bold; min-width: 60px; text-align: right; }
+        .map-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+        .alert-config-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+        .alert-config-item:last-child { border-bottom: none; }
+        .alert-config-item .alert-name { flex: 1; min-width: 160px; font-size: 15px; font-weight: 500; }
+        .toggle-buttons { display: flex; gap: 8px; }
+        .toggle-btn {
+            padding: 10px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            background: rgba(0,0,0,0.3); border: 2px solid var(--border); color: var(--dim);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .toggle-btn.active { background: var(--primary); border-color: var(--primary); color: #000; }
+        .toggle-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+        .proximity-range { flex: 1 0 100%; display: flex; align-items: center; gap: 10px; margin: 5px 0; width: 100%; }
+        .proximity-range input[type=range] { flex: 1; accent-color: var(--gold); }
+        .proximity-range span { font-size: 11px; color: var(--dim); }
+        .proximity-range .val { color: var(--gold); font-weight: bold; min-width: 60px; text-align: right; }
+        .chip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .chip { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 14px; transition: 0.3s; cursor: pointer; }
         .chip:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
         .chip-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .chip-icon-name { display: flex; align-items: center; gap: 8px; }
@@ -171,420 +115,430 @@
         .chip-alert.red { color: var(--red); }
         .chip-detail { display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 11px; color: var(--dim); }
         .chip.expanded .chip-detail { display: block; }
-        .chip.normal { border-left: 4px solid var(--green); }
+        .chip.normal { border-left: 4px solid var(--primary); }
         .chip.warning { border-left: 4px solid var(--yellow); background: rgba(255,170,0,0.05); }
         .chip.critical { border-left: 4px solid var(--red); background: rgba(255,68,102,0.08); animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0%,100%{box-shadow:0 0 5px rgba(255,0,0,0.2)} 50%{box-shadow:0 0 15px rgba(255,0,0,0.4)} }
-        
         .alert-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
         .alert-list { display: flex; flex-direction: column; gap: 8px; }
-        .alert-item {
-            display: flex; align-items: flex-start; gap: 10px;
-            background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 12px;
-            font-size: 12px; border-left: 3px solid var(--border);
-        }
+        .alert-item { display: flex; align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 12px; font-size: 12px; border-left: 3px solid var(--border); }
         .alert-item.warning { border-left-color: var(--yellow); }
         .alert-item.critical { border-left-color: var(--red); }
+        .alert-item.info { border-left-color: var(--primary); }
         .alert-item .time { color: var(--dim); font-size: 10px; margin-top: 2px; }
-        
-        #map { height: 280px; width: 100%; border-radius: 12px; border: 1px solid var(--border); margin: 10px 0; background: #0d1424; }
-        .location-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
-        .location-info .item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; }
-        .location-info .item strong { color: var(--cyan); display: block; font-size: 10px; margin-bottom: 2px; }
-        .location-info .item .val { font-size: 13px; font-weight: 500; }
-        .map-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
-        .footer { text-align: center; font-size: 11px; color: var(--dim); padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
-        
-        .settings-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000;
-            justify-content: center; align-items: center; flex-direction: column;
-        }
-        .settings-modal.active { display: flex; }
-        .modal-content {
-            background: var(--card); border: 2px solid var(--cyan);
-            border-radius: 20px; padding: 25px; max-width: 600px; width: 90%;
-            max-height: 80vh; overflow-y: auto;
-        }
+        .location-history-list { max-height: 200px; overflow-y: auto; }
+        .location-history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; margin: 4px 0; font-size: 11px; }
+        .location-history-item .loc-time { color: var(--dim); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card); border: 2px solid var(--primary); border-radius: 20px; padding: 25px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        .modal-content { scrollbar-width: thin; scrollbar-color: var(--primary) rgba(0,0,0,0.3); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { color: var(--cyan); font-size: 18px; }
-        .modal-close-btn {
-            background: transparent; border: 1px solid var(--red); color: var(--red);
-            border-radius: 8px; padding: 5px 15px; cursor: pointer; font-size: 14px;
-            transition: 0.3s;
-        }
+        .modal-header h3 { color: var(--primary); font-size: 18px; }
+        .modal-close-btn { background: transparent; border: 1px solid var(--red); color: var(--red); border-radius: 8px; padding: 5px 15px; cursor: pointer; font-size: 14px; transition: 0.3s; }
         .modal-close-btn:hover { background: var(--red); color: #000; }
-        
-        .auth-input {
-            width: 100%; padding: 12px; margin: 8px 0;
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            border-radius: 8px; color: var(--text); font-size: 14px;
-        }
-        .auth-input:focus { border-color: var(--cyan); outline: none; }
-        
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; }
+        .auth-input:focus { border-color: var(--primary); outline: none; }
+        .captcha-row { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+        .captcha-row span { font-size: 14px; color: var(--dim); }
+        .captcha-row input { width: 60px; }
+        .terms-row { display: flex; align-items: center; gap: 8px; margin: 15px 0; font-size: 13px; color: var(--dim); }
+        .terms-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); }
+        .terms-row a { color: var(--primary); text-decoration: underline; cursor: pointer; }
+        .footer { text-align: center; font-size: 11px; color: var(--dim); padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
         @media (max-width: 600px) {
             .chip-grid { grid-template-columns: 1fr 1fr; }
             .map-actions { grid-template-columns: 1fr; }
-            #map { height: 200px; }
+            #map { height: 280px; }
             .modal-content { padding: 15px; }
         }
     </style>
 </head>
 <body>
-
     <div class="header">
         <div class="header-buttons">
-            <button class="logout-btn" id="btnLogout" onclick="window.logout()">🚪 <span id="txtLogout">SALIR</span></button>
-            <button class="settings-btn" onclick="window.openSettings()" title="Configuración">⚙️</button>
-            <button class="lang-btn" id="langToggle" onclick="window.toggleLang()">🇲🇽 ESP</button>
+            <button class="logout-btn" id="btnLogout" onclick="ITZTLI.Registro.logout()" style="display:none;">🚪 <span id="txtLogout">SALIR</span></button>
+            <button class="lang-btn" id="langToggle" onclick="ITZTLI.Registro.toggleLang()">🇲🇽 ESP</button>
         </div>
         <h1>ITZTLI FRACTAL CORE</h1>
-        <p class="subtitle" id="txtSubtitle">Protección gratuita para tu vehículo</p>
-        <div class="badge" id="txtBadge">🆓 PLAN GRATUITO ACTIVO</div>
+        <p class="subtitle" id="txtSubtitle">Sistema Nervioso Digital para Vehículos</p>
+        <div class="badge" id="txtBadge">🟢 REGISTRO · DEMO</div>
+        <div class="key-rotation">
+            <span id="txtKey">🔑 Clave: <strong style="color:var(--primary);">21E41421...</strong></span>
+            <span id="txtRotation">🔄 <strong id="countdown">5s</strong></span>
+        </div>
     </div>
 
-    <div class="status-bar">
-        <span><span class="dot dot-green" id="statusDot"></span> <strong id="txtSecure">SEGURO</strong></span>
-        <span id="txtKey">🔑 Clave: <strong style="color:var(--green);">GRATIS-21E41421...</strong></span>
-        <span id="txtRotation">🔄 <strong id="countdown">5s</strong></span>
-        <span id="txtCloud">📡 <strong style="color:var(--green);">ACTIVO</strong></span>
-    </div>
-
-    <!-- DIRECCIÓN DE LA GEOCERCA -->
     <div class="card">
-        <div class="card-header" style="color:var(--green);">
-            <span id="txtAddressTitle">📍 UBICACIÓN DE LA GEOCERCA</span>
+        <div class="card-header" style="color:var(--primary);">
+            <span id="txtMapTitle">📍 UBICACIÓN Y GEOCERCA</span>
         </div>
-        <div class="address-autocomplete">
-            <input type="text" id="addressInput" placeholder="Escribe una dirección..." autocomplete="off">
-            <ul class="suggestions-list" id="suggestionsList"></ul>
-        </div>
-        <div class="selected-address" id="selectedAddressDisplay">
-            <span>✅</span> <span id="selectedAddressText">No se ha establecido ninguna dirección.</span>
-        </div>
-        <p style="color:var(--dim);font-size:12px;margin-top:8px;" id="txtAddressHint">
-            Escribe la dirección donde se colocará la geocerca. El mapa se actualizará automáticamente.
-        </p>
-    </div>
-
-    <!-- RADIO DE GEOCERCA Y BOTONES DE ACTIVACIÓN -->
-    <div class="card">
-        <div class="card-header" style="color:var(--cyan);">
-            <span id="txtGeofenceTitle">📐 RADIO DE GEOCERCA</span>
+        <div class="map-wrapper">
+            <div id="map"></div>
+            <div class="location-overlay" id="locationOverlay">
+                <div class="item"><strong id="txtLat">Latitud</strong><div class="val" id="lat">19.4326° N</div></div>
+                <div class="item"><strong id="txtLng">Longitud</strong><div class="val" id="lng">-99.1332° W</div></div>
+                <div class="item"><strong id="txtRef">Referencia</strong><div class="val" id="refAddress">Av. Reforma 222, CDMX</div></div>
+                <div class="item"><strong id="txtPrec">Precisión</strong><div class="val" style="color:var(--primary);">3 m (GPS + WiFi)</div></div>
+            </div>
         </div>
         <div class="geofence-range">
             <span id="rangeMin">10m</span>
-            <input type="range" id="radiusSlider" min="10" max="100" value="50" step="5" oninput="window.updateRadiusDisplay()">
+            <input type="range" id="radiusSlider" min="10" max="100" value="50" step="5" oninput="ITZTLI.Registro.updateRadiusDisplay()">
             <span id="rangeMax">100m</span>
             <span class="val" id="radiusValue">50 m</span>
         </div>
-        <div class="control-grid" style="margin-top: 10px;">
-            <button class="btn btn-green" onclick="window.setGeofence(true)"><span id="btnActivateGeo">ACTIVAR GEOCERCA</span></button>
-            <button class="btn btn-red" onclick="window.setGeofence(false)"><span id="btnDeactivateGeo">DESACTIVAR GEOCERCA</span></button>
-        </div>
-        <p style="color:var(--dim);font-size:10px;margin-top:8px;" id="geofenceHint">Recibirás alerta si el auto sale de este perímetro.</p>
-        <p id="cmdResult" style="text-align:center; font-size:11px; color:var(--dim); margin-top:10px;"></p>
-    </div>
-
-    <!-- MAPA SIEMPRE VISIBLE -->
-    <div class="card" id="mapCard">
-        <div class="card-header" style="color:var(--cyan);">
-            <span id="txtMapTitle">📍 UBICACIÓN EN TIEMPO REAL</span>
-        </div>
-        <div id="map"></div>
-        <div class="location-info">
-            <div class="item"><strong id="txtLat">Latitud</strong><div class="val" id="lat">19.4326° N</div></div>
-            <div class="item"><strong id="txtLng">Longitud</strong><div class="val" id="lng">-99.1332° W</div></div>
-            <div class="item"><strong id="txtRef">Referencia</strong><div class="val" id="refAddress">Av. Reforma 222, CDMX</div></div>
-            <div class="item"><strong id="txtPrec">Precisión</strong><div class="val" style="color:var(--green);">3 m (GPS + WiFi)</div></div>
-        </div>
+        <p style="color:var(--dim);font-size:10px;margin:0 0 10px 0;" id="geofenceHint">Recibirás alerta si el auto sale de este perímetro.</p>
         <div class="map-actions">
-            <button class="btn btn-cyan" onclick="window.updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
-            <button class="btn btn-gold" onclick="window.shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
-            <button class="btn btn-blue" onclick="window.navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
+            <button class="btn" id="btnGeofenceToggle" onclick="ITZTLI.Registro.toggleGeofence()"><span id="txtGeofenceBtn">GEOCERCA: DESACTIVADA</span></button>
+            <button class="btn btn-green" onclick="ITZTLI.Registro.updateLocation()" id="btnUpdateLoc">🔄 <span>ACTUALIZAR</span></button>
+            <button class="btn btn-gold" onclick="ITZTLI.Registro.shareLocation()" id="btnShareLoc">📤 <span>COMPARTIR</span></button>
+            <button class="btn btn-blue" onclick="ITZTLI.Registro.navigateToCar()" id="btnNavigate">🧭 <span>LLEGAR AL AUTO</span></button>
         </div>
     </div>
 
-    <!-- CHIPS -->
-    <div class="card">
-        <div class="card-header">
-            <span>🧠 <span id="txtChipTitle">MONITOREO DE CHIPS</span></span>
+    <div class="card" id="alertConfigCard">
+        <div class="card-header" style="color:var(--gold);">
+            <span>⚙️ <span id="txtAlertConfigTitle">CONFIGURACIÓN DE ALERTAS</span></span>
         </div>
+        <div class="alert-config-item">
+            <div class="alert-name" id="txtAlertGeoName">📐 Fuera de geocerca</div>
+            <div class="toggle-buttons">
+                <button class="toggle-btn" id="geoEmailBtn" onclick="ITZTLI.Registro.toggleAlertOption('geoEmail')">📧 <span>Email</span></button>
+                <button class="toggle-btn" id="geoSoundBtn" onclick="ITZTLI.Registro.toggleAlertOption('geoSound')">🔊 <span>Sonido</span></button>
+            </div>
+        </div>
+        <div class="alert-config-item">
+            <div class="alert-name" id="txtAlertBatteryName">🔌 Desconexión de batería</div>
+            <div class="toggle-buttons">
+                <button class="toggle-btn" id="battEmailBtn" onclick="ITZTLI.Registro.toggleAlertOption('battEmail')">📧 <span>Email</span></button>
+                <button class="toggle-btn" id="battSoundBtn" onclick="ITZTLI.Registro.toggleAlertOption('battSound')">🔊 <span>Sonido</span></button>
+            </div>
+        </div>
+        <div class="alert-config-item">
+            <div class="alert-name" id="txtAlertProxName">🚗 Arranque sin proximidad</div>
+            <div class="toggle-buttons">
+                <button class="toggle-btn" id="proxEmailBtn" onclick="ITZTLI.Registro.toggleAlertOption('proxEmail')">📧 <span>Email</span></button>
+                <button class="toggle-btn" id="proxSoundBtn" onclick="ITZTLI.Registro.toggleAlertOption('proxSound')">🔊 <span>Sonido</span></button>
+            </div>
+            <div class="proximity-range">
+                <span id="txtProximityLabel">📏 Radio:</span>
+                <input type="range" id="proximityRadius" min="10" max="200" value="50" step="10" oninput="ITZTLI.Registro.updateProximityDisplay()">
+                <span class="val" id="proximityValue">50 m</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span>🧠 <span id="txtChipTitle">MONITOREO DE CHIPS</span></span></div>
         <div class="chip-grid" id="chipGrid"></div>
     </div>
 
-    <!-- ALERTAS -->
     <div class="card">
-        <div class="card-header" style="color:var(--red);">
-            <span>🔔 <span id="txtAlertTitle">ALERTAS</span></span>
-        </div>
-        <div class="alert-container">
-            <div class="alert-list" id="alertList">
-                <p style="color:var(--dim);font-size:13px;" id="txtNoAlerts">✅ Sin alertas.</p>
-            </div>
-        </div>
+        <div class="card-header" style="color:var(--red);"><span>🔔 <span id="txtAlertTitle">ALERTAS</span></span></div>
+        <div class="alert-container"><div class="alert-list" id="alertList"><p style="color:var(--dim);font-size:13px;" id="txtNoAlerts">✅ Sin alertas.</p></div></div>
     </div>
 
-    <!-- MODAL DE CONFIGURACIÓN -->
-    <div class="settings-modal" id="settingsModal">
+    <div class="card">
+        <div class="card-header"><span>📜 <span id="txtLocationHistoryTitle">HISTORIAL DE UBICACIONES</span></span></div>
+        <div class="location-history-list" id="locationHistoryList"><p style="color:var(--dim);font-size:13px;" id="txtNoLocHistory">📍 Aún no hay registros de ubicación.</p></div>
+    </div>
+
+    <!-- Modal Login (ahora con botón de idioma) -->
+    <div class="modal auth-modal" id="authModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>⚙️ <span id="txtSettingsTitle">CONFIGURACIÓN</span></h3>
-                <button class="modal-close-btn" onclick="window.closeSettings()">✕ <span id="txtCloseSettings">CERRAR</span></button>
+                <h3>🔐 <span id="txtLoginTitle">INICIAR SESIÓN</span></h3>
+                <button class="lang-btn" id="langToggleLogin" onclick="ITZTLI.Registro.toggleLang()">🇲🇽 ESP</button>
             </div>
-            <label class="section-title" id="txtHomeLabel">🏠 Dirección de Casa</label>
-            <input type="text" class="auth-input" id="homeAddress" placeholder="Av. Reforma 222, CDMX">
-            <label class="section-title" id="txtWorkLabel">🏢 Dirección de Trabajo</label>
-            <input type="text" class="auth-input" id="workAddress" placeholder="Paseo de la Reforma 500, CDMX">
-            <button class="btn btn-cyan" onclick="window.saveSettings()" style="width:100%;margin-top:15px;">💾 <span id="txtSaveSettings">GUARDAR</span></button>
+            <label class="section-title">📧 <span id="txtEmail">Email</span></label>
+            <input type="email" class="auth-input" id="loginEmail" placeholder="usuario@email.com">
+            <label class="section-title">🔑 <span id="txtPassword">Contraseña</span></label>
+            <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••">
+            <div class="captcha-row" id="loginCaptchaRow">
+                <span id="loginCaptchaText">3 + 4 = ?</span>
+                <input type="text" class="auth-input" id="loginCaptchaInput" placeholder="?" maxlength="2" inputmode="numeric" style="width:60px; text-align:center;">
+            </div>
+            <button class="btn btn-green" onclick="ITZTLI.Registro.login()" style="width:100%;margin-top:10px;">🚀 <span id="txtLoginBtn">INGRESAR</span></button>
+            <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
+                <span id="txtNoAccount">¿No tienes cuenta?</span> <a href="#" onclick="ITZTLI.Registro.showRegister()" style="color:var(--primary);" id="txtRegisterLink">Regístrate</a>
+            </p>
+            <button class="btn btn-gold" onclick="ITZTLI.Registro.skipLogin()" style="width:100%;margin-top:5px;font-size:11px;">⚡ <span id="txtDemoBtn">Usar modo demo</span></button>
         </div>
     </div>
 
-    <div class="footer">
-        🌀 ITZTLI FRACTAL CORE © 2026 | Plan GRATUITO | <span id="currentTime"></span>
+    <!-- Modal Registro (con botón de idioma) -->
+    <div class="modal auth-modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📝 <span id="txtRegisterTitle">CREAR CUENTA</span></h3>
+                <button class="lang-btn" id="langToggleRegister" onclick="ITZTLI.Registro.toggleLang()">🇲🇽 ESP</button>
+                <button class="modal-close-btn" onclick="ITZTLI.Registro.closeRegister()">✕</button>
+            </div>
+            <label class="section-title" id="txtRegNameLabel">👤 Nombre (opcional)</label>
+            <input type="text" class="auth-input" id="regName" placeholder="Ej: Juan Pérez">
+            <label class="section-title">📧 <span id="txtRegEmail">Email</span></label>
+            <input type="email" class="auth-input" id="regEmail" placeholder="usuario@email.com" required>
+            <label class="section-title">🔑 <span id="txtRegPassword">Contraseña</span></label>
+            <input type="password" class="auth-input" id="regPassword" placeholder="Mínimo 8 caracteres" required minlength="8">
+            <label class="section-title" id="txtRegPassword2Label">🔑 Confirmar contraseña</label>
+            <input type="password" class="auth-input" id="regPassword2" placeholder="Repite tu contraseña" required>
+            <label class="section-title">🚗 <span id="txtRegVin">VIN del Vehículo</span></label>
+            <input type="text" class="auth-input" id="regVIN" placeholder="1HGBH41JXMN109186" required>
+            <div class="captcha-row" id="registerCaptchaRow">
+                <span id="registerCaptchaText">5 + 2 = ?</span>
+                <input type="text" class="auth-input" id="registerCaptchaInput" placeholder="?" maxlength="2" inputmode="numeric" style="width:60px; text-align:center;">
+            </div>
+            <div class="terms-row">
+                <input type="checkbox" id="termsCheckbox">
+                <label for="termsCheckbox">
+                    <span id="txtTermsLabel">He leído y acepto los</span> 
+                    <a href="terminos.html" target="_blank" id="txtTermsLink">Términos y Condiciones</a>.
+                </label>
+            </div>
+            <p style="font-size:12px; color:var(--dim); margin-top:8px;" id="txtRegInfo">* Recibirás un correo de verificación de Supabase.</p>
+            <button class="btn btn-gold" id="registerBtn" onclick="ITZTLI.Registro.register()" style="width:100%;margin-top:10px;" disabled>✨ <span id="txtRegisterBtn">CREAR CUENTA</span></button>
+            <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim);">
+                <span id="txtHasAccount">¿Ya tienes cuenta?</span> <a href="#" onclick="ITZTLI.Registro.showLogin()" style="color:var(--primary);" id="txtLoginLink">Inicia sesión</a>
+            </p>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <script>
-        // ═══════════════ FUNCIÓN AUTOEJECUTABLE (TODO DENTRO, SIN VARIABLES GLOBALES) ═══════════════
-        (function() {
-            // ══ INICIALIZAR SUPABASE (usando window.supabase sin redeclarar) ══
-            let supabase = null;
-            try {
-                if (window.supabase) {
-                    supabase = window.supabase.createClient(
-                        'https://rpoqukrcvkcmaqsajchk.supabase.co',
-                        'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5'
-                    );
-                } else {
-                    console.warn('Supabase no se ha cargado. El mapa y las funciones básicas seguirán funcionando.');
-                }
-            } catch (e) {
-                console.error('Error al inicializar Supabase:', e);
-            }
+    <div class="footer"><span id="txtFooter">🌀 ITZTLI FRACTAL CORE © 2026 · Registro gratuito</span> | <span id="currentTime"></span></div>
 
-            // ══ DICCIONARIO DE IDIOMAS ══
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        window.ITZTLI = window.ITZTLI || {};
+        ITZTLI.Registro = (function() {
+            const supabaseUrl = 'https://rpoqukrcvkcmaqsajchk.supabase.co';
+            const supabaseKey = 'sb_publishable_eamhRTq61t3fVIMSUcRYwQ_-VLGFGJ5';
+            let supabase = null;
+            try { supabase = window.supabase.createClient(supabaseUrl, supabaseKey); } catch(e) { console.warn('Supabase no disponible'); }
+
             const langData = {
                 es: {
-                    subtitle: "Protección gratuita para tu vehículo",
-                    badge: "🆓 PLAN GRATUITO ACTIVO",
-                    secure: "SEGURO",
+                    subtitle: "Sistema Nervioso Digital para Vehículos",
+                    badge: "🟢 REGISTRO · DEMO",
                     keyLabel: "🔑 Clave:",
                     rotationLabel: "🔄 Rotación:",
-                    cloudLabel: "📡 Estado:",
                     logoutBtn: "SALIR",
-                    addressTitle: "📍 UBICACIÓN DE LA GEOCERCA",
-                    addressPlaceholder: "Escribe una dirección...",
-                    addressHint: "Escribe la dirección donde se colocará la geocerca. El mapa se actualizará automáticamente.",
-                    noAddress: "No se ha establecido ninguna dirección.",
-                    geofenceTitle: "📐 RADIO DE GEOCERCA",
-                    rangeUnit: "m",
-                    rangeMin: "10m",
-                    rangeMax: "100m",
+                    mapTitle: "📍 UBICACIÓN Y GEOCERCA",
                     geofenceHint: "Recibirás alerta si el auto sale de este perímetro.",
-                    btnActivateGeo: "ACTIVAR GEOCERCA",
-                    btnDeactivateGeo: "DESACTIVAR GEOCERCA",
-                    geofenceActivated: "✅ Geocerca ACTIVADA. Radio: {radius} m",
-                    geofenceDeactivated: "❌ Geocerca DESACTIVADA.",
-                    chipTitle: "MONITOREO DE CHIPS",
-                    chipNames: ["ECU Motor","Transmisión","ABS/Frenos","Airbags","Puertas","GPS/Navegación","Radio/Media","Climatización","Arranque","Iluminación","Tablero","Estacionamiento"],
-                    chipNormal: "Normal",
-                    chipWarning: "Precaución",
-                    chipCritical: "Crítico",
-                    alertTitle: "ALERTAS",
-                    noAlerts: "✅ Sin alertas.",
-                    alertVoltage: "Voltaje crítico: ",
-                    alertTemp: "Temp elevada: ",
-                    alertErrors: "Errores: ",
-                    mapTitle: "📍 UBICACIÓN EN TIEMPO REAL",
-                    latLabel: "Latitud",
-                    lngLabel: "Longitud",
-                    refLabel: "Referencia",
-                    precLabel: "Precisión",
+                    geofenceBtnActive: "📐 GEOCERCA: ACTIVADA",
+                    geofenceBtnInactive: "📐 GEOCERCA: DESACTIVADA",
+                    rangeMin: "10m", rangeMax: "100m", rangeUnit: "m",
+                    latLabel: "Latitud", lngLabel: "Longitud", refLabel: "Referencia", precLabel: "Precisión",
                     refAddr: "Av. Reforma 222, CDMX",
-                    btnUpdateLoc: "ACTUALIZAR",
-                    btnShareLoc: "COMPARTIR",
-                    btnNavigate: "LLEGAR AL AUTO",
-                    settingsTitle: "CONFIGURACIÓN",
-                    closeSettings: "CERRAR",
-                    homeLabel: "🏠 Dirección de Casa",
-                    workLabel: "🏢 Dirección de Trabajo",
-                    homeAddressPlaceholder: "Av. Reforma 222, CDMX",
-                    workAddressPlaceholder: "Paseo de la Reforma 500, CDMX",
-                    saveSettings: "GUARDAR",
-                    shareAlert: "📍 Copiado al portapapeles",
-                    settingsSaved: "✅ Configuración guardada"
+                    btnUpdateLoc: "ACTUALIZAR", btnShareLoc: "COMPARTIR", btnNavigate: "LLEGAR AL AUTO",
+                    alertConfigTitle: "CONFIGURACIÓN DE ALERTAS",
+                    alertGeoName: "📐 Fuera de geocerca",
+                    alertBatteryName: "🔌 Desconexión de batería",
+                    alertProxName: "🚗 Arranque sin proximidad",
+                    emailBtn: "Email", soundBtn: "Sonido",
+                    proximityLabel: "📏 Radio:", proximityUnit: "m",
+                    chipTitle: "MONITOREO DE CHIPS",
+                    alertTitle: "ALERTAS", noAlerts: "✅ Sin alertas.",
+                    locationHistoryTitle: "HISTORIAL DE UBICACIONES",
+                    noLocHistory: "📍 Aún no hay registros de ubicación.",
+                    loginTitle: "INICIAR SESIÓN", emailLabel: "Email", passwordLabel: "Contraseña",
+                    loginBtn: "INGRESAR", noAccount: "¿No tienes cuenta?", registerLink: "Regístrate",
+                    demoBtn: "Usar modo demo",
+                    registerTitle: "CREAR CUENTA", regNameLabel: "👤 Nombre (opcional)", regEmailLabel: "Email",
+                    regPasswordLabel: "Contraseña", regPassword2Label: "🔑 Confirmar contraseña", regVinLabel: "VIN del Vehículo",
+                    registerBtn: "CREAR CUENTA", regInfo: "* Recibirás un correo de verificación de Supabase.",
+                    hasAccount: "¿Ya tienes cuenta?", loginLink: "Inicia sesión",
+                    termsLabel: "He leído y acepto los", termsLink: "Términos y Condiciones",
+                    footerText: "🌀 ITZTLI FRACTAL CORE © 2026 · Registro gratuito",
+                    chipNames: { "0x7E0":"ECU Motor","0x7E1":"Transmisión","0x7E2":"ABS/Frenos","0x7E3":"Airbags","0x7E4":"Puertas","0x7E5":"GPS/Navegación","0x7E6":"Radio/Media","0x7E7":"Climatización","0x7E8":"Arranque","0x7E9":"Iluminación","0x7EA":"Tablero","0x7EB":"Estacionamiento" },
+                    chipStatusNormal: "Normal", chipStatusWarning: "Precaución", chipStatusCritical: "Crítico",
+                    geofenceBreach: "⚠️ El auto ha salido de la geocerca.",
+                    batteryDisconnect: "🔌 Batería desconectada. Mapa congelado en última ubicación.",
+                    batteryReconnect: "🔋 Batería reconectada. Transmisión en tiempo real restaurada.",
+                    proximityStart: "🚗 Motor encendido sin usuario cerca."
                 },
                 en: {
-                    subtitle: "Free protection for your vehicle",
-                    badge: "🆓 FREE PLAN ACTIVE",
-                    secure: "SECURE",
-                    keyLabel: "🔑 Key:",
-                    rotationLabel: "🔄 Rotation:",
-                    cloudLabel: "📡 Status:",
-                    logoutBtn: "LOGOUT",
-                    addressTitle: "📍 GEOFENCE LOCATION",
-                    addressPlaceholder: "Type an address...",
-                    addressHint: "Type the address where the geofence will be placed. The map updates automatically.",
-                    noAddress: "No address has been set.",
-                    geofenceTitle: "📐 GEOFENCE RADIUS",
-                    rangeUnit: "ft",
-                    rangeMin: "33ft",
-                    rangeMax: "330ft",
+                    subtitle: "Digital Nervous System for Vehicles",
+                    badge: "🟢 REGISTRATION · DEMO",
+                    keyLabel: "🔑 Key:", rotationLabel: "🔄 Rotation:",
+                    logoutBtn: "LOGOUT", mapTitle: "📍 LOCATION & GEOFENCE",
                     geofenceHint: "You'll be alerted if the car leaves this perimeter.",
-                    btnActivateGeo: "ACTIVATE GEOFENCE",
-                    btnDeactivateGeo: "DEACTIVATE GEOFENCE",
-                    geofenceActivated: "✅ Geofence ACTIVATED. Radius: {radius} ft",
-                    geofenceDeactivated: "❌ Geofence DEACTIVATED.",
-                    chipTitle: "ECU HEALTH MONITORING",
-                    chipNames: ["Engine ECU","Transmission","ABS/Brakes","Airbags","Doors","GPS/Navigation","Radio/Media","Climate Control","Ignition","Lighting","Dashboard","Parking"],
-                    chipNormal: "Normal",
-                    chipWarning: "Warning",
-                    chipCritical: "Critical",
-                    alertTitle: "CRITICAL EVENTS",
-                    noAlerts: "✅ No alerts.",
-                    alertVoltage: "Critical voltage: ",
-                    alertTemp: "High temp: ",
-                    alertErrors: "Errors: ",
-                    mapTitle: "📍 REAL-TIME LOCATION",
-                    latLabel: "Latitude",
-                    lngLabel: "Longitude",
-                    refLabel: "Reference",
-                    precLabel: "Accuracy",
+                    geofenceBtnActive: "📐 GEOFENCE: ACTIVE", geofenceBtnInactive: "📐 GEOFENCE: INACTIVE",
+                    rangeMin: "33ft", rangeMax: "330ft", rangeUnit: "ft",
+                    latLabel: "Latitude", lngLabel: "Longitude", refLabel: "Reference", precLabel: "Accuracy",
                     refAddr: "222 Reforma Ave, Mexico City",
-                    btnUpdateLoc: "REFRESH",
-                    btnShareLoc: "SHARE",
-                    btnNavigate: "NAVIGATE TO CAR",
-                    settingsTitle: "SETTINGS",
-                    closeSettings: "CLOSE",
-                    homeLabel: "🏠 Home Address",
-                    workLabel: "🏢 Work Address",
-                    homeAddressPlaceholder: "222 Reforma Ave, Mexico City",
-                    workAddressPlaceholder: "500 Reforma Ave, Mexico City",
-                    saveSettings: "SAVE",
-                    shareAlert: "📍 Copied to clipboard",
-                    settingsSaved: "✅ Settings saved"
+                    btnUpdateLoc: "REFRESH", btnShareLoc: "SHARE", btnNavigate: "NAVIGATE TO CAR",
+                    alertConfigTitle: "ALERT CONFIGURATION",
+                    alertGeoName: "📐 Geofence breach", alertBatteryName: "🔌 Battery disconnect",
+                    alertProxName: "🚗 Engine start without proximity",
+                    emailBtn: "Email", soundBtn: "Sound",
+                    proximityLabel: "📏 Radius:", proximityUnit: "ft",
+                    chipTitle: "ECU HEALTH MONITORING",
+                    alertTitle: "ALERTS", noAlerts: "✅ No alerts.",
+                    locationHistoryTitle: "LOCATION HISTORY",
+                    noLocHistory: "📍 No location records yet.",
+                    loginTitle: "SIGN IN", emailLabel: "Email", passwordLabel: "Password",
+                    loginBtn: "SIGN IN", noAccount: "Don't have an account?", registerLink: "Register",
+                    demoBtn: "Use demo mode",
+                    registerTitle: "CREATE ACCOUNT", regNameLabel: "👤 Name (optional)", regEmailLabel: "Email",
+                    regPasswordLabel: "Password", regPassword2Label: "🔑 Confirm password", regVinLabel: "Vehicle VIN",
+                    registerBtn: "CREATE ACCOUNT", regInfo: "* You will receive a verification email from Supabase.",
+                    hasAccount: "Already have an account?", loginLink: "Sign in",
+                    termsLabel: "I have read and accept the", termsLink: "Terms and Conditions",
+                    footerText: "🌀 ITZTLI FRACTAL CORE © 2026 · Free Registration",
+                    chipNames: { "0x7E0":"Engine ECU","0x7E1":"Transmission","0x7E2":"ABS/Brakes","0x7E3":"Airbags","0x7E4":"Doors","0x7E5":"GPS/Navigation","0x7E6":"Radio/Media","0x7E7":"Climate Control","0x7E8":"Ignition","0x7E9":"Lighting","0x7EA":"Dashboard","0x7EB":"Parking" },
+                    chipStatusNormal: "Normal", chipStatusWarning: "Caution", chipStatusCritical: "Critical",
+                    geofenceBreach: "⚠️ Vehicle has left the geofence.",
+                    batteryDisconnect: "🔌 Battery disconnected. Map frozen at last known location.",
+                    batteryReconnect: "🔋 Battery reconnected. Real-time transmission restored.",
+                    proximityStart: "🚗 Engine started without user nearby."
                 }
             };
 
-            // ══ ESTADO GLOBAL (dentro de la IIFE) ══
             let isSpanish = true;
-            let userSettings = JSON.parse(localStorage.getItem('itzli_free_settings') || '{}');
-            if (!userSettings.homeAddress) userSettings.homeAddress = 'Av. Reforma 222, Ciudad de México';
-            if (!userSettings.workAddress) userSettings.workAddress = 'Paseo de la Reforma 500, Ciudad de México';
+            let currentUser = null;
             let geofenceRadius = 50;
-            let currentLat = 19.4326, currentLng = -99.1332;
-            let selectedAddress = null;
             let geofenceActive = false;
-            let map = null, marker = null;
-            window.geofenceCircle = null;  // necesita ser global para el slider
+            let geofenceCircle = null;
+            let map = null, marker = null, mapInitialized = false;
+            let currentLat = 19.4326, currentLng = -99.1332;
+            let batteryDisconnected = false;
+            let alertConfig = JSON.parse(localStorage.getItem('itzli_alertConfig') || '{"geoEmail":false,"geoSound":false,"battEmail":false,"battSound":false,"proxEmail":false,"proxSound":false,"proximityRadius":50}');
 
-            // ══ AUTENTICACIÓN REAL ══
-            async function checkAuth() {
-                if (!supabase) {
-                    console.warn('Supabase no disponible. Redirigiendo a login...');
-                    window.location.href = 'login.html?plan=demo';
-                    return false;
-                }
+            const chips = [
+                { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaEs:"⚠️ Voltaje descendente", alertaEn:"⚠️ Voltage drop" },
+                { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaEs:"🔴 CRÍTICO", alertaEn:"🔴 CRITICAL" },
+                { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaEs:"⚠️ Voltaje bajo", alertaEn:"⚠️ Low voltage" },
+                { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" },
+                { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaEs:"", alertaEn:"" }
+            ];
+            const alertLog = [];
+            const locationHistory = [];
+
+            function generateCaptcha() {
+                const num1 = Math.floor(Math.random() * 10) + 1;
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                const result = num1 + num2;
+                document.getElementById('loginCaptchaText').textContent = `${num1} + ${num2} = ?`;
+                document.getElementById('loginCaptchaInput').value = '';
+                document.getElementById('loginCaptchaInput').dataset.result = result;
+                document.getElementById('registerCaptchaText').textContent = `${num1} + ${num2} = ?`;
+                document.getElementById('registerCaptchaInput').value = '';
+                document.getElementById('registerCaptchaInput').dataset.result = result;
+            }
+
+            function validateCaptcha(type) {
+                const input = document.getElementById(type === 'login' ? 'loginCaptchaInput' : 'registerCaptchaInput');
+                const userAnswer = parseInt(input.value);
+                const correct = parseInt(input.dataset.result);
+                return userAnswer === correct;
+            }
+
+            function updateRegisterButtonState() {
+                const termsChecked = document.getElementById('termsCheckbox').checked;
+                document.getElementById('registerBtn').disabled = !termsChecked;
+            }
+
+            async function login() {
+                if (!supabase) { alert('Error de conexión con la base de datos.'); return; }
+                if (!validateCaptcha('login')) { alert('Captcha incorrecto'); generateCaptcha(); return; }
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                if (!email || !password) { alert('Por favor ingresa email y contraseña'); return; }
                 try {
-                    const { data: { user }, error } = await supabase.auth.getUser();
-                    if (error || !user) {
-                        window.location.href = 'login.html?plan=demo';
-                        return false;
-                    }
-                    // Verificar plan (opcional)
-                    const { data: profile } = await supabase
-                        .from('usuarios')
-                        .select('plan')
-                        .eq('id', user.id)
-                        .single();
-                    if (profile && profile.plan !== 'demo' && profile.plan !== 'premium' && profile.plan !== 'platinum') {
-                        window.location.href = 'login.html?plan=demo';
-                        return false;
-                    }
-                    return true;
-                } catch (err) {
-                    console.error('Error en checkAuth:', err);
-                    window.location.href = 'login.html?plan=demo';
-                    return false;
-                }
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    currentUser = data.user;
+                    document.getElementById('authModal').classList.remove('active');
+                    document.getElementById('btnLogout').style.display = 'inline-block';
+                    updateStatusDot('online');
+                } catch(e) { alert('Error al iniciar sesión: ' + e.message); }
             }
 
-            async function logout() {
-                if (supabase) await supabase.auth.signOut();
-                window.location.href = 'login.html?plan=demo';
+            async function register() {
+                if (!supabase) { alert('Error de conexión con la base de datos.'); return; }
+                if (!validateCaptcha('register')) { alert('Captcha incorrecto'); generateCaptcha(); return; }
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
+                const password2 = document.getElementById('regPassword2').value;
+                const nombre = document.getElementById('regName').value.trim();
+                const vin = document.getElementById('regVIN').value.trim();
+                const termsAccepted = document.getElementById('termsCheckbox').checked;
+                if (!email || !password || !password2 || !vin) { alert('Completa todos los campos obligatorios'); return; }
+                if (password !== password2) { alert('Las contraseñas no coinciden'); return; }
+                if (password.length < 8) { alert('La contraseña debe tener al menos 8 caracteres'); return; }
+                if (!termsAccepted) { alert('Debes aceptar los Términos y Condiciones'); return; }
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email, password,
+                        options: { data: { nombre, vin, plan: 'demo' } }
+                    });
+                    if (error) throw error;
+                    window.location.href = 'bienvenida-demo.html';
+                } catch(e) { alert('Error al registrarse: ' + e.message); }
             }
 
-            // ══ IDIOMA ══
-            function toggleLang() {
-                isSpanish = !isSpanish;
-                applyLanguage();
-                renderChips();
-                renderAlerts();
+            function skipLogin() {
+                currentUser = { id: 'demo-user' };
+                document.getElementById('authModal').classList.remove('active');
+                document.getElementById('btnLogout').style.display = 'inline-block';
+                updateStatusDot('online');
             }
 
-            function applyLanguage() {
-                const d = langData[isSpanish ? 'es' : 'en'];
-                document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
-                document.documentElement.lang = isSpanish ? 'es' : 'en';
-                document.getElementById('txtSubtitle').innerText = d.subtitle;
-                document.getElementById('txtBadge').innerHTML = d.badge;
-                document.getElementById('txtLogout').innerText = d.logoutBtn;
-                document.getElementById('txtSecure').innerText = d.secure;
-                document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--green);">GRATIS-21E41421...</strong>';
-                document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">5s</strong>';
-                document.getElementById('txtCloud').innerHTML = d.cloudLabel + ' <strong style="color:var(--green);">' + (isSpanish ? 'ACTIVO' : 'ACTIVE') + '</strong>';
-                document.getElementById('txtAddressTitle').innerText = d.addressTitle;
-                document.getElementById('addressInput').placeholder = d.addressPlaceholder;
-                document.getElementById('txtAddressHint').innerText = d.addressHint;
-                updateSelectedAddressDisplay();
-                document.getElementById('txtGeofenceTitle').innerText = d.geofenceTitle;
-                document.getElementById('rangeMin').innerText = d.rangeMin;
-                document.getElementById('rangeMax').innerText = d.rangeMax;
-                document.getElementById('geofenceHint').innerText = d.geofenceHint;
-                document.getElementById('btnActivateGeo').innerHTML = '🟢 ' + d.btnActivateGeo;
-                document.getElementById('btnDeactivateGeo').innerHTML = '🔴 ' + d.btnDeactivateGeo;
-                updateRadiusDisplay();
-                updateGeofenceStatusMessage();
-                document.getElementById('txtMapTitle').textContent = d.mapTitle;
-                document.getElementById('txtLat').textContent = d.latLabel;
-                document.getElementById('txtLng').textContent = d.lngLabel;
-                document.getElementById('txtRef').textContent = d.refLabel;
-                document.getElementById('txtPrec').textContent = d.precLabel;
-                document.getElementById('refAddress').textContent = selectedAddress ? selectedAddress.display_name : d.refAddr;
-                document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
-                document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
-                document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
-                document.getElementById('txtChipTitle').innerText = d.chipTitle;
-                document.getElementById('txtAlertTitle').innerText = d.alertTitle;
-                document.getElementById('txtNoAlerts').innerText = d.noAlerts;
-                document.getElementById('txtSettingsTitle').innerText = d.settingsTitle;
-                document.getElementById('txtCloseSettings').innerText = d.closeSettings;
-                document.getElementById('txtHomeLabel').innerText = d.homeLabel;
-                document.getElementById('txtWorkLabel').innerText = d.workLabel;
-                document.getElementById('txtSaveSettings').innerText = d.saveSettings;
-                document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
-                document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
+            function logout() {
+                currentUser = null;
+                document.getElementById('btnLogout').style.display = 'none';
+                document.getElementById('authModal').classList.add('active');
+                updateStatusDot('offline');
             }
 
-            function updateSelectedAddressDisplay() {
-                const d = langData[isSpanish ? 'es' : 'en'];
-                if (selectedAddress) {
-                    document.getElementById('selectedAddressText').textContent = selectedAddress.display_name;
-                } else {
-                    document.getElementById('selectedAddressText').textContent = d.noAddress;
-                }
+            function showRegister() { document.getElementById('authModal').classList.remove('active'); document.getElementById('registerModal').classList.add('active'); updateRegisterButtonState(); }
+            function showLogin() { document.getElementById('authModal').classList.add('active'); document.getElementById('registerModal').classList.remove('active'); }
+            function closeRegister() { document.getElementById('registerModal').classList.remove('active'); }
+
+            function updateStatusDot(status) {
+                const dot = document.getElementById('statusDot');
+                if (!dot) return;
+                dot.className = 'dot';
+                if (status === 'online') dot.classList.add('dot-green');
+                else if (status === 'warning') dot.classList.add('dot-yellow');
+                else dot.classList.add('dot-red');
+                document.getElementById('txtSecure').innerText = status === 'online' ? langData[isSpanish ? 'es' : 'en'].secure : 'DESCONECTADO';
             }
 
-            function updateGeofenceStatusMessage() {
-                const d = langData[isSpanish ? 'es' : 'en'];
-                const radiusDisplay = isSpanish ? geofenceRadius + ' m' : Math.round(geofenceRadius * 3.28084) + ' ft';
-                const msg = geofenceActive ? d.geofenceActivated.replace('{radius}', radiusDisplay) : d.geofenceDeactivated;
-                document.getElementById('cmdResult').innerHTML = msg;
+            function updateToggleButtons() {
+                document.getElementById('geoEmailBtn').classList.toggle('active', alertConfig.geoEmail);
+                document.getElementById('geoSoundBtn').classList.toggle('active', alertConfig.geoSound);
+                document.getElementById('battEmailBtn').classList.toggle('active', alertConfig.battEmail);
+                document.getElementById('battSoundBtn').classList.toggle('active', alertConfig.battSound);
+                document.getElementById('proxEmailBtn').classList.toggle('active', alertConfig.proxEmail);
+                document.getElementById('proxSoundBtn').classList.toggle('active', alertConfig.proxSound);
+                document.getElementById('proximityRadius').value = alertConfig.proximityRadius;
+                updateProximityDisplay();
             }
 
-            // ══ GEOCERCA ══
+            function toggleAlertOption(opt) { alertConfig[opt] = !alertConfig[opt]; localStorage.setItem('itzli_alertConfig', JSON.stringify(alertConfig)); updateToggleButtons(); }
+
+            function updateProximityDisplay() {
+                const slider = document.getElementById('proximityRadius');
+                if (!slider) return;
+                const val = parseInt(slider.value);
+                alertConfig.proximityRadius = val;
+                localStorage.setItem('itzli_alertConfig', JSON.stringify(alertConfig));
+                const unit = isSpanish ? 'm' : 'ft';
+                const displayVal = isSpanish ? val : Math.round(val * 3.28084);
+                document.getElementById('proximityValue').textContent = displayVal + ' ' + unit;
+            }
+
             function updateRadiusDisplay() {
                 const slider = document.getElementById('radiusSlider');
                 if (!slider) return;
@@ -593,134 +547,86 @@
                 const unit = isSpanish ? 'm' : 'ft';
                 const displayVal = isSpanish ? val : Math.round(val * 3.28084);
                 document.getElementById('radiusValue').textContent = displayVal + ' ' + unit;
-                updateGeofenceStatusMessage();
-                if (window.geofenceCircle && map) {
-                    window.geofenceCircle.setRadius(geofenceRadius);
+                if (map && geofenceCircle) geofenceCircle.setRadius(val);
+            }
+
+            function toggleGeofence() {
+                geofenceActive = !geofenceActive;
+                updateGeofenceUI();
+                if (geofenceCircle) {
+                    const color = geofenceActive ? '#ff4466' : '#00cc66';
+                    geofenceCircle.setStyle({ color: color, fillColor: color });
                 }
             }
 
-            function setGeofence(active) {
-                geofenceActive = active;
-                if (window.geofenceCircle) {
-                    const color = active ? '#ff4466' : '#00ff88';
-                    window.geofenceCircle.setStyle({ color: color, fillColor: color });
-                }
-                updateGeofenceStatusMessage();
+            function updateGeofenceUI() {
+                const btn = document.getElementById('btnGeofenceToggle');
+                const d = langData[isSpanish ? 'es' : 'en'];
+                btn.className = 'btn ' + (geofenceActive ? 'btn-red' : 'btn-green');
+                document.getElementById('txtGeofenceBtn').innerText = geofenceActive ? d.geofenceBtnActive : d.geofenceBtnInactive;
             }
 
-            // ══ AUTOCOMPLETADO DE DIRECCIONES ══
-            const addressInput = document.getElementById('addressInput');
-            const suggestionsList = document.getElementById('suggestionsList');
-            let debounceTimer;
+            function playAlertSound() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator(), gain = ctx.createGain();
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
+                } catch(e) {}
+            }
 
-            addressInput.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                const query = this.value.trim();
-                if (query.length < 3) {
-                    suggestionsList.innerHTML = '';
-                    suggestionsList.classList.remove('active');
+            function addAlert(type, message, level = 'info') {
+                alertLog.unshift({ time: new Date().toLocaleTimeString(), type, message, level });
+                if (alertLog.length > 50) alertLog.pop();
+                renderAlertList();
+                if (type === 'geofence' && alertConfig.geoSound) playAlertSound();
+                if (type === 'battery' && alertConfig.battSound) playAlertSound();
+                if (type === 'proximity' && alertConfig.proxSound) playAlertSound();
+            }
+
+            function renderAlertList() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                const container = document.getElementById('alertList');
+                if (alertLog.length === 0) {
+                    container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
                     return;
                 }
-                debounceTimer = setTimeout(() => fetchSuggestions(query), 400);
-            });
-
-            addressInput.addEventListener('keydown', function(e) {
-                const items = suggestionsList.querySelectorAll('li');
-                let current = suggestionsList.querySelector('.selected');
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (!current) { if (items.length) items[0].classList.add('selected'); }
-                    else { current.classList.remove('selected'); const next = current.nextElementSibling; if (next) next.classList.add('selected'); else items[0].classList.add('selected'); }
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (!current) { if (items.length) items[items.length-1].classList.add('selected'); }
-                    else { current.classList.remove('selected'); const prev = current.previousElementSibling; if (prev) prev.classList.add('selected'); else items[items.length-1].classList.add('selected'); }
-                } else if (e.key === 'Enter') {
-                    if (current) current.click();
-                }
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!addressInput.contains(e.target) && !suggestionsList.contains(e.target)) {
-                    suggestionsList.classList.remove('active');
-                }
-            });
-
-            async function fetchSuggestions(query) {
-                const lang = isSpanish ? 'es' : 'en';
-                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&accept-language=${lang}`;
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    renderSuggestions(data);
-                } catch (error) { console.error('Error fetching suggestions:', error); }
+                container.innerHTML = alertLog.map(a => {
+                    let icon = '📌';
+                    if (a.type === 'geofence') icon = '📐';
+                    else if (a.type === 'battery') icon = '🔌';
+                    else if (a.type === 'proximity') icon = '🚗';
+                    else if (a.level === 'critical') icon = '🔴';
+                    else if (a.level === 'warning') icon = '⚠️';
+                    const cls = a.level === 'critical' ? 'critical' : a.level === 'warning' ? 'warning' : 'info';
+                    return `<div class="alert-item ${cls}"><div class="icon">${icon}</div><div class="text"><strong>${a.message}</strong><div class="time">🕐 ${a.time}</div></div></div>`;
+                }).join('');
             }
 
-            function renderSuggestions(results) {
-                suggestionsList.innerHTML = '';
-                if (results.length === 0) { suggestionsList.classList.remove('active'); return; }
-                results.forEach(result => {
-                    const li = document.createElement('li');
-                    li.textContent = result.display_name;
-                    li.addEventListener('click', () => selectAddress(result));
-                    suggestionsList.appendChild(li);
-                });
-                suggestionsList.classList.add('active');
+            function simulateSafetyAlerts() {
+                const d = langData[isSpanish ? 'es' : 'en'];
+                if (geofenceActive && Math.random() < 0.1) addAlert('geofence', d.geofenceBreach, 'warning');
+                if (!batteryDisconnected && Math.random() < 0.02) { batteryDisconnected = true; addAlert('battery', d.batteryDisconnect, 'critical'); }
+                if (batteryDisconnected && Math.random() < 0.1) { batteryDisconnected = false; addAlert('battery', d.batteryReconnect, 'info'); }
+                if (Math.random() < 0.08) addAlert('proximity', d.proximityStart, 'warning');
             }
-
-            function selectAddress(result) {
-                addressInput.value = result.display_name;
-                suggestionsList.classList.remove('active');
-                selectedAddress = result;
-                updateSelectedAddressDisplay();
-                currentLat = parseFloat(result.lat);
-                currentLng = parseFloat(result.lon);
-                document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
-                document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
-                document.getElementById('refAddress').textContent = result.display_name;
-                if (marker && map) {
-                    marker.setLatLng([currentLat, currentLng]);
-                    map.setView([currentLat, currentLng], 17);
-                    if (window.geofenceCircle) window.geofenceCircle.setLatLng([currentLat, currentLng]);
-                }
-            }
-
-            // ══ CHIPS BILINGÜES ══
-            const chips = [
-                { id:"0x7E0", icon:"🧠", voltage:12.2, temp:45, syncs:1316, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E1", icon:"⚙️", voltage:12.2, temp:41, syncs:1180, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E2", icon:"🛑", voltage:11.6, temp:47, syncs:1047, errors:1, vH:[12.1,12,11.9,11.6], tH:[44,45,47,47], nivel:"warning", alertaMsg:"" },
-                { id:"0x7E3", icon:"🎈", voltage:11.8, temp:40, syncs:918, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E4", icon:"🚪", voltage:12.2, temp:38, syncs:2163, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E5", icon:"📡", voltage:10.2, temp:55, syncs:738, errors:6, vH:[12,11.5,10.8,10.2], tH:[48,50,53,55], nivel:"critical", alertaMsg:"" },
-                { id:"0x7E6", icon:"🎵", voltage:12.5, temp:41, syncs:1871, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E7", icon:"🌡️", voltage:12.1, temp:43, syncs:1578, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E8", icon:"🔑", voltage:12.7, temp:39, syncs:3272, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7E9", icon:"💡", voltage:11.7, temp:44, syncs:950, errors:1, vH:[12,11.8,11.6,11.7], tH:[42,43,44,44], nivel:"warning", alertaMsg:"" },
-                { id:"0x7EA", icon:"📊", voltage:12.2, temp:40, syncs:2641, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" },
-                { id:"0x7EB", icon:"🅿️", voltage:11.9, temp:41, syncs:838, errors:0, vH:[], tH:[], nivel:"normal", alertaMsg:"" }
-            ];
-            const alertLog = [];
 
             function renderChips() {
-                const d = langData[isSpanish ? 'es' : 'en'];
                 chips.forEach(chip => analyzePatterns(chip));
-                document.getElementById('chipGrid').innerHTML = chips.map((chip, index) => {
-                    const statusLabel = chip.nivel === 'normal' ? d.chipNormal : chip.nivel === 'warning' ? d.chipWarning : d.chipCritical;
-                    const statusColor = chip.nivel === 'normal' ? 'var(--green)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
-                    return `<div class="chip ${chip.nivel}" onclick="window.toggleChip('${chip.id}')" id="chip-${chip.id}">
-                        <div class="chip-top">
-                            <div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${d.chipNames[index]}</span></div>
-                            <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div>
-                        </div>
-                        <div class="chip-metrics">
-                            <span>⚡ <span class="val">${chip.voltage}V</span></span>
-                            <span>🌡️ <span class="val">${chip.temp}°C</span></span>
-                            <span>🔄 <span class="val">${chip.syncs}</span></span>
-                        </div>
-                        ${chip.alertaMsg ? `<div class="chip-alert ${chip.nivel==='critical'?'red':''}">${chip.alertaMsg}</div>` : ''}
-                        <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div>
-                    </div>`;
+                const d = langData[isSpanish ? 'es' : 'en'];
+                document.getElementById('chipGrid').innerHTML = chips.map(chip => {
+                    const statusLabel = chip.nivel === 'normal' ? d.chipStatusNormal : chip.nivel === 'warning' ? d.chipStatusWarning : d.chipStatusCritical;
+                    const statusColor = chip.nivel === 'normal' ? 'var(--primary)' : chip.nivel === 'warning' ? 'var(--yellow)' : 'var(--red)';
+                    const chipName = d.chipNames[chip.id] || chip.id;
+                    const alertMsg = isSpanish ? chip.alertaEs : chip.alertaEn;
+                    return `<div class="chip ${chip.nivel}" onclick="ITZTLI.Registro.toggleChip('${chip.id}')" id="chip-${chip.id}">
+                        <div class="chip-top"><div class="chip-icon-name"><span class="icon">${chip.icon}</span><span class="name">${chipName}</span></div>
+                        <div class="chip-status"><span class="dot" style="background:${statusColor};"></span>${statusLabel}</div></div>
+                        <div class="chip-metrics"><span>⚡ <span class="val">${chip.voltage}V</span></span><span>🌡️ <span class="val">${chip.temp}°C</span></span><span>🔄 <span class="val">${chip.syncs}</span></span></div>
+                        ${alertMsg ? `<div class="chip-alert ${chip.nivel === 'critical' ? 'red' : ''}">${alertMsg}</div>` : ''}
+                        <div class="chip-detail"><strong>ID:</strong> ${chip.id}</div></div>`;
                 }).join('');
             }
 
@@ -728,99 +634,135 @@
 
             function analyzePatterns(chip) {
                 const d = langData[isSpanish ? 'es' : 'en'];
-                if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertVoltage + chip.voltage + "V"); }
-                if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertTemp + chip.temp + "°C"); }
-                if (chip.errors >= 5) { chip.nivel = "critical"; addAlert(chip, "critical", d.alertErrors + chip.errors); }
-            }
-
-            function addAlert(chip, nivel, mensaje) {
-                const d = langData[isSpanish ? 'es' : 'en'];
-                const chipIndex = chips.indexOf(chip);
-                const chipName = d.chipNames[chipIndex] || 'Unknown';
-                const exists = alertLog.find(a => a.chip === chipName && a.mensaje === mensaje);
-                if (!exists) {
-                    alertLog.unshift({ time: new Date().toLocaleTimeString(), chip: chipName, icon: chip.icon, nivel, mensaje });
-                    if (alertLog.length > 20) alertLog.pop();
-                }
-            }
-
-            function renderAlerts() {
-                const container = document.getElementById('alertList');
-                const d = langData[isSpanish ? 'es' : 'en'];
-                if (alertLog.length === 0) {
-                    container.innerHTML = `<p style="color:var(--dim);font-size:13px;">${d.noAlerts}</p>`;
-                    return;
-                }
-                container.innerHTML = alertLog.map(a => `
-                    <div class="alert-item ${a.nivel}">
-                        <div class="icon">${a.icon}</div>
-                        <div class="text"><strong>${a.chip}</strong> — ${a.mensaje}<div class="time">🕐 ${a.time}</div></div>
-                    </div>
-                `).join('');
-            }
-
-            // ══ MAPA ══
-            function initMap() {
-                if (map) return;
-                const mapDiv = document.getElementById('map');
-                if (!mapDiv || mapDiv.offsetHeight === 0) { setTimeout(initMap, 300); return; }
-                try {
-                    map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
-                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                        attribution: 'Esri', maxZoom: 19
-                    }).addTo(map);
-                    marker = L.marker([currentLat, currentLng]).addTo(map)
-                        .bindPopup('<strong>🚗 Tu auto está aquí</strong>');
-                    const initialColor = geofenceActive ? '#ff4466' : '#00ff88';
-                    window.geofenceCircle = L.circle([currentLat, currentLng], {
-                        color: initialColor, fillColor: initialColor, fillOpacity: 0.15, radius: geofenceRadius
-                    }).addTo(map);
-                    setTimeout(() => { if(map) map.invalidateSize(); }, 500);
-                } catch (e) {
-                    console.error('Error al inicializar el mapa:', e);
-                }
+                if (chip.vH.length >= 4 && chip.voltage < 10.5) { chip.nivel = "critical"; addAlert('chip', d.alertVoltageCritical + chip.voltage + "V", 'critical'); }
+                if (chip.tH.length >= 4 && chip.temp > 50) { chip.nivel = "critical"; addAlert('chip', d.alertTempHigh + chip.temp + "°C", 'critical'); }
+                if (chip.errors >= 5) { chip.nivel = "critical"; addAlert('chip', d.alertErrors + chip.errors, 'critical'); }
             }
 
             function updateLocation() {
-                currentLat += (Math.random() - 0.5) * 0.0005;
-                currentLng += (Math.random() - 0.5) * 0.0005;
+                if (batteryDisconnected) return;
+                currentLat += (Math.random() - 0.5) * 0.001;
+                currentLng += (Math.random() - 0.5) * 0.001;
                 document.getElementById('lat').textContent = currentLat.toFixed(4) + '° N';
                 document.getElementById('lng').textContent = currentLng.toFixed(4) + '° W';
                 if (marker && map) {
                     marker.setLatLng([currentLat, currentLng]);
                     map.setView([currentLat, currentLng], 17);
-                    if (window.geofenceCircle) window.geofenceCircle.setLatLng([currentLat, currentLng]);
+                    if (geofenceCircle) geofenceCircle.setLatLng([currentLat, currentLng]);
+                }
+                if (Math.random() < 0.3) {
+                    locationHistory.push({ lat: currentLat.toFixed(4), lng: currentLng.toFixed(4), time: new Date().toLocaleString() });
+                    if (locationHistory.length > 20) locationHistory.shift();
+                    renderLocationHistory();
                 }
             }
 
-            function shareLocation() {
+            function renderLocationHistory() {
                 const d = langData[isSpanish ? 'es' : 'en'];
+                const container = document.getElementById('locationHistoryList');
+                if (locationHistory.length === 0) {
+                    container.innerHTML = `<p style="color:var(--dim);font-size:13px;" id="txtNoLocHistory">${d.noLocHistory}</p>`;
+                    return;
+                }
+                container.innerHTML = locationHistory.slice().reverse().map(loc => `
+                    <div class="location-history-item"><span>📍 ${loc.lat}° N, ${loc.lng}° W</span><span class="loc-time">🕒 ${loc.time}</span></div>
+                `).join('');
+            }
+
+            function initMap() {
+                if (mapInitialized) return;
+                const mapDiv = document.getElementById('map');
+                if (!mapDiv || mapDiv.offsetHeight === 0) { setTimeout(initMap, 300); return; }
+                mapInitialized = true;
+                map = L.map('map', { center: [currentLat, currentLng], zoom: 17, zoomControl: true });
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Esri', maxZoom: 19
+                }).addTo(map);
+                marker = L.marker([currentLat, currentLng]).addTo(map).bindPopup('<strong>🚗 Tu auto está aquí</strong>');
+                const initialColor = geofenceActive ? '#ff4466' : '#00cc66';
+                geofenceCircle = L.circle([currentLat, currentLng], {
+                    color: initialColor, fillColor: initialColor, fillOpacity: 0.15, radius: geofenceRadius
+                }).addTo(map);
+                setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+            }
+
+            function shareLocation() {
                 const loc = `📍 Mi auto: https://www.google.com/maps?q=${currentLat},${currentLng}`;
                 if (navigator.share) navigator.share({ title: '📍 Ubicación', text: loc });
-                else { navigator.clipboard.writeText(loc); alert(d.shareAlert); }
+                else { navigator.clipboard.writeText(loc); alert('Copiado'); }
             }
 
             function navigateToCar() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLng}`, '_blank'); }
 
-            // ══ CONFIGURACIÓN ══
-            function openSettings() {
-                document.getElementById('settingsModal').classList.add('active');
-                document.getElementById('homeAddress').value = userSettings.homeAddress;
-                document.getElementById('workAddress').value = userSettings.workAddress;
+            function toggleLang() { isSpanish = !isSpanish; applyLanguage(); }
+
+            function applyLanguage() {
                 const d = langData[isSpanish ? 'es' : 'en'];
-                document.getElementById('homeAddress').placeholder = d.homeAddressPlaceholder;
-                document.getElementById('workAddress').placeholder = d.workAddressPlaceholder;
-            }
-            function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-            function saveSettings() {
-                userSettings.homeAddress = document.getElementById('homeAddress').value;
-                userSettings.workAddress = document.getElementById('workAddress').value;
-                localStorage.setItem('itzli_free_settings', JSON.stringify(userSettings));
-                alert(langData[isSpanish?'es':'en'].settingsSaved);
-                closeSettings();
+                document.getElementById('langToggle').innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+                // Actualizar los botones de idioma en los modales
+                const langToggleLogin = document.getElementById('langToggleLogin');
+                if (langToggleLogin) langToggleLogin.innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+                const langToggleRegister = document.getElementById('langToggleRegister');
+                if (langToggleRegister) langToggleRegister.innerHTML = isSpanish ? '🇲🇽 ESP' : '🇺🇸 ENG';
+                document.documentElement.lang = isSpanish ? 'es' : 'en';
+                document.getElementById('txtSubtitle').innerText = d.subtitle;
+                document.getElementById('txtBadge').innerHTML = d.badge;
+                document.getElementById('txtLogout').innerText = d.logoutBtn;
+                document.getElementById('txtKey').innerHTML = d.keyLabel + ' <strong style="color:var(--primary);">21E41421...</strong>';
+                document.getElementById('txtRotation').innerHTML = d.rotationLabel + ' <strong id="countdown">5s</strong>';
+                document.getElementById('txtMapTitle').textContent = d.mapTitle;
+                document.getElementById('geofenceHint').innerText = d.geofenceHint;
+                document.getElementById('rangeMin').innerText = d.rangeMin;
+                document.getElementById('rangeMax').innerText = d.rangeMax;
+                updateRadiusDisplay();
+                document.getElementById('txtLat').textContent = d.latLabel;
+                document.getElementById('txtLng').textContent = d.lngLabel;
+                document.getElementById('txtRef').textContent = d.refLabel;
+                document.getElementById('txtPrec').textContent = d.precLabel;
+                document.getElementById('refAddress').textContent = d.refAddr;
+                document.getElementById('btnUpdateLoc').innerHTML = '🔄 <span>' + d.btnUpdateLoc + '</span>';
+                document.getElementById('btnShareLoc').innerHTML = '📤 <span>' + d.btnShareLoc + '</span>';
+                document.getElementById('btnNavigate').innerHTML = '🧭 <span>' + d.btnNavigate + '</span>';
+                document.getElementById('txtAlertConfigTitle').innerText = d.alertConfigTitle;
+                document.getElementById('txtAlertGeoName').innerText = d.alertGeoName;
+                document.getElementById('txtAlertBatteryName').innerText = d.alertBatteryName;
+                document.getElementById('txtAlertProxName').innerText = d.alertProxName;
+                document.querySelectorAll('#alertConfigCard .toggle-btn span').forEach((span, i) => {
+                    if (i % 2 === 0) span.innerText = d.emailBtn;
+                    else span.innerText = d.soundBtn;
+                });
+                document.getElementById('txtProximityLabel').innerText = d.proximityLabel;
+                document.getElementById('txtChipTitle').innerText = d.chipTitle;
+                document.getElementById('txtAlertTitle').innerText = d.alertTitle;
+                document.getElementById('txtLocationHistoryTitle').innerText = d.locationHistoryTitle;
+                document.getElementById('txtFooter').innerText = d.footerText;
+                document.getElementById('txtNoLocHistory').innerText = d.noLocHistory;
+                document.getElementById('txtLoginTitle').innerText = d.loginTitle;
+                document.getElementById('txtEmail').innerText = d.emailLabel;
+                document.getElementById('txtPassword').innerText = d.passwordLabel;
+                document.getElementById('txtLoginBtn').innerText = d.loginBtn;
+                document.getElementById('txtNoAccount').innerText = d.noAccount;
+                document.getElementById('txtRegisterLink').innerText = d.registerLink;
+                document.getElementById('txtDemoBtn').innerText = d.demoBtn;
+                document.getElementById('txtRegisterTitle').innerText = d.registerTitle;
+                document.getElementById('txtRegNameLabel').innerText = d.regNameLabel;
+                document.getElementById('txtRegEmail').innerText = d.regEmailLabel;
+                document.getElementById('txtRegPassword').innerText = d.regPasswordLabel;
+                document.getElementById('txtRegPassword2Label').innerText = d.regPassword2Label;
+                document.getElementById('txtRegVin').innerText = d.regVinLabel;
+                document.getElementById('txtRegisterBtn').innerText = d.registerBtn;
+                document.getElementById('txtRegInfo').innerText = d.regInfo;
+                document.getElementById('txtHasAccount').innerText = d.hasAccount;
+                document.getElementById('txtLoginLink').innerText = d.loginLink;
+                document.getElementById('txtTermsLabel').innerHTML = d.termsLabel + ' ';
+                document.getElementById('txtTermsLink').innerText = d.termsLink;
+                updateGeofenceUI();
+                updateProximityDisplay();
+                renderChips();
+                renderAlertList();
+                renderLocationHistory();
             }
 
-            // ══ SIMULACIÓN ══
             function simulateUpdate() {
                 chips.forEach(chip => {
                     chip.voltage += (Math.random() - 0.5) * 0.2;
@@ -834,47 +776,46 @@
                     chip.syncs += Math.floor(Math.random() * 10);
                 });
                 renderChips();
-                renderAlerts();
             }
 
-            // ══ RELOJ ══
             let countdown = 5;
-            setInterval(() => {
-                countdown--;
-                if (countdown <= 0) countdown = 5;
-                const el = document.getElementById('countdown');
-                if (el) el.textContent = countdown + 's';
-                document.getElementById('currentTime').textContent = new Date().toLocaleString();
-            }, 1000);
-
-            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSettings(); });
-            document.getElementById('settingsModal').addEventListener('click', e => { if (e.target === this) closeSettings(); });
-
-            // ══ EXPONER FUNCIONES GLOBALES (necesarias para onclick en HTML) ══
-            window.toggleLang = toggleLang;
-            window.updateRadiusDisplay = updateRadiusDisplay;
-            window.setGeofence = setGeofence;
-            window.updateLocation = updateLocation;
-            window.shareLocation = shareLocation;
-            window.navigateToCar = navigateToCar;
-            window.openSettings = openSettings;
-            window.closeSettings = closeSettings;
-            window.saveSettings = saveSettings;
-            window.logout = logout;
-            window.toggleChip = toggleChip;
-
-            // ══ INICIALIZAR ══
-            async function init() {
-                applyLanguage();
-                renderChips();
-                renderAlerts();
-                initMap();
-                await checkAuth();
-                setInterval(simulateUpdate, 15000);
+            function startCountdown() {
+                setInterval(() => {
+                    countdown--;
+                    if (countdown <= 0) countdown = 5;
+                    const el = document.getElementById('countdown');
+                    if (el) el.textContent = countdown + 's';
+                    document.getElementById('currentTime').textContent = new Date().toLocaleString();
+                }, 1000);
             }
 
-            init();
+            function init() {
+                generateCaptcha();
+                applyLanguage();
+                updateToggleButtons();
+                renderChips();
+                renderAlertList();
+                renderLocationHistory();
+                initMap();
+                document.getElementById('authModal').classList.add('active');
+                startCountdown();
+                setInterval(simulateUpdate, 15000);
+                setInterval(simulateSafetyAlerts, 20000);
+                document.getElementById('termsCheckbox').addEventListener('change', updateRegisterButtonState);
+                updateRegisterButtonState();
+            }
+
+            return {
+                init, toggleLang, updateRadiusDisplay, toggleGeofence,
+                updateLocation, shareLocation, navigateToCar,
+                toggleAlertOption, updateProximityDisplay,
+                login, skipLogin, register, logout,
+                showRegister, showLogin, closeRegister,
+                toggleChip
+            };
         })();
+
+        document.addEventListener('DOMContentLoaded', () => ITZTLI.Registro.init());
     </script>
 </body>
 </html>

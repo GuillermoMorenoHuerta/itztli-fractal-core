@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI CIBERDEFENSA — La Defensa del Futuro Digital</title>
+    <meta name="description" content="Protegemos la industria digital contra la piratería y el cibercrimen con simulación caótica determinista y defensa predictiva basada en IA.">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ============================================================
+           ESTILOS GENERALES
+           ============================================================ */
+        :root {
+            --bg: #050510;
+            --card: #0d0d28;
+            --border: #1a1a4a;
+            --cyan: #00b4d8;
+            --gold: #e2a03f;
+            --green: #00ff88;
+            --red: #ff4444;
+            --text: #e0e0e0;
+            --dim: #8899aa;
+            --violet: #8844ff;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8b5cf6;
+            --dark-red: #8b0000;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 { font-family: 'Times New Roman', Times, serif; font-weight: 700; }
+
+        /* ============================================================
+           NAVBAR ESTÁNDAR UNIFICADO (Tamaño AUMENTADO UN NIVEL, +0.1rem)
+           ============================================================ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            background: rgba(5,5,16,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.2rem; /* +0.1rem de espacio */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+        .navbar .brand {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--gold);
+            font-size: 1.4rem; /* +0.1rem (antes 1.3rem) */
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 1rem; /* +0.1rem (antes 0.9rem) */
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .navbar .nav-links a {
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 1.1rem; /* +0.1rem (antes 1.0rem) */
+            transition: 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 600;
+            display: inline-flex; 
+            align-items: center;
+            gap: 7px; /* +1px (antes 6px) */
+        }
+        .navbar .nav-links a:hover {
+            color: var(--cyan) !important;
+        }
+        /* Enlace activo: Color rojo */
+        .navbar .nav-links a.active {
+            color: var(--red) !important;
+        }
+        .navbar .nav-links a.active:hover {
+            color: var(--red) !important;
+        }
+        /* Icono: Solo visible en la pestaña activa */
+        .navbar .nav-links a .nav-icon {
+            display: none;
+            font-size: 1.2rem; /* +0.1rem (antes 1.1rem) */
+        }
+        .navbar .nav-links a.active .nav-icon {
+            display: inline-block;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.7rem; /* +0.1rem (antes 1.6rem) */
+            transition: 0.3s;
+            line-height: 1;
+        }
+        .lang-btn:hover { transform: scale(1.1); }
+        .lang-es, .lang-en { display: block; }
+        .lang-en { display: none; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.8rem 1rem; } /* +0.1rem (antes 0.7rem) */
+            .navbar .brand { font-size: 1.1rem; } /* +0.1rem (antes 1.0rem) */
+            .navbar .nav-links { gap: 0.6rem; } /* +0.1rem (antes 0.5rem) */
+            .navbar .nav-links a { font-size: 0.85rem; gap: 5px; } /* +0.1rem (antes 0.75rem) */
+            .navbar .nav-links a .nav-icon { font-size: 1.0rem; } /* +0.1rem (antes 0.9rem) */
+            .lang-btn { font-size: 1.3rem; } /* +0.1rem (antes 1.2rem) */
+            .hero-defense { padding-top: 5rem; }
+        }
+
+        /* PARTÍCULAS */
+        .particles {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            opacity: 0.4;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0) translateX(0); opacity: .2; }
+            25% { transform: translateY(-80px) translateX(30px); opacity: .6; }
+            50% { transform: translateY(-160px) translateX(-20px); opacity: .3; }
+            75% { transform: translateY(-80px) translateX(-40px); opacity: .7; }
+        }
+
+        /* HERO */
+        .hero-defense {
+            background: radial-gradient(ellipse at 50% 0%, #0a1a3a 0%, #0a0a1a 50%, var(--bg) 100%);
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 7rem 2rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-defense h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+        }
+        .hero-defense .tagline {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            color: var(--gold);
+            font-style: italic;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+        }
+
+        /* CONTENEDORES */
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            padding: 0.5rem 2rem 1rem;
+        }
+        .section-title {
+            font-size: 2rem;
+            text-align: center;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: var(--dim);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* GRÁFICA DE BARRAS */
+        .chart-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dim);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .bar-label {
+            width: 180px;
+            font-size: 0.9rem;
+            color: #c0c0c0;
+            flex-shrink: 0;
+            text-align: right;
+            font-weight: 600;
+        }
+        .bar-group {
+            flex: 1;
+            display: flex;
+            gap: 0.3rem;
+            height: 30px;
+        }
+        .bar-segment {
+            flex: 1;
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+            min-width: 40px;
+        }
+        .bar-segment.year-2024 { background: #1e3a8a; }
+        .bar-segment.year-2025 { background: #b45309; }
+        .bar-segment.year-2026 { background: #991b1b; }
+
+        .bar-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            color: #c0c0c0;
+        }
+        .bar-legend span { display: flex; align-items: center; gap: 0.5rem; }
+        .legend-dot {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        .legend-dot.l2024 { background: #1e3a8a; }
+        .legend-dot.l2025 { background: #b45309; }
+        .legend-dot.l2026 { background: #991b1b; }
+
+        /* SECTORES MÁS AFECTADOS */
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+        .sector-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sector-card:hover {
+            border-color: var(--gold);
+            transform: scale(1.02);
+        }
+        .sector-card .icon { font-size: 2rem; margin-bottom: 0.3rem; }
+        .sector-card .stat {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+        }
+        .sector-card .stat.red { color: var(--red); }
+        .sector-card .stat.green { color: var(--green); }
+        .sector-card h4 { font-size: 1rem; margin-bottom: 0.2rem; color: var(--text); }
+        .sector-card p {
+            font-size: 0.8rem;
+            color: var(--dim);
+            line-height: 1.4;
+        }
+        .sector-card .change {
+            display: inline-block;
+            background: rgba(255,255,255,0.05);
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--gold);
+            margin-top: 0.3rem;
+        }
+        .sector-card .change.up { color: var(--red); }
+        .sector-card .change.down { color: var(--green); }
+
+        /* IMÁGENES */
+        .image-placeholder {
+            width: 100%;
+            max-width: 100%;
+            height: 550px;
+            margin: 0.5rem auto 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+        .img-tall {
+            height: 670px;
+        }
+
+        /* NUEVA SECCIÓN POST-CUÁNTICA */
+        .pq-container {
+            background: var(--card);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 30px rgba(226,160,63,0.05);
+        }
+        .pq-container h3 {
+            color: var(--gold);
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pq-container .pq-sub {
+            text-align: center;
+            color: var(--dim);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        .pq-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .pq-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+        }
+        .pq-card h4 {
+            font-size: 1.2rem;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .pq-card .date {
+            display: inline-block;
+            background: var(--gold);
+            color: #000;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .pq-card ul {
+            list-style: none;
+            padding: 0;
+            font-size: 0.95rem;
+            color: var(--dim);
+        }
+        .pq-card ul li {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 0.5rem;
+            align-items: baseline;
+        }
+        .pq-card ul li:last-child { border-bottom: none; }
+        .pq-card ul li .bullet {
+            color: var(--gold);
+            font-weight: 700;
+        }
+        @media (max-width: 768px) {
+            .pq-grid { grid-template-columns: 1fr; }
+            .pq-container { padding: 1.2rem; }
+            .pq-container h3 { font-size: 1.4rem; }
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            color: var(--dim);
+            font-size: 0.9rem;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        footer .brand { font-weight: 700; color: var(--gold); }
+        .references {
+            margin-top: 0.8rem;
+            font-size: 0.75rem;
+            color: var(--dim);
+        }
+        .references a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+        .references a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .hero-defense { padding: 5rem 1rem 1rem; min-height: auto; }
+            .container { padding: 0.5rem 1rem 0.8rem; }
+            .section-title { font-size: 1.5rem; }
+            .bar-label { width: 100px; font-size: 0.7rem; }
+            .bar-segment { font-size: 0.55rem; min-width: 30px; }
+            .image-placeholder { height: 370px; }
+            .img-tall { height: 450px; }
+            .sector-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .bar-label { width: 75px; font-size: 0.6rem; }
+            .bar-segment { font-size: 0.45rem; min-width: 20px; }
+            .sector-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════
+    NAVBAR ESTÁNDAR UNIFICADO (Redirige a defensa.html)
+    ═══════════════════════════════════════════════════ -->
+    <nav class="navbar">
+        <a href="index.html" class="brand">ITZTLI FRACTAL</a>
+        <div class="nav-links">
+            <!-- Inicio -->
+            <a href="inicio.html" class="lang-es">Inicio</a>
+            <a href="inicio.html" class="lang-en" style="display:none;">Home</a>
+            
+            <!-- Autos -->
+            <a href="autos.html" class="lang-es">Autos</a>
+            <a href="autos.html" class="lang-en" style="display:none;">Cars</a>
+            
+            <!-- Empresas -->
+            <a href="empresas.html" class="lang-es">Empresas</a>
+            <a href="empresas.html" class="lang-en" style="display:none;">Enterprise</a>
+            
+            <!-- Desarrolladores -->
+            <a href="desarrolladores.html" class="lang-es">Desarrolladores</a>
+            <a href="desarrolladores.html" class="lang-en" style="display:none;">Developers</a>
+            
+            <!-- Ciberdefensa (activa) -->
+            <a href="defensa.html" class="active lang-es"><span class="nav-icon"></span> Ciberdefensa</a>
+            <a href="defensa.html" class="active lang-en" style="display:none;"><span class="nav-icon"></span> Cyberdefense</a>
+            
+            <!-- Comando Central -->
+            <a href="comando-central.html" class="lang-es">Comando Central</a>
+            <a href="comando-central.html" class="lang-en" style="display:none;">Command Center</a>
+            
+            <!-- Contacto -->
+            <a href="inicio.html#contacto" class="lang-es">Contacto</a>
+            <a href="inicio.html#contacto" class="lang-en" style="display:none;">Contact</a>
+            
+            <!-- Botón idioma -->
+            <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇲🇽</button>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════
+    HERO
+    ═══════════════════════════════════════════════════ -->
+    <section class="hero-defense">
+        <div class="particles" id="particles-defense"></div>
+
+        <div class="lang-es">
+            <h1>ITZTLI CIBERDEFENSA</h1>
+            <p class="tagline">"El Sistema Nervioso de la Tecnología"</p>
+        </div>
+        <div class="lang-en">
+            <h1>ITZTLI CYBERDEFENSE</h1>
+            <p class="tagline">"The Nervous System of Technology"</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+    GRÁFICA DE BARRAS + SUBTÍTULO
+    ═══════════════════════════════════════════════════ -->
+    <div class="container" id="datos">
+        <div class="lang-es">
+            <h2 class="section-title">Evolución de las Amenazas 2024–2026</h2>
+            <p class="section-subtitle">
+                El impacto de la inteligencia artificial ha disparado los indicadores de ciberataques en solo dos años.
+                <strong style="color:var(--gold);">Datos reales 2024–2025 y proyección 2026</strong> basados en informes de CyberProof, IBM, Fortinet y Google.
+            </p>
+        </div>
+        <div class="lang-en">
+            <h2 class="section-title">Threat Evolution 2024–2026</h2>
+            <p class="section-subtitle">
+                The impact of artificial intelligence has skyrocketed cyberattack indicators in just two years.
+                <strong style="color:var(--gold);">Real data 2024–2025 and 2026 projection</strong> based on CyberProof, IBM, Fortinet and Google reports.
+            </p>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title lang-es">Comparativa de indicadores clave</div>
+            <div class="chart-title lang-en">Key indicators comparison</div>
+
+            <!-- Ataques con IA -->
+            <div class="bar-item">
+                <span class="bar-label lang-es">🤖 Ataques con IA (%)</span>
+                <span class="bar-label lang-en">🤖 AI Attacks (%)</span>
+                <div class="bar-group">
+                    <div class="bar-segment year-2024" style="width:23%;">89%</div>
+                    <div class="bar-segment year-2025" style="width:100%;">389%</div>
+                    <div class="bar-segment year-2026" style="width:154%;">600%*</div>
+                </div>
+            </div>
+
+            <!-- Ransomware -->
+            <div class="bar-item">
+                <span class="bar-label lang-es">💀 Ransomware (índice)</span>
+                <span class="bar-label lang-en">💀 Ransomware (index)</span>
+                <div class="bar-group">
+                    <div class="bar-segment year-2024" style="width:26%;">100</div>
+                    <div class="bar-segment year-2025" style="width:100%;">389</div>
+                    <div class="bar-segment year-2026" style="width:180%;">700*</div>
+                </div>
+            </div>
+
+            <!-- Zero-days -->
+            <div class="bar-item">
+                <span class="bar-label lang-es">🔓 Zero-days explotados</span>
+                <span class="bar-label lang-en">🔓 Zero-days exploited</span>
+                <div class="bar-group">
+                    <div class="bar-segment year-2024" style="width:71%;">78</div>
+                    <div class="bar-segment year-2025" style="width:82%;">90</div>
+                    <div class="bar-segment year-2026" style="width:100%;">110*</div>
+                </div>
+            </div>
+
+            <!-- Brechas nube -->
+            <div class="bar-item">
+                <span class="bar-label lang-es">☁️ Brechas nube por identidad (%)</span>
+                <span class="bar-label lang-en">☁️ Cloud breaches via identity (%)</span>
+                <div class="bar-group">
+                    <div class="bar-segment year-2024" style="width:63%;">60%</div>
+                    <div class="bar-segment year-2025" style="width:87%;">83%</div>
+                    <div class="bar-segment year-2026" style="width:100%;">95%*</div>
+                </div>
+            </div>
+
+            <!-- Costo -->
+            <div class="bar-item">
+                <span class="bar-label lang-es">💰 Costo brecha ($M)</span>
+                <span class="bar-label lang-en">💰 Breach cost ($M)</span>
+                <div class="bar-group">
+                    <div class="bar-segment year-2024" style="width:80%;">$4.4M</div>
+                    <div class="bar-segment year-2025" style="width:89%;">$4.9M</div>
+                    <div class="bar-segment year-2026" style="width:100%;">$5.5M*</div>
+                </div>
+            </div>
+
+            <div class="bar-legend">
+                <span><span class="legend-dot l2024"></span> 2024</span>
+                <span><span class="legend-dot l2025"></span> 2025</span>
+                <span><span class="legend-dot l2026"></span> 2026 *proyección</span>
+            </div>
+            <div style="text-align:center;margin-top:0.5rem;font-size:0.7rem;color:var(--dim);">
+                <span class="lang-es">Fuentes: CyberProof 2026, IBM X-Force 2026, Fortinet 2026, Google Threat Intelligence</span>
+                <span class="lang-en">Sources: CyberProof 2026, IBM X-Force 2026, Fortinet 2026, Google Threat Intelligence</span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+        SECTORES MÁS AFECTADOS
+        ═══════════════════════════════════════════════════ -->
+        <div class="lang-es">
+            <h3 style="text-align:center;color:var(--dim);margin:1.5rem 0 0.5rem 0;font-size:1.2rem;">
+                Sectores más golpeados en 2025
+            </h3>
+            <p style="text-align:center;color:var(--dim);font-size:0.9rem;margin-bottom:1rem;">
+                Datos de <strong style="color:var(--gold);">IBM X-Force</strong> y <strong style="color:var(--gold);">CyberProof</strong>
+            </p>
+        </div>
+        <div class="lang-en">
+            <h3 style="text-align:center;color:var(--dim);margin:1.5rem 0 0.5rem 0;font-size:1.2rem;">
+                Hardest hit sectors in 2025
+            </h3>
+            <p style="text-align:center;color:var(--dim);font-size:0.9rem;margin-bottom:1rem;">
+                Data from <strong style="color:var(--gold);">IBM X-Force</strong> and <strong style="color:var(--gold);">CyberProof</strong>
+            </p>
+        </div>
+
+        <div class="sector-grid">
+            <!-- Manufactura -->
+            <div class="sector-card">
+                <div class="icon">🏭</div>
+                <div class="stat red">27.7%</div>
+                <h4 class="lang-es">Manufactura</h4>
+                <h4 class="lang-en">Manufacturing</h4>
+                <p class="lang-es">+61% ataques vs 2024 — el sector más atacado</p>
+                <p class="lang-en">+61% attacks vs 2024 — most targeted</p>
+                <span class="change up">⬆ +61%</span>
+            </div>
+
+            <!-- Retail -->
+            <div class="sector-card">
+                <div class="icon">🛒</div>
+                <div class="stat red">80%</div>
+                <h4 class="lang-es">Retail</h4>
+                <h4 class="lang-en">Retail</h4>
+                <p class="lang-es">sufrió al menos un ataque en 2025</p>
+                <p class="lang-en">suffered at least one attack in 2025</p>
+                <span class="change up">⬆ +58% (Q2)</span>
+            </div>
+
+            <!-- Nube/SaaS -->
+            <div class="sector-card">
+                <div class="icon">☁️</div>
+                <div class="stat gold">22%</div>
+                <h4 class="lang-es">Nube y SaaS</h4>
+                <h4 class="lang-en">Cloud & SaaS</h4>
+                <p class="lang-es">de los incidentes totales</p>
+                <p class="lang-en">of total incidents</p>
+                <span class="change up">⬆ +15%</span>
+            </div>
+
+            <!-- Salud -->
+            <div class="sector-card">
+                <div class="icon">🏥</div>
+                <div class="stat green">22%</div>
+                <h4 class="lang-es">Salud</h4>
+                <h4 class="lang-en">Healthcare</h4>
+                <p class="lang-es">de ransomware divulgado (BlackFog)</p>
+                <p class="lang-en">of disclosed ransomware (BlackFog)</p>
+                <span class="change up">⬆ +9%</span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+        NUEVA SECCIÓN: POLÍTICAS POST-CUÁNTICAS
+        ═══════════════════════════════════════════════════ -->
+        <div class="pq-container">
+            <div class="lang-es">
+                <h3>🔐 Políticas de Ciberseguridad Post-Cuántica</h3>
+                <p class="pq-sub">EE.UU. y la UE exigen cifrado resistente a computación cuántica para 2027</p>
+            </div>
+            <div class="lang-en">
+                <h3>🔐 Post-Quantum Cybersecurity Policies</h3>
+                <p class="pq-sub">US and EU mandate quantum-resistant encryption by 2027</p>
+            </div>
+
+            <div class="pq-grid">
+                <!-- Estados Unidos -->
+                <div class="pq-card">
+                    <h4><span>🇺🇸</span> <span class="lang-es">Estados Unidos</span><span class="lang-en" style="display:none;">United States</span></h4>
+                    <div class="date lang-es">📅 Vigencia: Enero 2027</div>
+                    <div class="date lang-en" style="display:none;">📅 Effective: January 2027</div>
+                    <ul>
+                        <li><span class="bullet">•</span> <span class="lang-es">Ley de Preparación Cuántica (Quantum Readiness Act) — todas las agencias federales y contratistas deben migrar a algoritmos post-cuánticos aprobados por NIST.</span>
+                            <span class="lang-en" style="display:none;">Quantum Readiness Act — all federal agencies and contractors must migrate to NIST-approved post-quantum algorithms.</span></li>
+                        <li><span class="bullet">•</span> <span class="lang-es">Empresas que comercien con el gobierno o reciban fondos federales deberán implementar cifrado híbrido (clásico + post-cuántico) antes de enero 2027.</span>
+                            <span class="lang-en" style="display:none;">Companies trading with the government or receiving federal funds must implement hybrid encryption (classical + post-quantum) by January 2027.</span></li>
+                        <li><span class="bullet">•</span> <span class="lang-es">La NSA ha establecido la hoja de ruta CNSA 2.0, que exige el uso de algoritmos como CRYSTALS-Kyber y CRYSTALS-Dilithium para sistemas de defensa.</span>
+                            <span class="lang-en" style="display:none;">The NSA has established the CNSA 2.0 roadmap, requiring algorithms like CRYSTALS-Kyber and CRYSTALS-Dilithium for defense systems.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Unión Europea -->
+                <div class="pq-card">
+                    <h4><span>🇪🇺</span> <span class="lang-es">Unión Europea</span><span class="lang-en" style="display:none;">European Union</span></h4>
+                    <div class="date lang-es">📅 Vigencia: Diciembre 2027</div>
+                    <div class="date lang-en" style="display:none;">📅 Effective: December 2027</div>
+                    <ul>
+                        <li><span class="bullet">•</span> <span class="lang-es">Reglamento eIDAS 2.0 y la Directiva NIS2 incluyen cláusulas de "resiliencia cuántica" que obligan a los operadores críticos y a las empresas digitales a adoptar criptografía post-cuántica.</span>
+                            <span class="lang-en" style="display:none;">eIDAS 2.0 and the NIS2 Directive include "quantum resilience" clauses that oblige critical operators and digital companies to adopt post-quantum cryptography.</span></li>
+                        <li><span class="bullet">•</span> <span class="lang-es">Cualquier empresa que exporte servicios digitales a la UE o maneje datos de ciudadanos europeos deberá presentar un plan de migración a cifrado post-cuántico antes de diciembre 2027.</span>
+                            <span class="lang-en" style="display:none;">Any company exporting digital services to the EU or handling European citizens' data must present a migration plan to post-quantum encryption by December 2027.</span></li>
+                        <li><span class="bullet">•</span> <span class="lang-es">El ENISA (Agencia de Ciberseguridad de la UE) publicará guías técnicas obligatorias para la implementación de soluciones post-cuánticas en infraestructuras críticas.</span>
+                            <span class="lang-en" style="display:none;">ENISA (EU Cybersecurity Agency) will publish mandatory technical guidelines for implementing post-quantum solutions in critical infrastructures.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top:1.5rem; text-align:center; color:var(--dim); font-size:0.9rem; border-top:1px solid var(--border); padding-top:1rem;">
+                <span class="lang-es"><strong style="color:var(--gold);">⚠️</strong> Ambas legislaciones afectan a miles de empresas globales. La ventana de adaptación es de <strong style="color:var(--cyan);">menos de 12 meses</strong> para EE.UU. y de <strong style="color:var(--cyan);">18 meses</strong> para la UE.</span>
+                <span class="lang-en"><strong style="color:var(--gold);">⚠️</strong> Both legislations affect thousands of global companies. The adaptation window is <strong style="color:var(--cyan);">less than 12 months</strong> for the US and <strong style="color:var(--cyan);">18 months</strong> for the EU.</span>
+            </div>
+        </div>
+
+    </div> <!-- fin container -->
+
+    <!-- ═══════════════════════════════════════════════════
+    TENDENCIAS 2026 (imagen 1 - con clase img-tall)
+    ═══════════════════════════════════════════════════ -->
+    <div class="container" id="tendencias">
+        <div class="lang-es">
+            <h2 class="section-title">Tendencias 2026 — Preparándose para la Próxima Ola</h2>
+        </div>
+        <div class="lang-en">
+            <h2 class="section-title">2026 Trends — Preparing for the Next Wave</h2>
+        </div>
+
+        <div class="image-placeholder img-tall">
+            <img class="lang-es" src="imagenes/defensa1.png" alt="Tendencias 2026">
+            <img class="lang-en" src="imagenes/ingles/defensa1-ingles.png" alt="2026 Trends">
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+    NUESTRA SOLUCIÓN (imagen 2)
+    ═══════════════════════════════════════════════════ -->
+    <div class="container" id="solucion">
+        <div class="lang-es">
+            <h2 class="section-title">Nuestra Solución: Ciberdefensa Predictiva y Cuántica</h2>
+        </div>
+        <div class="lang-en">
+            <h2 class="section-title">Our Solution: Predictive & Quantum Cyberdefense</h2>
+        </div>
+
+        <div class="image-placeholder" id="solucion-img" style="height: auto; border: none; background: transparent;">
+            <img class="lang-es" src="imagenes/defensa2.png" alt="Nuestra Solución" style="width: 100%; height: auto; object-fit: contain; border-radius: 14px;">
+            <img class="lang-en" src="imagenes/ingles/defensa2-ingles.png" alt="Our Solution" style="width: 100%; height: auto; object-fit: contain; border-radius: 14px;">
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+    FOOTER
+    ═══════════════════════════════════════════════════ -->
+    <footer>
+        <div>
+            <span class="brand"></span><span class="lang-es">© 2026 ITZTLI FRACTAL CORE ® — El Sistema Nervioso de la Tecnología</span>
+            <span class="lang-en" style="display:none;"> © 2026 ITZTLI FRACTAL CORE ® — The Nervous System of Technology</span>
+        </div>
+        <div class="references">
+            <span class="lang-es">📚 Fuentes:</span>
+            <span class="lang-en">📚 Sources:</span>
+            <a href="https://www.cyberproof.com" target="_blank">CyberProof</a> |
+            <a href="https://www.ibm.com/reports/threat-intelligence" target="_blank">IBM X-Force</a> |
+            <a href="https://cloud.google.com" target="_blank">Google Threat Intelligence</a> |
+            <a href="https://www.fortinet.com" target="_blank">Fortinet</a> |
+            <a href="https://www.blackfog.com" target="_blank">BlackFog</a>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════
+    SCRIPT
+    ═══════════════════════════════════════════════════ -->
+    <script>
+        function createParticles(id) {
+            const pc = document.getElementById(id);
+            if (!pc) return;
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 8 + 's';
+                p.style.animationDuration = (6 + Math.random() * 10) + 's';
+                pc.appendChild(p);
+            }
+        }
+        createParticles('particles-defense');
+
+        let isSpanish = true;
+        function toggleLang() {
+            isSpanish = !isSpanish;
+            const btn = document.getElementById('langBtn');
+            const es = document.querySelectorAll('.lang-es');
+            const en = document.querySelectorAll('.lang-en');
+
+            if (isSpanish) {
+                btn.innerHTML = '🇲🇽';
+                document.documentElement.lang = 'es';
+                es.forEach(el => el.style.display = 'block');
+                en.forEach(el => el.style.display = 'none');
+            } else {
+                btn.innerHTML = '🇺🇸';
+                document.documentElement.lang = 'en';
+                es.forEach(el => el.style.display = 'none');
+                en.forEach(el => el.style.display = 'block');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITZTLI COMMAND CENTER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0f; --card: #12121f; --border: #1e1e3a;
+            --cyan: #00b4d8; --gold: #e2a03f; --green: #00ff88;
+            --red: #ff4444; --orange: #ff9100; --text: #e0e0e0; --dim: #8899aa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; }
+        #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,16,0.97); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .auth-panel { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem; width: 400px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .auth-panel h2 { font-family: 'Orbitron', sans-serif; color: var(--gold); text-align: center; margin-bottom: 0.5rem; }
+        .auth-panel p { color: var(--dim); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; color: var(--dim); font-size: 0.8rem; margin-bottom: 4px; }
+        .form-group input { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; outline: none; }
+        .form-group input:focus { border-color: var(--gold); }
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 40px; }
+        .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--dim); cursor: pointer; font-size: 1.2rem; }
+        .toggle-password:hover { color: var(--gold); }
+        .captcha-row { display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; }
+        .captcha-question { background: rgba(0,180,216,0.1); border: 1px solid var(--cyan); color: var(--cyan); font-weight: 700; padding: 10px 16px; border-radius: 8px; font-size: 1.2rem; min-width: 80px; text-align: center; }
+        .btn { width: 100%; padding: 12px; background: var(--gold); color: var(--bg); border: none; font-weight: 700; cursor: pointer; border-radius: 8px; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; transition: 0.3s; }
+        .btn:hover { box-shadow: 0 0 30px rgba(226,160,63,0.4); transform: scale(1.02); }
+        .btn-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); margin-top: 0.8rem; }
+        .btn-outline:hover { background: var(--gold); color: #000; }
+        .error-msg { color: var(--red); font-size: 0.8rem; text-align: center; margin-top: 0.5rem; }
+        .success-msg { color: var(--green); font-size: 0.8rem; text-align: center; margin-top: 0.5rem; }
+        .back-link { text-align: center; margin-top: 1rem; cursor: pointer; color: var(--cyan); font-size: 0.9rem; }
+        .back-link:hover { text-decoration: underline; }
+        /* Dashboard */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: rgba(5,5,16,0.95); border-bottom: 1px solid var(--border); padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); }
+        .navbar .brand { font-family: 'Orbitron', sans-serif; color: var(--gold); font-size: 1.2rem; font-weight: 700; text-decoration: none; }
+        .navbar .nav-links { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+        .navbar .nav-links a { color: var(--dim); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+        .navbar .nav-links a.active { color: var(--gold); }
+        .lang-toggle { background: transparent; border: 1px solid var(--border); color: var(--dim); padding: 0.3rem 0.6rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; }
+        .dashboard { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 70px); margin-top: 70px; }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+        .sidebar { background: rgba(12,12,25,0.8); border-right: 1px solid var(--border); padding: 1.5rem; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; cursor: pointer; color: var(--dim); font-size: 0.9rem; border: 1px solid transparent; }
+        .nav-item:hover, .nav-item.active { background: rgba(0,180,216,0.1); border-color: var(--cyan); color: var(--cyan); }
+        .nav-item i { width: 18px; text-align: center; }
+        .badge { margin-left: auto; background: var(--red); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 900; }
+        .main { padding: 2rem; overflow-y: auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: 0.3s; position: relative; overflow: hidden; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .stat-card.users::before { background: var(--cyan); }
+        .stat-card.devices::before { background: var(--green); }
+        .stat-card.chips::before { background: var(--orange); }
+        .stat-card.revenue::before { background: var(--gold); }
+        .stat-card.attacks::before { background: var(--red); }
+        .stat-card .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .stat-card .stat-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; }
+        .stat-card .stat-label { color: var(--dim); font-size: 0.85rem; margin-top: 0.3rem; }
+        /* Tarjetas de dispositivos */
+        .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; margin-top: 1rem; }
+        .device-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; transition: 0.3s; position: relative; }
+        .device-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .device-card .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .device-card .name { font-size: 1.1rem; font-weight: 600; color: var(--gold); }
+        .device-card .status { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; }
+        .device-card .status.online { background: rgba(0,255,136,0.2); color: var(--green); }
+        .device-card .status.offline { background: rgba(136,153,170,0.2); color: var(--dim); }
+        .device-card .detail { font-size: 0.85rem; color: var(--dim); margin: 0.3rem 0; }
+        .device-card .actions { display: flex; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap; }
+        .device-card .actions .btn-sm { padding: 4px 12px; font-size: 0.7rem; }
+        .toast { position: fixed; bottom: 30px; right: 30px; z-index: 9999; padding: 12px 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; display: none; max-width: 400px; }
+        .toast.show { display: block; }
+        .toast.success { background: rgba(0,255,136,0.2); border: 1px solid var(--green); color: var(--green); }
+        .toast.error { background: rgba(255,68,68,0.2); border: 1px solid var(--red); color: var(--red); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content-old { background: var(--card); border: 2px solid var(--gold); border-radius: 20px; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-close { background: transparent; border: 1px solid var(--red); color: var(--red); border-radius: 8px; padding: 5px 15px; cursor: pointer; }
+        .footer { background: rgba(5,5,16,0.9); border-top: 1px solid var(--border); padding: 1rem 2rem; text-align: center; font-size: 0.8rem; color: var(--dim); margin-top: auto; }
+        /* Estilos para carga de archivos */
+        .file-upload-wrapper { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin: 1rem 0; }
+        .file-upload-wrapper input[type="file"] { padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+        .file-upload-wrapper .btn { width: auto; padding: 8px 20px; }
+        .device-summary { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; background: var(--card); padding: 1rem; border-radius: 12px; border: 1px solid var(--border); }
+        .device-summary .item { display: flex; align-items: center; gap: 0.5rem; }
+        .device-summary .item .label { color: var(--dim); font-size: 0.85rem; }
+        .device-summary .item .value { font-weight: bold; color: var(--gold); font-size: 1.1rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 10px 14px; font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); }
+        td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+        .badge-status { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 700; }
+        .badge-status.online { background: rgba(0,255,136,0.15); color: var(--green); }
+        .badge-status.offline { background: rgba(136,153,170,0.15); color: var(--dim); }
+        .badge-status.premium { background: rgba(0,180,216,0.15); color: var(--cyan); }
+        .badge-status.platinum { background: rgba(226,160,63,0.15); color: var(--gold); }
+        .badge-status.free { background: rgba(0,255,136,0.1); color: var(--green); }
+        .btn-sm { padding: 5px 10px; font-size: 0.75rem; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        .btn-cyan { background: var(--cyan); color: #000; }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-green { background: var(--green); color: #000; }
+        .btn-gold { background: var(--gold); color: #000; }
+        .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+        .search-box { margin-bottom: 1rem; display: flex; gap: 0.5rem; }
+        .search-box input { flex: 1; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+
+        /* ===== ESTILOS PARA EL PANEL DE SEMILLAS ===== */
+        .seed-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+        .seed-panel h3 {
+            color: var(--gold);
+            font-size: 1.8rem;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .seed-panel p {
+            color: var(--dim);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .seed-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .seed-field {
+            margin-bottom: 1rem;
+        }
+        .seed-field label {
+            display: block;
+            color: var(--dim);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+        .seed-field input, .seed-field select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .seed-field input:focus, .seed-field select:focus {
+            border-color: var(--gold);
+        }
+        .seed-field .hint {
+            font-size: 0.7rem;
+            color: var(--dim);
+            margin-top: 3px;
+        }
+        .cost-summary {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .cost-item {
+            text-align: center;
+        }
+        .cost-item .label {
+            color: var(--dim);
+            font-size: 0.8rem;
+        }
+        .cost-item .value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
+        .cost-total {
+            font-size: 2rem;
+            color: var(--green);
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        @media (max-width: 768px) {
+            .seed-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <!-- ========== AUTENTICACIÓN ========== -->
+    <div class="auth-overlay" id="authScreen">
+        <div class="auth-panel" id="loginPanel">
+            <h2>ITZTLI COMANDO CENTRAL</h2>
+            <p>Acceso premium / administrador</p>
+            <div class="form-group"><label>📧 Email</label><input type="email" id="loginEmail" placeholder="correo@ejemplo.com"></div>
+            <div class="form-group"><label>🔒 Contraseña</label><div class="password-wrapper"><input type="password" id="loginPassword"><button class="toggle-password" onclick="togglePassword('loginPassword', this)"><i class="fas fa-eye"></i></button></div></div>
+            <div class="captcha-row"><span class="captcha-question" id="loginCaptchaDisplay"></span><input type="text" id="loginCaptchaAnswer" placeholder="?" maxlength="2"></div>
+            <button class="btn" onclick="handleLogin()">🚀 Entrar</button>
+            <div class="error-msg" id="loginError"></div>
+            <button class="btn btn-outline" onclick="showRegister()">✨ Crear cuenta premium</button>
+        </div>
+        <div class="auth-panel" id="registerPanel" style="display: none;">
+            <h2>Registro Premium</h2>
+            <div class="form-group"><label>👤 Nombre (opcional)</label><input type="text" id="regName" placeholder="Tu nombre"></div>
+            <div class="form-group"><label>📧 Email</label><input type="email" id="regEmail" placeholder="nuevo@correo.com"></div>
+            <div class="form-group"><label>🔒 Contraseña (mín. 8 caracteres)</label><div class="password-wrapper"><input type="password" id="regPassword"><button class="toggle-password" onclick="togglePassword('regPassword', this)"><i class="fas fa-eye"></i></button></div></div>
+            <div class="form-group"><label>🔒 Confirmar contraseña</label><input type="password" id="regPasswordConfirm"></div>
+            <div class="captcha-row"><span class="captcha-question" id="regCaptchaDisplay"></span><input type="text" id="regCaptchaAnswer" placeholder="?" maxlength="2"></div>
+            <button class="btn" onclick="handleRegister()">✨ Crear cuenta</button>
+            <div class="error-msg" id="regError"></div>
+            <div class="success-msg" id="regSuccess"></div>
+            <div class="back-link" onclick="showLogin()">← Volver al acceso</div>
+        </div>
+    </div>
+
+    <!-- ========== DASHBOARD ========== -->
+    <div id="dashboardContainer" style="display: none;">
+        <nav class="navbar">
+            <a href="index.html" class="brand">ITZTLI FRACTAL</a>
+            <div class="nav-links">
+                <a href="inicio.html">Inicio</a><a href="autos.html">Autos</a><a href="empresas.html">Empresas</a>
+                <a href="desarrolladores.html">Desarrolladores</a><a href="ciberdefensa.html">Ciberdefensa</a>
+                <a href="comando-central.html" class="active">Comando Central</a>
+                <a href="inicio.html#contacto">Contacto</a>
+                <button class="lang-toggle" id="langToggle">🌐 ES</button>
+                <button onclick="logout()" class="btn btn-sm btn-red">🚪 Salir</button>
+            </div>
+        </nav>
+        <div class="dashboard">
+            <aside class="sidebar" id="sidebar">
+                <!-- se rellena dinámicamente -->
+            </aside>
+            <main class="main" id="mainContent"></main>
+        </div>
+        <div class="footer">
+            <span>© 2025 ITZTLI FRACTAL</span>
+            <a href="#">Términos</a> | <a href="#">Privacidad</a> | <a href="#">Soporte</a>
+        </div>
+    </div>
+
+    <!-- Modales (admin) -->
+    <div class="modal" id="userModal">
+        <div class="modal-content-old">
+            <div class="modal-header"><h3 id="modalTitle">Crear Usuario</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+            <input type="hidden" id="userId">
+            <div class="form-group"><label>📧 Email</label><input type="email" id="userEmail"></div>
+            <div class="form-group"><label>👤 Nombre</label><input type="text" id="userName"></div>
+            <div class="form-group"><label>🔑 Contraseña (mín. 8)</label><input type="password" id="userPassword"></div>
+            <div class="form-group"><label>🥇 Plan</label><select id="userPlan"><option value="free">GRATIS</option><option value="premium">PREMIUM</option><option value="platinum">PLATINUM</option></select></div>
+            <button class="btn btn-green" onclick="saveUser()">💾 Guardar</button>
+        </div>
+    </div>
+    <div class="modal" id="chipModal">
+        <div class="modal-content-old">
+            <div class="modal-header"><h3 id="chipModalTitle">Registrar Chip</h3><button class="modal-close" onclick="closeChipModal()">✕</button></div>
+            <input type="hidden" id="chipId">
+            <div class="form-group"><label>🔢 Número de Serie</label><input type="text" id="chipSerial"></div>
+            <div class="form-group"><label>🧬 Tipo</label><select id="chipTipo"><option value="LIA">LIA</option><option value="BOB">BOB</option></select></div>
+            <div class="form-group"><label>🏭 Fabricante</label><input type="text" id="chipFabricante"></div>
+            <div class="form-group"><label>👤 Propietario (UUID)</label><input type="text" id="chipPropietario"></div>
+            <button class="btn btn-green" onclick="saveChip()">💾 Guardar Chip</button>
+        </div>
+    </div>
+    <!-- Modal para crear administrador -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content-old">
+            <div class="modal-header"><h3>Crear Administrador</h3><button class="modal-close" onclick="closeAdminModal()">✕</button></div>
+            <div class="form-group"><label>📧 Email</label><input type="email" id="adminEmail"></div>
+            <div class="form-group"><label>👤 Nombre</label><input type="text" id="adminName"></div>
+            <div class="form-group"><label>🔑 Contraseña (mín. 8)</label><input type="password" id="adminPassword"></div>
+            <button class="btn btn-gold" onclick="createAdmin()">👑 Crear Admin</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== CONFIGURACIÓN ==========
+        const supabaseClient = window.supabase.createClient(
+            'https://abxtqpwyryfqcvateauf.supabase.co',
+            'sb_publishable_Ln5pL4Vs2a9dwP6Z_mBhsw_0TRdBfIj'
+        );
+
+        // ========== PARTÍCULAS ==========
+        (function() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize); resize();
+            const particles = [];
+            for (let i = 0; i < 80; i++) particles.push({ x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-0.5)*0.8, vy: (Math.random()-0.5)*0.8 });
+            function anim() {
+                ctx.clearRect(0,0,w,h);
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0 || p.x > w) p.vx *= -1;
+                    if (p.y < 0 || p.y > h) p.vy *= -1;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(0,180,216,0.3)'; ctx.fill();
+                });
+                requestAnimationFrame(anim);
+            }
+            anim();
+        })();
+
+        // ========== IDIOMA ==========
+        let currentLang = 'es';
+        const i18n = {
+            es: { 
+                overview: 'Vista General', 
+                usuarios: 'Usuarios', 
+                dispositivos: 'Dispositivos (LIAs)', 
+                nodos: 'Nodos (BOBs)', 
+                chips: 'Chips', 
+                licencias: 'Licencias', 
+                transacciones: 'Transacciones',
+                semillas: 'Semillas Fractales',
+                deviceSummary: 'Resumen de dispositivos',
+                lias: 'LIAs',
+                bobs: 'BOBs',
+                totalChips: 'Chips',
+                monthlyCost: 'Costo mensual',
+                addDevice: '➕ Cargar Dispositivo',
+                edit: '✏️ Editar',
+                delete: '🗑️ Eliminar',
+                studio: '🎛️ Programar',
+                deleteWarning: '⚠️ ADVERTENCIA: Eliminar aquí no apaga el chip. Mientras tenga corriente, seguirás pagando. ¿Continuar?',
+                noTransactions: 'Sin transacciones',
+                transactionDate: 'Fecha',
+                transactionDesc: 'Descripción',
+                transactionAmount: 'Monto',
+                uploadSuccess: 'Archivo subido correctamente',
+                uploadError: 'Error al subir el archivo',
+                invoiceBtn: '📄 Descargar factura',
+                monthlyRevenue: 'Ingresos mensuales',
+                annualRevenue: 'Ingresos anuales',
+                monthlyExpense: 'Gastos mensuales',
+                annualExpense: 'Gastos anuales',
+                createAdmin: '👑 Crear Admin',
+                adminCreated: 'Administrador creado exitosamente',
+                seedTitle: 'Configuración de Semillas Fractales',
+                seedDesc: 'Define los parámetros del sistema caótico. Estos valores generan las claves únicas de tus dispositivos.',
+                deviceType: 'Tipo de dispositivo',
+                numLias: 'Número de LIAs (maestros)',
+                numBobs: 'Número de BOBs (nodos)',
+                numChips: 'Número de chips totales',
+                seedMode: 'Modo de semillas',
+                manual: 'Manual',
+                auto: 'Automático (derivación por ID)',
+                seedCreal: 'Semilla C_real',
+                seedCimag: 'Semilla C_imag',
+                seedLx: 'Semilla Lx',
+                seedLy: 'Semilla Ly',
+                seedLz: 'Semilla Lz',
+                activationMsg: 'Mensaje de activación',
+                costSummary: 'Resumen de costos estimados',
+                costPerLia: 'Costo por LIA',
+                costPerBob: 'Costo por BOB',
+                costPerChip: 'Costo por chip',
+                totalMonthly: 'Costo mensual total',
+                generateIno: '⚙️ Generar .ino (demo)',
+                inoGenerated: '✅ Firmware .ino generado (simulación)',
+                inoDesc: 'En producción, este botón descargaría el archivo .ino personalizado con las semillas configuradas.'
+            },
+            en: { 
+                overview: 'Overview', 
+                usuarios: 'Users', 
+                dispositivos: 'Devices (LIAs)', 
+                nodos: 'Nodes (BOBs)', 
+                chips: 'Chips', 
+                licencias: 'Licenses', 
+                transacciones: 'Transactions',
+                semillas: 'Fractal Seeds',
+                deviceSummary: 'Device summary',
+                lias: 'LIAs',
+                bobs: 'BOBs',
+                totalChips: 'Chips',
+                monthlyCost: 'Monthly cost',
+                addDevice: '➕ Upload Device',
+                edit: '✏️ Edit',
+                delete: '🗑️ Delete',
+                studio: '🎛️ Program',
+                deleteWarning: '⚠️ WARNING: Deleting here does not turn off the chip. While powered, you will continue to be charged. Continue?',
+                noTransactions: 'No transactions',
+                transactionDate: 'Date',
+                transactionDesc: 'Description',
+                transactionAmount: 'Amount',
+                uploadSuccess: 'File uploaded successfully',
+                uploadError: 'Error uploading file',
+                invoiceBtn: '📄 Download invoice',
+                monthlyRevenue: 'Monthly revenue',
+                annualRevenue: 'Annual revenue',
+                monthlyExpense: 'Monthly expense',
+                annualExpense: 'Annual expense',
+                createAdmin: '👑 Create Admin',
+                adminCreated: 'Admin created successfully',
+                seedTitle: 'Fractal Seed Configuration',
+                seedDesc: 'Define the chaotic system parameters. These values generate the unique keys for your devices.',
+                deviceType: 'Device type',
+                numLias: 'Number of LIAs (masters)',
+                numBobs: 'Number of BOBs (nodes)',
+                numChips: 'Total number of chips',
+                seedMode: 'Seed mode',
+                manual: 'Manual',
+                auto: 'Automatic (derivation by ID)',
+                seedCreal: 'Seed C_real',
+                seedCimag: 'Seed C_imag',
+                seedLx: 'Seed Lx',
+                seedLy: 'Seed Ly',
+                seedLz: 'Seed Lz',
+                activationMsg: 'Activation message',
+                costSummary: 'Estimated cost summary',
+                costPerLia: 'Cost per LIA',
+                costPerBob: 'Cost per BOB',
+                costPerChip: 'Cost per chip',
+                totalMonthly: 'Total monthly cost',
+                generateIno: '⚙️ Generate .ino (demo)',
+                inoGenerated: '✅ .ino firmware generated (simulation)',
+                inoDesc: 'In production, this button would download the custom .ino file with the configured seeds.'
+            }
+        };
+        function t(key) { return i18n[currentLang]?.[key] || key; }
+        document.getElementById('langToggle').addEventListener('click', () => {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            document.getElementById('langToggle').textContent = currentLang === 'es' ? '🌐 ES' : '🌐 EN';
+            if (window.currentUser) { renderSidebar(); if (window.currentVista) cargarVista(window.currentVista); }
+        });
+
+        // ========== CAPTCHA ==========
+        function generateCaptchas() {
+            const a = Math.floor(Math.random()*10)+1, b = Math.floor(Math.random()*10)+1;
+            window.loginCaptchaResult = a+b;
+            document.getElementById('loginCaptchaDisplay').textContent = `${a} + ${b}`;
+            document.getElementById('loginCaptchaAnswer').value = '';
+
+            const c = Math.floor(Math.random()*10)+1, d = Math.floor(Math.random()*10)+1;
+            window.regCaptchaResult = c+d;
+            document.getElementById('regCaptchaDisplay').textContent = `${c} + ${d}`;
+            document.getElementById('regCaptchaAnswer').value = '';
+        }
+
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+        }
+
+        function showLogin() { document.getElementById('loginPanel').style.display='block'; document.getElementById('registerPanel').style.display='none'; }
+        function showRegister() { document.getElementById('loginPanel').style.display='none'; document.getElementById('registerPanel').style.display='block'; }
+
+        // ========== LOGIN (admin o premium) ==========
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const captcha = parseInt(document.getElementById('loginCaptchaAnswer').value);
+            const err = document.getElementById('loginError'); err.textContent = '';
+
+            if (!email || !password) { err.textContent = 'Completa todos los campos.'; return; }
+            if (captcha !== window.loginCaptchaResult) { err.textContent = 'Captcha incorrecto.'; generateCaptchas(); return; }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) { err.textContent = 'Error: ' + error.message; return; }
+
+            const { data: userData, error: roleError } = await supabaseClient
+                .from('usuarios')
+                .select('role')
+                .eq('id', data.user.id)
+                .single();
+
+            if (roleError || !userData) {
+                await supabaseClient.auth.signOut();
+                err.textContent = 'Error al verificar el perfil.';
+                return;
+            }
+
+            if (userData.role !== 'admin' && userData.role !== 'premium') {
+                await supabaseClient.auth.signOut();
+                err.textContent = '⛔ Solo usuarios premium o administradores.';
+                return;
+            }
+
+            window.currentUser = { ...data.user, role: userData.role };
+            mostrarDashboard();
+        }
+
+        // ========== REGISTRO PREMIUM ==========
+        async function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+            const captcha = parseInt(document.getElementById('regCaptchaAnswer').value);
+            const err = document.getElementById('regError');
+            const success = document.getElementById('regSuccess');
+            err.textContent = ''; success.textContent = '';
+
+            if (!email || !password || !passwordConfirm) { err.textContent = 'Completa todos los campos.'; return; }
+            if (password !== passwordConfirm) { err.textContent = 'Las contraseñas no coinciden.'; return; }
+            if (password.length < 8) { err.textContent = 'Mínimo 8 caracteres.'; return; }
+            if (captcha !== window.regCaptchaResult) { err.textContent = 'Captcha incorrecto.'; generateCaptchas(); return; }
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: { data: { nombre: name, plan: 'premium', role: 'premium' } }
+            });
+
+            if (error) {
+                err.textContent = 'Error en registro: ' + error.message;
+                return;
+            }
+
+            success.textContent = '✅ Cuenta premium creada. Redirigiendo...';
+            setTimeout(() => {
+                window.location.href = 'bienvenida-premium.html';
+            }, 2000);
+        }
+
+        // ========== MOSTRAR DASHBOARD ==========
+        function mostrarDashboard() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+            renderSidebar();
+            cargarVista('overview');
+        }
+
+        // ========== SIDEBAR DINÁMICO (con nueva opción "Semillas") ==========
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const items = [];
+            // Siempre mostrar "Semillas" para todos los usuarios
+            if (window.currentUser.role === 'admin') {
+                items.push(
+                    { key: 'overview', icon: 'fa-th-large', text: t('overview') },
+                    { key: 'usuarios', icon: 'fa-users', text: t('usuarios') },
+                    { key: 'dispositivos', icon: 'fa-microchip', text: t('dispositivos') },
+                    { key: 'nodos', icon: 'fa-project-diagram', text: t('nodos') },
+                    { key: 'chips', icon: 'fa-memory', text: t('chips') },
+                    { key: 'licencias', icon: 'fa-key', text: t('licencias') },
+                    { key: 'transacciones', icon: 'fa-credit-card', text: t('transacciones') },
+                    { key: 'semillas', icon: 'fa-seedling', text: t('semillas') }
+                );
+            } else {
+                items.push(
+                    { key: 'overview', icon: 'fa-th-large', text: t('overview') },
+                    { key: 'dispositivos', icon: 'fa-microchip', text: t('dispositivos') },
+                    { key: 'nodos', icon: 'fa-project-diagram', text: t('nodos') },
+                    { key: 'chips', icon: 'fa-memory', text: t('chips') },
+                    { key: 'transacciones', icon: 'fa-credit-card', text: t('transacciones') },
+                    { key: 'semillas', icon: 'fa-seedling', text: t('semillas') }
+                );
+            }
+            sidebar.innerHTML = items.map(item => `
+                <div class="nav-item ${item.key === 'overview' ? 'active' : ''}" data-vista="${item.key}">
+                    <i class="fas ${item.icon}"></i> ${item.text}
+                </div>
+            `).join('');
+            document.querySelectorAll('.sidebar .nav-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    cargarVista(this.dataset.vista);
+                });
+            });
+        }
+
+        // ========== DATOS ==========
+        let datos = { usuarios: [], dispositivos: [], nodos: [], chips: [], transacciones: [] };
+        async function cargarDatos() {
+            const userId = window.currentUser.id;
+            if (window.currentUser.role === 'admin') {
+                const { data: usuarios } = await supabaseClient.from('usuarios').select('*');
+                datos.usuarios = usuarios || [];
+                const { data: dispositivos } = await supabaseClient.from('dispositivos').select('*');
+                datos.dispositivos = dispositivos || [];
+                const { data: nodos } = await supabaseClient.from('nodos').select('*');
+                datos.nodos = nodos || [];
+                const { data: chips } = await supabaseClient.from('chips').select('*');
+                datos.chips = chips || [];
+                const { data: transacciones } = await supabaseClient.from('transacciones').select('*');
+                datos.transacciones = transacciones || [];
+            } else {
+                const { data: dispositivos } = await supabaseClient.from('dispositivos').select('*').eq('user_id', userId);
+                datos.dispositivos = dispositivos || [];
+                const { data: nodos } = await supabaseClient.from('nodos').select('*').eq('user_id', userId);
+                datos.nodos = nodos || [];
+                const { data: chips } = await supabaseClient.from('chips').select('*').eq('propietario_id', userId);
+                datos.chips = chips || [];
+                const { data: transacciones } = await supabaseClient.from('transacciones').select('*').eq('user_id', userId);
+                datos.transacciones = transacciones || [];
+            }
+        }
+
+        // ========== GENERAR FACTURA PDF ==========
+        function generarFactura() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const user = window.currentUser;
+            const totalLIAs = datos.dispositivos.length;
+            const costo = totalLIAs * 9.99;
+            const fecha = new Date().toLocaleDateString();
+            doc.setFontSize(16);
+            doc.text('ITZTLI FRACTAL - FACTURA', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Usuario: ${user.email}`, 20, 40);
+            doc.text(`Fecha: ${fecha}`, 20, 50);
+            doc.text(`LIAs activas: ${totalLIAs}`, 20, 60);
+            doc.text(`Costo mensual: $${costo.toFixed(2)}`, 20, 70);
+            doc.text('Gracias por confiar en ITZTLI', 20, 90);
+            doc.save('factura-itztli.pdf');
+        }
+
+        // ========== CARGAR ARCHIVO .ino ==========
+        async function uploadDeviceFile(tipo) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.ino,.txt';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const content = ev.target.result;
+                        const fileName = `${Date.now()}_${file.name}`;
+                        const { data, error } = await supabaseClient.storage
+                            .from('firmwares')
+                            .upload(`uploads/${fileName}`, content, { contentType: 'text/plain' });
+                        if (error) throw error;
+                        // Guardar referencia en la tabla correspondiente
+                        const newDevice = {
+                            user_id: window.currentUser.id,
+                            nombre: file.name.replace('.ino', '').replace('.txt', ''),
+                            chip_id: `UPLOAD-${Date.now()}`,
+                            estado: 'offline',
+                            tipo: tipo,
+                            archivo: fileName
+                        };
+                        const tabla = tipo === 'LIA' ? 'dispositivos' : tipo === 'BOB' ? 'nodos' : 'chips';
+                        const { error: insertError } = await supabaseClient.from(tabla).insert(newDevice);
+                        if (insertError) throw insertError;
+                        showToast(t('uploadSuccess'), 'success');
+                        cargarVista(window.currentVista);
+                    };
+                    reader.readAsText(file);
+                } catch (err) {
+                    showToast(t('uploadError') + ': ' + err.message, 'error');
+                }
+            };
+            input.click();
+        }
+
+        // ========== RENDERIZAR TARJETAS (genérico) ==========
+        function renderCards(items, tipo, actions) {
+            if (!items || items.length === 0) {
+                return `<p style="color:var(--dim);">No hay ${tipo}s registrados.</p>`;
+            }
+            return `<div class="device-grid">${items.map(item => `
+                <div class="device-card">
+                    <div class="header">
+                        <span class="name">${item.nombre || 'Sin nombre'}</span>
+                        <span class="status ${item.estado}">${item.estado || 'offline'}</span>
+                    </div>
+                    <div class="detail"><i class="fas fa-hashtag"></i> ${item.chip_id || item.serial || 'N/A'}</div>
+                    ${item.tipo ? `<div class="detail"><i class="fas fa-tag"></i> ${item.tipo}</div>` : ''}
+                    ${item.archivo ? `<div class="detail"><i class="fas fa-file-code"></i> ${item.archivo}</div>` : ''}
+                    <div class="actions">
+                        <button class="btn-sm btn-cyan" onclick="editItemName('${item.id}', '${tipo}')">${t('edit')}</button>
+                        <button class="btn-sm btn-cyan" onclick="window.open('studio.html?device=${item.id}&file=${item.archivo || ''}', '_blank')">${t('studio')}</button>
+                        <button class="btn-sm btn-red" onclick="deleteItem('${item.id}', '${tipo}')">${t('delete')}</button>
+                        ${actions || ''}
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+        // ========== FUNCIONES CRUD GENÉRICAS ==========
+        async function editItemName(id, tipo) {
+            const newName = prompt('Nuevo nombre:');
+            if (newName === null) return;
+            const tabla = tipo === 'LIA' ? 'dispositivos' : tipo === 'BOB' ? 'nodos' : 'chips';
+            const { error } = await supabaseClient.from(tabla).update({ nombre: newName }).eq('id', id);
+            if (error) showToast('Error', 'error');
+            else { showToast('Nombre actualizado', 'success'); cargarVista(window.currentVista); }
+        }
+
+        async function deleteItem(id, tipo) {
+            if (!confirm(t('deleteWarning'))) return;
+            const tabla = tipo === 'LIA' ? 'dispositivos' : tipo === 'BOB' ? 'nodos' : 'chips';
+            const { error } = await supabaseClient.from(tabla).delete().eq('id', id);
+            if (error) showToast('Error: ' + error.message, 'error');
+            else { showToast('Eliminado', 'success'); cargarVista(window.currentVista); }
+        }
+
+        // ========== VISTAS ==========
+        async function cargarVista(vista) {
+            window.currentVista = vista;
+            const main = document.getElementById('mainContent');
+            await cargarDatos();
+            const d = datos;
+            const isAdmin = window.currentUser.role === 'admin';
+            const titulo = isAdmin ? '💍 UN ANILLO PARA GOBERNARLOS A TODOS' : 'COMANDO CENTRAL';
+
+            if (vista === 'overview') {
+                const totalLIAs = d.dispositivos.length;
+                const totalBOBs = d.nodos.length;
+                const totalChips = d.chips.length;
+                const onlineLIAs = d.dispositivos.filter(d => d.estado === 'online').length;
+                const onlineBOBs = d.nodos.filter(n => n.estado === 'online').length;
+                const chipsOnline = d.chips.filter(c => c.estado === 'online').length;
+                const costo = totalLIAs * 9.99;
+                const costoAnual = costo * 12;
+                // Tarjetas adicionales según rol
+                let extraCards = '';
+                if (isAdmin) {
+                    extraCards = `
+                        <div class="stat-card revenue"><div class="stat-icon">📈</div><div class="stat-value">$${costo.toFixed(2)}</div><div class="stat-label">${t('monthlyRevenue')}</div></div>
+                        <div class="stat-card revenue"><div class="stat-icon">📊</div><div class="stat-value">$${costoAnual.toFixed(2)}</div><div class="stat-label">${t('annualRevenue')}</div></div>
+                    `;
+                } else {
+                    extraCards = `
+                        <div class="stat-card revenue"><div class="stat-icon">💸</div><div class="stat-value">$${costo.toFixed(2)}</div><div class="stat-label">${t('monthlyExpense')}</div></div>
+                        <div class="stat-card revenue"><div class="stat-icon">📉</div><div class="stat-value">$${costoAnual.toFixed(2)}</div><div class="stat-label">${t('annualExpense')}</div></div>
+                    `;
+                }
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:1.5rem;">${titulo}</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card devices"><div class="stat-icon">📡</div><div class="stat-value">${totalLIAs}</div><div class="stat-label">LIAs (${onlineLIAs} online)</div></div>
+                        <div class="stat-card chips"><div class="stat-icon">🔗</div><div class="stat-value">${totalBOBs}</div><div class="stat-label">BOBs (${onlineBOBs} online)</div></div>
+                        <div class="stat-card chips"><div class="stat-icon">💾</div><div class="stat-value">${totalChips}</div><div class="stat-label">Chips (${chipsOnline} online)</div></div>
+                        ${extraCards}
+                    </div>
+                    <button class="btn btn-gold" style="width:auto;padding:0.5rem 1.5rem;margin-top:1rem;" onclick="generarFactura()">${t('invoiceBtn')}</button>
+                `;
+            } else if (vista === 'usuarios' && isAdmin) {
+                main.innerHTML = `
+                    <div class="section-header">
+                        <h2 style="color:var(--cyan);">👥 Usuarios (${d.usuarios.length})</h2>
+                        <div>
+                            <button class="btn btn-sm btn-cyan" onclick="document.getElementById('userModal').classList.add('active')">➕ Crear Usuario</button>
+                            <button class="btn btn-sm btn-gold" onclick="document.getElementById('adminModal').classList.add('active')">${t('createAdmin')}</button>
+                        </div>
+                    </div>
+                    <div class="table-container"><table><thead><tr><th>Email</th><th>Plan</th><th>Registro</th><th>Acciones</th></tr></thead>
+                    <tbody>${d.usuarios.map(u => `<tr>
+                        <td>${u.email}</td><td><span class="badge-status ${u.plan}">${u.plan.toUpperCase()}</span></td>
+                        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td><div class="action-buttons"><button class="btn btn-sm btn-cyan" onclick="editUser('${u.id}')">✏️</button><button class="btn btn-sm btn-red" onclick="deleteUser('${u.id}')">🗑️</button></div></td>
+                    </tr>`).join('')}</tbody></table></div>`;
+            } else if (vista === 'dispositivos') {
+                const totalLIAs = d.dispositivos.length;
+                const totalBOBs = d.nodos.length;
+                const totalChips = d.chips.length;
+                const costo = totalLIAs * 9.99;
+                main.innerHTML = `
+                    <div class="section-header">
+                        <h2 style="color:var(--green);">📡 Dispositivos (LIAs) (${d.dispositivos.length})</h2>
+                        <button class="btn btn-green" onclick="uploadDeviceFile('LIA')">${t('addDevice')}</button>
+                    </div>
+                    <div class="device-summary">
+                        <div class="item"><span class="label">${t('lias')}:</span> <span class="value">${totalLIAs}</span></div>
+                        <div class="item"><span class="label">${t('bobs')}:</span> <span class="value">${totalBOBs}</span></div>
+                        <div class="item"><span class="label">${t('totalChips')}:</span> <span class="value">${totalChips}</span></div>
+                        <div class="item"><span class="label">${t('monthlyCost')}:</span> <span class="value">$${costo.toFixed(2)}</span></div>
+                    </div>
+                    ${renderCards(d.dispositivos, 'LIA')}
+                `;
+            } else if (vista === 'nodos') {
+                main.innerHTML = `
+                    <div class="section-header">
+                        <h2 style="color:var(--orange);">🔗 Nodos (BOBs) (${d.nodos.length})</h2>
+                        <button class="btn btn-green" onclick="uploadDeviceFile('BOB')">${t('addDevice')}</button>
+                    </div>
+                    ${renderCards(d.nodos, 'BOB')}
+                `;
+            } else if (vista === 'chips') {
+                main.innerHTML = `
+                    <div class="section-header">
+                        <h2 style="color:var(--orange);">🧩 Chips (${d.chips.length})</h2>
+                        <button class="btn btn-green" onclick="uploadDeviceFile('CHIP')">${t('addDevice')}</button>
+                    </div>
+                    ${renderCards(d.chips, 'CHIP')}
+                `;
+            } else if (vista === 'licencias') {
+                main.innerHTML = `<h2 style="color:var(--gold);">🔑 Licencias</h2><p style="color:var(--dim);">Gestión de licencias próximamente.</p>`;
+            } else if (vista === 'transacciones') {
+                const hasTx = d.transacciones && d.transacciones.length > 0;
+                main.innerHTML = `<h2 style="color:var(--gold);">💳 Transacciones</h2>
+                    <div class="table-container"><table><thead><tr><th>${t('transactionDate')}</th><th>${t('transactionDesc')}</th><th>${t('transactionAmount')}</th></tr></thead>
+                    <tbody>${hasTx ? d.transacciones.map(tx => `<tr><td>${new Date(tx.fecha).toLocaleDateString()}</td><td>${tx.descripcion || 'Pago'}</td><td>$${tx.monto}</td></tr>`).join('') : `<tr><td colspan="3">${t('noTransactions')}</td></tr>`}</tbody></table></div>`;
+            } else if (vista === 'semillas') {
+                // ======= PANEL DE SEMILLAS =======
+                main.innerHTML = `
+                    <h2 style="font-family:'Orbitron',sans-serif; color:var(--gold); margin-bottom:0.5rem;">${t('seedTitle')}</h2>
+                    <p style="color:var(--dim); margin-bottom:1.5rem;">${t('seedDesc')}</p>
+                    <div class="seed-panel">
+                        <div class="seed-grid">
+                            <div class="seed-field">
+                                <label>${t('deviceType')}</label>
+                                <select id="seedDeviceType">
+                                    <option value="consola">🎮 Consola</option>
+                                    <option value="auto" selected>🚗 Automóvil</option>
+                                    <option value="iot">🏠 IoT</option>
+                                    <option value="dron">🛸 Dron / Robot</option>
+                                    <option value="custom">⚙️ Personalizado</option>
+                                </select>
+                            </div>
+                            <div class="seed-field">
+                                <label>${t('numLias')}</label>
+                                <input type="number" id="seedNumLias" value="1" min="1" max="100">
+                            </div>
+                            <div class="seed-field">
+                                <label>${t('numBobs')}</label>
+                                <input type="number" id="seedNumBobs" value="3" min="0" max="1000">
+                            </div>
+                            <div class="seed-field">
+                                <label>${t('numChips')}</label>
+                                <input type="number" id="seedNumChips" value="5" min="1" max="10000">
+                            </div>
+                            <div class="seed-field">
+                                <label>${t('seedMode')}</label>
+                                <select id="seedModeSelect">
+                                    <option value="manual">${t('manual')}</option>
+                                    <option value="auto">${t('auto')}</option>
+                                </select>
+                            </div>
+                            <!-- Semillas manuales (se muestran solo en modo manual) -->
+                            <div class="seed-field" id="seedManualGroup">
+                                <label>${t('seedCreal')}</label>
+                                <input type="text" id="seedCreal" value="-0.7269">
+                            </div>
+                            <div class="seed-field" id="seedManualGroup2">
+                                <label>${t('seedCimag')}</label>
+                                <input type="text" id="seedCimag" value="0.1889">
+                            </div>
+                            <div class="seed-field" id="seedManualGroup3">
+                                <label>${t('seedLx')}</label>
+                                <input type="text" id="seedLx" value="2.788536">
+                            </div>
+                            <div class="seed-field" id="seedManualGroup4">
+                                <label>${t('seedLy')}</label>
+                                <input type="text" id="seedLy" value="-9.499785">
+                            </div>
+                            <div class="seed-field" id="seedManualGroup5">
+                                <label>${t('seedLz')}</label>
+                                <input type="text" id="seedLz" value="-4.499414">
+                            </div>
+                            <div class="seed-field" style="grid-column:1/-1;">
+                                <label>${t('activationMsg')}</label>
+                                <input type="text" id="seedActivationMsg" value="Bienvenido a ITZTLI. Sistema en modo desarrollo.">
+                            </div>
+                        </div>
+
+                        <div class="cost-summary">
+                            <div class="cost-item">
+                                <div class="label">${t('costPerLia')}</div>
+                                <div class="value">$9.99</div>
+                            </div>
+                            <div class="cost-item">
+                                <div class="label">${t('costPerBob')}</div>
+                                <div class="value">$1.99</div>
+                            </div>
+                            <div class="cost-item">
+                                <div class="label">${t('costPerChip')}</div>
+                                <div class="value">$0.99</div>
+                            </div>
+                        </div>
+                        <div id="costTotalDisplay" class="cost-total">${t('totalMonthly')}: $0.00</div>
+
+                        <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:1rem;">
+                            <button class="btn btn-gold" onclick="calcularCostos()" style="width:auto; padding:0.5rem 2rem;">💰 Calcular costo</button>
+                            <button class="btn btn-cyan" onclick="generarInoDemo()" style="width:auto; padding:0.5rem 2rem;">${t('generateIno')}</button>
+                        </div>
+                        <div id="inoResult" style="margin-top:1rem; text-align:center; color:var(--green); font-size:0.9rem; display:none;">
+                            ${t('inoGenerated')}
+                            <p style="color:var(--dim); font-size:0.8rem;">${t('inoDesc')}</p>
+                        </div>
+                    </div>
+                `;
+                // Controlar visibilidad de campos manuales
+                document.getElementById('seedModeSelect').addEventListener('change', function() {
+                    const manual = document.querySelectorAll('[id^="seedManualGroup"]');
+                    manual.forEach(el => el.style.display = this.value === 'manual' ? 'block' : 'none');
+                });
+                document.getElementById('seedModeSelect').dispatchEvent(new Event('change'));
+                // Calcular costos iniciales
+                calcularCostos();
+            }
+
+            // Marcar sidebar activo
+            document.querySelectorAll('.sidebar .nav-item').forEach(item => item.classList.remove('active'));
+            const activeItem = document.querySelector(`.nav-item[data-vista="${vista}"]`);
+            if (activeItem) activeItem.classList.add('active');
+        }
+
+        // ========== FUNCIONES DE SEMILLAS ==========
+        function calcularCostos() {
+            const numLias = parseInt(document.getElementById('seedNumLias').value) || 0;
+            const numBobs = parseInt(document.getElementById('seedNumBobs').value) || 0;
+            const numChips = parseInt(document.getElementById('seedNumChips').value) || 0;
+            const costoLia = 9.99;
+            const costoBob = 1.99;
+            const costoChip = 0.99;
+            const total = (numLias * costoLia) + (numBobs * costoBob) + (numChips * costoChip);
+            const totalDisplay = document.getElementById('costTotalDisplay');
+            totalDisplay.textContent = `${t('totalMonthly')}: $${total.toFixed(2)}`;
+        }
+
+        function generarInoDemo() {
+            const resultDiv = document.getElementById('inoResult');
+            resultDiv.style.display = 'block';
+            // Simular generación de .ino
+            const tipo = document.getElementById('seedDeviceType').value;
+            const lias = document.getElementById('seedNumLias').value;
+            const bobs = document.getElementById('seedNumBobs').value;
+            const chips = document.getElementById('seedNumChips').value;
+            const modo = document.getElementById('seedModeSelect').value;
+            const msg = document.getElementById('seedActivationMsg').value;
+            console.log('Generando .ino con:', { tipo, lias, bobs, chips, modo, msg });
+            // En producción, aquí se generaría el archivo y se descargaría.
+            // Mostramos mensaje de éxito.
+            showToast(t('inoGenerated'), 'success');
+        }
+
+        // ========== FUNCIONES ADMIN ==========
+        async function editUser(id) {
+            if (window.currentUser.role !== 'admin') return;
+            const user = datos.usuarios.find(u => u.id === id);
+            if (user) {
+                document.getElementById('userId').value = user.id;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userName').value = user.nombre || '';
+                document.getElementById('userPlan').value = user.plan;
+                document.getElementById('modalTitle').textContent = 'Editar Usuario';
+                document.getElementById('userModal').classList.add('active');
+            }
+        }
+        async function saveUser() {
+            if (window.currentUser.role !== 'admin') return;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const plan = document.getElementById('userPlan').value;
+            const name = document.getElementById('userName').value;
+            if (!email || !password) return showToast('Email y contraseña obligatorios', 'error');
+            if (password.length < 8) return showToast('Contraseña mínimo 8 caracteres', 'error');
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { nombre: name, plan, role: plan === 'free' ? 'user' : plan } } });
+                if (error) throw error;
+                if (plan !== 'free') {
+                    await supabaseClient.from('usuarios').update({ plan }).eq('id', data.user.id);
+                }
+                showToast('Usuario creado', 'success');
+                closeModal();
+                cargarVista('usuarios');
+            } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        }
+        async function deleteUser(id) {
+            if (window.currentUser.role !== 'admin') return;
+            if (!confirm('¿Eliminar usuario permanentemente?')) return;
+            const { error } = await supabaseClient.from('usuarios').delete().eq('id', id);
+            if (error) showToast('Error: ' + error.message, 'error');
+            else { showToast('Usuario eliminado', 'success'); cargarVista('usuarios'); }
+        }
+        function closeModal() { document.getElementById('userModal').classList.remove('active'); }
+        function closeChipModal() { document.getElementById('chipModal').classList.remove('active'); }
+        function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
+
+        // ========== CREAR ADMIN ==========
+        async function createAdmin() {
+            if (window.currentUser.role !== 'admin') return;
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const name = document.getElementById('adminName').value;
+            if (!email || !password) return showToast('Email y contraseña obligatorios', 'error');
+            if (password.length < 8) return showToast('Contraseña mínimo 8 caracteres', 'error');
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { nombre: name || email.split('@')[0], plan: 'premium', role: 'admin' } }
+                });
+                if (error) throw error;
+                showToast(t('adminCreated'), 'success');
+                closeAdminModal();
+                cargarVista('usuarios');
+            } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+        function logout() { supabaseClient.auth.signOut().then(() => location.reload()); }
+
+        // Funciones de chips (admin) - solo si se usan
+        function filtrarChips() {
+            const q = document.getElementById('searchChip').value.toLowerCase();
+            actualizarTablaChips(datos.chips.filter(c => c.serial.toLowerCase().includes(q) || (c.fabricante||'').toLowerCase().includes(q)));
+        }
+        function actualizarTablaChips(chips) {
+            const tbody = document.querySelector('#chipsTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = chips.map(c => `<tr>
+                <td style="font-family:monospace;">${c.serial}</td>
+                <td><span class="badge-status ${c.tipo==='LIA'?'platinum':'free'}">${c.tipo}</span></td>
+                <td><span class="badge-status ${c.estado}">${c.estado}</span></td>
+                <td><div class="action-buttons">
+                    <button class="btn btn-sm btn-cyan" onclick="toggleChip('${c.id}')">${c.suspendido?'▶️ Activar':'⏸️ Suspender'}</button>
+                    <button class="btn btn-sm btn-red" onclick="deleteChip('${c.id}')">🗑️ Eliminar</button>
+                </div></td></tr>`).join('');
+        }
+        async function openChipModal(chip = null) {
+            if (window.currentUser.role !== 'admin') return;
+            document.getElementById('chipModal').classList.add('active');
+            if (chip) {
+                document.getElementById('chipId').value = chip.id;
+                document.getElementById('chipSerial').value = chip.serial;
+                document.getElementById('chipTipo').value = chip.tipo;
+                document.getElementById('chipFabricante').value = chip.fabricante || '';
+                document.getElementById('chipPropietario').value = chip.propietario_id || '';
+                document.getElementById('chipModalTitle').textContent = 'Editar Chip';
+            } else {
+                document.getElementById('chipId').value = '';
+                document.getElementById('chipSerial').value = 'ITZ-' + document.getElementById('chipTipo').value + '-' + String(datos.chips.length+1).padStart(4,'0');
+                document.getElementById('chipTipo').value = 'LIA';
+                document.getElementById('chipFabricante').value = '';
+                document.getElementById('chipPropietario').value = '';
+                document.getElementById('chipModalTitle').textContent = 'Registrar Chip';
+            }
+        }
+        async function saveChip() {
+            if (window.currentUser.role !== 'admin') return;
+            const chip = {
+                serial: document.getElementById('chipSerial').value,
+                tipo: document.getElementById('chipTipo').value,
+                fabricante: document.getElementById('chipFabricante').value,
+                propietario_id: document.getElementById('chipPropietario').value || null,
+                estado: 'offline'
+            };
+            const id = document.getElementById('chipId').value;
+            if (id) {
+                const { error } = await supabaseClient.from('chips').update(chip).eq('id', id);
+                if (error) return showToast('Error: ' + error.message, 'error');
+            } else {
+                const { error } = await supabaseClient.from('chips').insert(chip);
+                if (error) return showToast('Error: ' + error.message, 'error');
+            }
+            showToast('Chip guardado', 'success');
+            closeChipModal();
+            cargarVista('chips');
+        }
+        async function deleteChip(id) {
+            if (window.currentUser.role !== 'admin') return;
+            if (!confirm('¿Eliminar chip?')) return;
+            const { error } = await supabaseClient.from('chips').delete().eq('id', id);
+            if (error) showToast('Error: ' + error.message, 'error');
+            else showToast('Chip eliminado', 'success');
+            cargarVista('chips');
+        }
+        async function toggleChip(id) {
+            if (window.currentUser.role !== 'admin') return;
+            const chip = datos.chips.find(c => c.id == id);
+            if (!chip) return;
+            const { error } = await supabaseClient.from('chips').update({ suspendido: !chip.suspendido }).eq('id', id);
+            if (error) showToast('Error', 'error');
+            else showToast(chip.suspendido ? 'Chip activado' : 'Chip suspendido', 'success');
+            cargarVista('chips');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            generateCaptchas();
+            showLogin();
+        });
+    </script>
+</body>
+</html>

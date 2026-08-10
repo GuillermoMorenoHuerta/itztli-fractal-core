@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITZTLI Studio – Editor de Firmware</title>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { margin:0; font-family:'Segoe UI',Arial; background:#0a0a1a; color:#e0e0e0; display:flex; height:100vh; flex-direction:column; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:10px 20px; background:#0d0d28; border-bottom:1px solid #333; flex-shrink:0; }
+    .topbar .title { font-family:'Orbitron',sans-serif; color:#e2a03f; font-size:1.2rem; }
+    .topbar .btn-group { display:flex; gap:8px; flex-wrap:wrap; }
+    .topbar .btn { background:#e2a03f; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; transition:0.3s; }
+    .topbar .btn:hover { box-shadow:0 0 20px rgba(226,160,63,0.4); transform:scale(1.02); }
+    .topbar .btn-secondary { background:#00b4d8; color:#000; }
+    .topbar .btn-secondary:hover { box-shadow:0 0 20px rgba(0,180,216,0.4); }
+    .topbar .btn-danger { background:#ff4444; color:#fff; }
+    .topbar .btn-danger:hover { box-shadow:0 0 20px rgba(255,68,68,0.4); }
+    .topbar .file-info { color:#8899aa; font-size:0.8rem; margin-left:10px; }
+    #container { display:flex; flex:1; overflow:hidden; }
+    #blocklyDiv { flex:1; height:100%; }
+    #rightPanel { width:400px; display:flex; flex-direction:column; border-left:1px solid #333; }
+    #codeEditor { width:100%; flex:1; background:#000; color:#0f0; border:none; padding:15px; font-family:'Courier New',monospace; font-size:14px; resize:none; outline:none; }
+    #statusBar { background:#0d0d28; padding:6px 15px; border-top:1px solid #333; font-size:0.8rem; color:#8899aa; display:flex; justify-content:space-between; flex-shrink:0; }
+    .toast { position:fixed; bottom:30px; right:30px; z-index:9999; padding:12px 20px; border-radius:10px; font-size:0.85rem; font-weight:600; display:none; max-width:400px; }
+    .toast.show { display:block; }
+    .toast.success { background:rgba(0,255,136,0.2); border:1px solid #00ff88; color:#00ff88; }
+    .toast.error { background:rgba(255,68,68,0.2); border:1px solid #ff4444; color:#ff4444; }
+    @media (max-width:768px) { #rightPanel { width:100%; height:50%; } #container { flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="title">⚡ ITZTLI STUDIO</span>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <span class="file-info" id="fileInfo">📄 Ningún archivo cargado</span>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="syncBlocksToCode()">🔄 Bloques → Código</button>
+        <button class="btn" onclick="compileCode()">☁️ Compilar</button>
+        <button class="btn btn-secondary" onclick="saveFile()">💾 Guardar cambios</button>
+        <button class="btn btn-danger" onclick="window.close()">✕ Cerrar</button>
+      </div>
+    </div>
+  </div>
+  <div id="container">
+    <div id="blocklyDiv"></div>
+    <div id="rightPanel">
+      <textarea id="codeEditor" spellcheck="false" placeholder="// Código C++... Escribe aquí o sincroniza desde bloques."></textarea>
+    </div>
+  </div>
+  <div id="statusBar">
+    <span id="statusLeft">📡 Conectado</span>
+    <span id="statusRight">Listo</span>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ============================================================
+    // 1. CONFIGURACIÓN SUPABASE
+    // ============================================================
+    const supabaseClient = window.supabase.createClient(
+      'https://abxtqpwyryfqcvateauf.supabase.co',
+      'sb_publishable_Ln5pL4Vs2a9dwP6Z_mBhsw_0TRdBfIj'
+    );
+
+    // ============================================================
+    // 2. OBTENER PARÁMETROS DE URL
+    // ============================================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const deviceId = urlParams.get('device');
+    const fileName = urlParams.get('file'); // ej: 1743000000_mi_firmware.ino
+    let currentFileName = fileName || null;
+    let currentDeviceId = deviceId || null;
+    let originalContent = '';
+
+    // ============================================================
+    // 3. BLOQUES DE BLOCKLY (personalizados)
+    // ============================================================
+    Blockly.Blocks['digital_write'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Escribir en pin")
+            .appendField(new Blockly.FieldNumber(2), "PIN");
+        this.appendDummyInput()
+            .appendField("valor")
+            .appendField(new Blockly.FieldDropdown([["ALTO", "HIGH"], ["BAJO", "LOW"]]), "VALUE");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(160);
+        this.setTooltip("Establece el estado de un pin digital");
+      }
+    };
+    Blockly.JavaScript['digital_write'] = function(block) {
+      var pin = block.getFieldValue('PIN');
+      var value = block.getFieldValue('VALUE');
+      return 'digitalWrite(' + pin + ', ' + value + ');\n';
+    };
+
+    Blockly.Blocks['digital_read'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Leer pin digital")
+            .appendField(new Blockly.FieldNumber(4), "PIN");
+        this.setOutput(true, "Number");
+        this.setColour(160);
+        this.setTooltip("Lee el estado de un pin digital (HIGH o LOW)");
+      }
+    };
+    Blockly.JavaScript['digital_read'] = function(block) {
+      var pin = block.getFieldValue('PIN');
+      return ['digitalRead(' + pin + ')', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+    };
+
+    Blockly.Blocks['read_temperature'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("Temperatura (°C) en pin")
+            .appendField(new Blockly.FieldNumber(32), "PIN");
+        this.setOutput(true, "Number");
+        this.setColour(100);
+        this.setTooltip("Lee un sensor de temperatura analógico (simula lectura)");
+      }
+    };
+    Blockly.JavaScript['read_temperature'] = function(block) {
+      var pin = block.getFieldValue('PIN');
+      return ['analogRead(' + pin + ') * 0.1', Blockly.JavaScript.ORDER_MULTIPLICATION];
+    };
+
+    // ============================================================
+    // 4. TOOLBOX
+    // ============================================================
+    const toolbox = {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "Control",
+          "colour": "#5C81A6",
+          "contents": [
+            { "kind": "block", "type": "controls_if" },
+            { "kind": "block", "type": "controls_whileUntil" },
+            { "kind": "block", "type": "controls_for" }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "Pines",
+          "colour": "#A65C5C",
+          "contents": [
+            { "kind": "block", "type": "digital_write" },
+            { "kind": "block", "type": "digital_read" }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "Sensores",
+          "colour": "#5CA65C",
+          "contents": [
+            { "kind": "block", "type": "read_temperature" }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "Matemáticas",
+          "colour": "#5C5CA6",
+          "contents": [
+            { "kind": "block", "type": "math_number" },
+            { "kind": "block", "type": "math_arithmetic" },
+            { "kind": "block", "type": "math_compare" }
+          ]
+        }
+      ]
+    };
+
+    // ============================================================
+    // 5. INYECTAR BLOCKLY
+    // ============================================================
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: toolbox,
+      scrollbars: true,
+      media: 'https://unpkg.com/blockly/media/',
+      zoom: {
+        controls: true,
+        wheel: true,
+        startScale: 1.0,
+        maxScale: 3,
+        minScale: 0.3,
+        scaleSpeed: 1.2
+      }
+    });
+
+    const codeEditor = document.getElementById('codeEditor');
+    const fileInfo = document.getElementById('fileInfo');
+    const statusLeft = document.getElementById('statusLeft');
+    const statusRight = document.getElementById('statusRight');
+    const toast = document.getElementById('toast');
+
+    // ============================================================
+    // 6. FUNCIONES AUXILIARES (Toast, etc.)
+    // ============================================================
+    function showToast(msg, type = 'success') {
+      toast.textContent = msg;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function updateStatus(msg, rightMsg = '') {
+      if (msg) statusLeft.textContent = msg;
+      if (rightMsg) statusRight.textContent = rightMsg;
+    }
+
+    // ============================================================
+    // 7. SINCRONIZAR BLOQUES → CÓDIGO
+    // ============================================================
+    function syncBlocksToCode() {
+      try {
+        const codigo = Blockly.JavaScript.workspaceToCode(workspace);
+        const sketch = `void setup() {\n  // Configuración inicial\n}\n\nvoid loop() {\n${codigo || '  // No hay bloques\n'}\n}`;
+        codeEditor.value = sketch;
+        updateStatus('✅ Código sincronizado desde bloques', 'Sincronizado');
+        showToast('Bloques convertidos a código', 'success');
+      } catch (e) {
+        showToast('Error al sincronizar: ' + e.message, 'error');
+      }
+    }
+
+    // ============================================================
+    // 8. CARGAR ARCHIVO DESDE SUPABASE STORAGE
+    // ============================================================
+    async function loadFileFromStorage(fileName) {
+      if (!fileName) {
+        fileInfo.textContent = '📄 Nuevo archivo (sin guardar)';
+        updateStatus('📝 Modo edición local', 'Sin archivo');
+        return;
+      }
+
+      try {
+        updateStatus('⏳ Descargando archivo...', 'Cargando...');
+        const { data, error } = await supabaseClient.storage
+          .from('firmwares')
+          .download('uploads/' + fileName);
+
+        if (error) {
+          console.error('Error al descargar:', error);
+          fileInfo.textContent = '❌ Error al cargar: ' + error.message;
+          updateStatus('❌ Error de carga', 'Falló');
+          showToast('No se pudo descargar el archivo: ' + error.message, 'error');
+          return;
+        }
+
+        const text = await data.text();
+        codeEditor.value = text;
+        originalContent = text;
+        currentFileName = fileName;
+        fileInfo.textContent = '📄 ' + fileName;
+        updateStatus('✅ Archivo cargado: ' + fileName, 'Listo');
+        showToast('Archivo cargado correctamente', 'success');
+
+        // Intentar parsear los bloques desde el código (opcional, avanzado)
+        // Por ahora solo lo dejamos en el editor de texto.
+
+      } catch (err) {
+        console.error('Error inesperado:', err);
+        fileInfo.textContent = '❌ Error inesperado';
+        updateStatus('❌ Error', 'Falló');
+        showToast('Error inesperado al cargar: ' + err.message, 'error');
+      }
+    }
+
+    // ============================================================
+    // 9. GUARDAR CAMBIOS EN SUPABASE STORAGE
+    // ============================================================
+    async function saveFile() {
+      const content = codeEditor.value;
+      if (!content.trim()) {
+        showToast('No hay contenido para guardar', 'error');
+        return;
+      }
+
+      if (!currentFileName) {
+        // Si no tiene nombre, pedir uno
+        const newName = prompt('Nombre del archivo (ej: mi_firmware.ino):', 'firmware.ino');
+        if (!newName) return;
+        if (!newName.endsWith('.ino') && !newName.endsWith('.txt')) {
+          showToast('El nombre debe terminar en .ino o .txt', 'error');
+          return;
+        }
+        // Generar nombre con timestamp para evitar colisiones
+        currentFileName = Date.now() + '_' + newName;
+        fileInfo.textContent = '📄 ' + currentFileName;
+      }
+
+      try {
+        updateStatus('⏳ Guardando...', 'Subiendo...');
+        const { data, error } = await supabaseClient.storage
+          .from('firmwares')
+          .update('uploads/' + currentFileName, content, {
+            contentType: 'text/plain',
+            upsert: true
+          });
+
+        if (error) {
+          // Si falla el update, probar con upload (por si no existe)
+          const { error: uploadError } = await supabaseClient.storage
+            .from('firmwares')
+            .upload('uploads/' + currentFileName, content, {
+              contentType: 'text/plain',
+              upsert: true
+            });
+          if (uploadError) throw uploadError;
+        }
+
+        originalContent = content;
+        updateStatus('✅ Guardado en Storage: ' + currentFileName, 'Guardado');
+        showToast('Archivo guardado exitosamente', 'success');
+      } catch (err) {
+        console.error('Error al guardar:', err);
+        updateStatus('❌ Error al guardar', 'Falló');
+        showToast('Error al guardar: ' + err.message, 'error');
+      }
+    }
+
+    // ============================================================
+    // 10. COMPILAR (simulación)
+    // ============================================================
+    function compileCode() {
+      const code = codeEditor.value;
+      if (!code.trim()) {
+        showToast('No hay código para compilar', 'error');
+        return;
+      }
+      updateStatus('⏳ Compilando en la nube...', 'Compilando...');
+      // Aquí iría la llamada a la Edge Function / Cloud Run
+      // Por ahora simulamos:
+      setTimeout(() => {
+        showToast('✅ Compilación simulada exitosa (binario generado)', 'success');
+        updateStatus('✅ Compilación exitosa', 'Listo');
+      }, 1500);
+    }
+
+    // ============================================================
+    // 11. INICIALIZACIÓN
+    // ============================================================
+    async function init() {
+      // Si viene un archivo en la URL, lo cargamos
+      if (fileName && fileName !== 'null' && fileName !== 'undefined') {
+        await loadFileFromStorage(fileName);
+      } else {
+        // Si no viene archivo, pero viene deviceId, podríamos buscar su archivo asociado en la BD
+        // (opcional, lo dejamos para otra iteración)
+        if (deviceId && deviceId !== 'null' && deviceId !== 'undefined') {
+          // Intentar obtener el nombre del archivo desde la tabla correspondiente
+          // Por simplicidad, no lo haremos ahora, el usuario puede subirlo manualmente
+          fileInfo.textContent = '📄 Dispositivo ID: ' + deviceId + ' (carga manual)';
+          updateStatus('📡 Dispositivo conectado', 'Esperando archivo');
+        } else {
+          // Modo local (nuevo archivo)
+          fileInfo.textContent = '📄 Nuevo archivo local';
+          updateStatus('📝 Modo local', 'Listo');
+        }
+      }
+
+      // Sincronizar bloques al iniciar (si hay código)
+      setTimeout(() => {
+        if (codeEditor.value.trim()) {
+          // Intentar sincronizar automáticamente (opcional)
+        }
+      }, 500);
+    }
+
+    // ============================================================
+    // 12. EVENTOS DEL TECLADO (Ctrl+S para guardar)
+    // ============================================================
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveFile();
+      }
+    });
+
+    // ============================================================
+    // 13. EXPONER FUNCIONES AL GLOBAL (para los onclick)
+    // ============================================================
+    window.syncBlocksToCode = syncBlocksToCode;
+    window.compileCode = compileCode;
+    window.saveFile = saveFile;
+
+    // ============================================================
+    // 14. EJECUTAR
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
